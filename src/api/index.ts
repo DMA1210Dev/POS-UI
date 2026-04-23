@@ -32,6 +32,7 @@ export interface ComercioResponse {
   rolesAprobadores: string[]
   rolesMayoristas: string[]
   permitirCajaChica: boolean
+  camaraHabilitada: boolean
   logoUrl?: string
   logoTagUrl?: string
   colorMenu: string

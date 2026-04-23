@@ -12,6 +12,7 @@ interface Props {
   placeholder?: string
   value?: string
   onChange?: (value: string) => void
+  camaraHabilitada?: boolean
   // Para react-hook-form con register()
   name?: string
   onBlur?: React.FocusEventHandler<HTMLInputElement>
@@ -19,7 +20,7 @@ interface Props {
   inputRef?: React.Ref<HTMLInputElement>
 }
 
-export default function BarcodeInput({ label, placeholder, value, onChange, name, onBlur, inputRef }: Props) {
+export default function BarcodeInput({ label, placeholder, value, onChange, camaraHabilitada = true, name, onBlur, inputRef }: Props) {
   const [scanning,  setScanning]  = useState(false)
   const [iniciando, setIniciando] = useState(false)
   const videoRef  = useRef<HTMLVideoElement>(null)
@@ -156,19 +157,21 @@ export default function BarcodeInput({ label, placeholder, value, onChange, name
           onChange={e => onChange?.(e.target.value)}
           className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         />
-        <button
-          type="button"
-          onClick={scanning ? stop : () => setScanning(true)}
-          title={scanning ? 'Cerrar cámara' : 'Escanear con cámara'}
-          className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors flex items-center gap-1.5 flex-shrink-0 ${
-            scanning
-              ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100'
-              : 'border-slate-300 text-slate-600 hover:border-blue-400 hover:text-blue-600'
-          }`}
-        >
-          {scanning ? <X size={15} /> : <ScanLine size={15} />}
-          {scanning ? 'Cerrar' : 'Cámara'}
-        </button>
+        {camaraHabilitada && (
+          <button
+            type="button"
+            onClick={scanning ? stop : () => setScanning(true)}
+            title={scanning ? 'Cerrar cámara' : 'Escanear con cámara'}
+            className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors flex items-center gap-1.5 flex-shrink-0 ${
+              scanning
+                ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100'
+                : 'border-slate-300 text-slate-600 hover:border-blue-400 hover:text-blue-600'
+            }`}
+          >
+            {scanning ? <X size={15} /> : <ScanLine size={15} />}
+            {scanning ? 'Cerrar' : 'Cámara'}
+          </button>
+        )}
       </div>
 
       {/* Vista de cámara */}

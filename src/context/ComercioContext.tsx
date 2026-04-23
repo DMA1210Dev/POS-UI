@@ -6,6 +6,7 @@ interface ComercioContextValue {
   comercio: ComercioResponse | null
   isLoading: boolean
   facturacionElectronicaHabilitada: boolean
+  camaraHabilitada: boolean
 }
 
 const CACHE_KEY = 'pos_comercio_branding'
@@ -21,7 +22,7 @@ function guardarCache(data: ComercioResponse) {
   try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)) } catch { /* noop */ }
 }
 
-const ComercioContext = createContext<ComercioContextValue>({ comercio: null, isLoading: true, facturacionElectronicaHabilitada: false })
+const ComercioContext = createContext<ComercioContextValue>({ comercio: null, isLoading: true, facturacionElectronicaHabilitada: false, camaraHabilitada: true })
 
 export function ComercioProvider({ children }: { children: ReactNode }) {
   const { data: comercio = null, isLoading } = useQuery({
@@ -61,6 +62,7 @@ export function ComercioProvider({ children }: { children: ReactNode }) {
       comercio,
       isLoading,
       facturacionElectronicaHabilitada: comercio?.facturacionElectronicaHabilitada ?? false,
+      camaraHabilitada: comercio?.camaraHabilitada ?? true,
     }}>
       {children}
     </ComercioContext.Provider>

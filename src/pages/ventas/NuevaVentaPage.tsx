@@ -281,7 +281,7 @@ function imprimirCotizacion(d: CotizacionData) {
 export default function NuevaVentaPage() {
   const navigate = useNavigate()
   const { success, error } = useToast()
-  const { comercio } = useComercio()
+  const { comercio, camaraHabilitada } = useComercio()
   const searchRef = useRef<HTMLInputElement>(null)
 
   // Estado inicial desde localStorage (solo la primera vez)
@@ -832,6 +832,7 @@ export default function NuevaVentaPage() {
                     placeholder="Buscar por nombre, código o escanear…"
                     value={search}
                     onChange={handleScannerValue}
+                    camaraHabilitada={camaraHabilitada}
                     onKeyDown={handleSearchKeyDown}
                     inputRef={searchRef}
                   />
