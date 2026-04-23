@@ -332,18 +332,25 @@ function DbCard({ db }: { db: DbDto }) {
   // Barra proporcional: 0 ms → 0 %, 500 ms → 100 %
   const pct = db.latenciaMs != null ? Math.min((db.latenciaMs / 500) * 100, 100) : 100
 
+  // Formatea latencia: < 1000 ms → "24 ms" · ≥ 1000 ms → "1.5 s"
+  const fmtLatencia = (ms: number) =>
+    ms < 1000 ? { valor: ms.toString(), unidad: 'ms' } : { valor: (ms / 1000).toFixed(1), unidad: 's' }
+
   return (
     <MetricCard titulo="Base de datos" icon={<Database size={16} className="text-indigo-500" />}>
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           {/* Latencia grande */}
           <div>
-            {db.latenciaMs != null ? (
-              <p className="text-3xl font-bold text-gray-900">
-                {db.latenciaMs}
-                <span className="text-lg text-gray-400"> ms</span>
-              </p>
-            ) : (
+            {db.latenciaMs != null ? (() => {
+              const { valor, unidad } = fmtLatencia(db.latenciaMs)
+              return (
+                <p className="text-3xl font-bold text-gray-900">
+                  {valor}
+                  <span className="text-lg text-gray-400"> {unidad}</span>
+                </p>
+              )
+            })() : (
               <p className="text-3xl font-bold text-red-500">—</p>
             )}
             <p className="text-xs text-gray-400 mt-0.5">Latencia · SELECT 1</p>
