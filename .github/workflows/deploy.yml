@@ -4,9 +4,12 @@ on:
   push:
     branches: [main]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
-    name: Build + FTP Deploy
+    name: Build + Deploy → VPS (ui.domercd.com)
     runs-on: ubuntu-latest
 
     steps:
@@ -25,16 +28,19 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_API_URL: https://api.domercd.com
 
-      - name: Deploy vía FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      # ── Subir dist/ al VPS ──────────────────────────────────────────────
+      # Secrets requeridos:
+      #   VPS_HOST     → IP o dominio del VPS
+      #   VPS_USER     → usuario SSH (ej: root)
+      #   VPS_SSH_KEY  → clave privada SSH
+      - name: Subir archivos al VPS
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server:     ${{ secrets.FTP_SERVER }}
-          username:   ${{ secrets.FTP_USERNAME }}
-          password:   ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}
-          local-dir:  ./dist/
-          exclude: |
-            **/.git*
-            **/.git*/**
+          host:             ${{ secrets.VPS_HOST }}
+          username:         ${{ secrets.VPS_USER }}
+          key:              ${{ secrets.VPS_SSH_KEY }}
+          source:           "dist/"
+          target:           /var/www/pos-ui
+          strip_components: 1
