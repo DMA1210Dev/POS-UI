@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
   Activity, Cpu, HardDrive, MemoryStick, RefreshCw,
-  Clock, Server, Loader2, CheckCircle, AlertTriangle, Link,
+  Clock, Server, Loader2, CheckCircle, AlertTriangle, Link, Database,
 } from 'lucide-react'
 import api from '../../lib/axios'
 
@@ -32,6 +32,12 @@ interface DiscoDto {
   usoPct:  number
 }
 
+interface DbDto {
+  estado:     'saludable' | 'degradado' | 'no_disponible'
+  latenciaMs: number | null
+  error:      string | null
+}
+
 interface ServidorStatus {
   estado:         string
   uptime:         string
@@ -40,6 +46,7 @@ interface ServidorStatus {
   memoria:        MemoriaDto
   cpu:            CpuDto
   discos:         DiscoDto[]
+  db:             DbDto
   entorno:        string
   version:        string
 }
@@ -279,6 +286,9 @@ export default function ServidorPage() {
               </div>
             )}
           </MetricCard>
+
+          {/* Base de datos */}
+          {data.db && <DbCard db={data.db} />}
         </>
       )}
     </div>
@@ -309,5 +319,65 @@ function MetricCard({ titulo, icon, children }: {
       </h2>
       {children}
     </div>
+  )
+}
+
+function DbCard({ db }: { db: DbDto }) {
+  const cfg = {
+    saludable:     { bar: 'bg-green-500',  text: 'text-green-600',  badge: 'bg-green-50 text-green-700 border-green-200',  label: 'Saludable'     },
+    degradado:     { bar: 'bg-amber-500',  text: 'text-amber-600',  badge: 'bg-amber-50 text-amber-700 border-amber-200',  label: 'Degradado'     },
+    no_disponible: { bar: 'bg-red-500',    text: 'text-red-600',    badge: 'bg-red-50 text-red-700 border-red-200',        label: 'No disponible' },
+  }[db.estado] ?? { bar: 'bg-gray-400', text: 'text-gray-500', badge: 'bg-gray-50 text-gray-600 border-gray-200', label: db.estado }
+
+  // Barra proporcional: 0 ms → 0 %, 500 ms → 100 %
+  const pct = db.latenciaMs != null ? Math.min((db.latenciaMs / 500) * 100, 100) : 100
+
+  return (
+    <MetricCard titulo="Base de datos" icon={<Database size={16} className="text-indigo-500" />}>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          {/* Latencia grande */}
+          <div>
+            {db.latenciaMs != null ? (
+              <p className="text-3xl font-bold text-gray-900">
+                {db.latenciaMs}
+                <span className="text-lg text-gray-400"> ms</span>
+              </p>
+            ) : (
+              <p className="text-3xl font-bold text-red-500">—</p>
+            )}
+            <p className="text-xs text-gray-400 mt-0.5">Latencia · SELECT 1</p>
+          </div>
+
+          {/* Badge de estado */}
+          <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${cfg.badge}`}>
+            {cfg.label}
+          </span>
+        </div>
+
+        {/* Barra de latencia */}
+        <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+          <div
+            className={`h-2 rounded-full transition-all duration-700 ${cfg.bar}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <div className="flex justify-between text-xs text-gray-400">
+          <span>0 ms</span>
+          <span className={`font-medium ${cfg.text}`}>
+            {db.estado === 'saludable' ? '&lt; 100 ms' : db.estado === 'degradado' ? '100 – 500 ms' : '&gt; 500 ms'}
+          </span>
+          <span>500 ms</span>
+        </div>
+
+        {/* Error si hay */}
+        {db.error && (
+          <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-3 py-2 mt-1">
+            <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+            <span className="break-all">{db.error}</span>
+          </div>
+        )}
+      </div>
+    </MetricCard>
   )
 }
