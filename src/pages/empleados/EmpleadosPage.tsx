@@ -63,24 +63,30 @@ export default function EmpleadosPage() {
   const [sort,       setSort]       = useState<{ field: SortField; dir: SortDir }>({ field: 'nombre', dir: 'asc' })
 
   // Modal: null = cerrado, 'nuevo' = crear, number = ver/editar empleado
-  const [modal,      setModal]      = useState<null | 'nuevo' | number>(null)
-  const [detalle,    setDetalle]    = useState<EmpleadoDetailDto | null>(null)
-  const [editando,   setEditando]   = useState(false)
-  const [form,       setForm]       = useState<FormState>(FORM_VACIO)
-  const [saving,     setSaving]     = useState(false)
-  const [formError,  setFormError]  = useState('')
+  const [modal,        setModal]        = useState<null | 'nuevo' | number>(null)
+  const [detalle,      setDetalle]      = useState<EmpleadoDetailDto | null>(null)
+  const [detalleCargando, setDetalleCargando] = useState(false)
+  const [editando,     setEditando]     = useState(false)
+  const [form,         setForm]         = useState<FormState>(FORM_VACIO)
+  const [saving,       setSaving]       = useState(false)
+  const [formError,    setFormError]    = useState('')
 
   // ── carga inicial ────────────────────────────────────────────────────────
   const cargar = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const [empRes, usrRes] = await Promise.all([
-        api.get<EmpleadoListDto[]>('/empleados', { params: { soloActivos } }),
-        api.get<UsuarioOpcionDto[]>('/empleados/usuarios-disponibles'),
-      ])
+      // Los dos requests son independientes: si usuarios-disponibles falla,
+      // la lista de empleados igual se muestra.
+      const empRes = await api.get<EmpleadoListDto[]>('/empleados', { params: { soloActivos } })
       setEmpleados(empRes.data)
-      setUsuarios(usrRes.data)
+
+      try {
+        const usrRes = await api.get<UsuarioOpcionDto[]>('/empleados/usuarios-disponibles')
+        setUsuarios(usrRes.data)
+      } catch {
+        setUsuarios([]) // el dropdown queda vacío pero la lista sí carga
+      }
     } catch {
       setError('No se pudo cargar la lista de empleados.')
     } finally {
@@ -112,12 +118,15 @@ export default function EmpleadosPage() {
     setModal(id)
     setEditando(false)
     setDetalle(null)
+    setDetalleCargando(true)
     setFormError('')
     try {
       const res = await api.get<EmpleadoDetailDto>(`/empleados/${id}`)
       setDetalle(res.data)
     } catch {
-      setFormError('No se pudo cargar el detalle.')
+      setFormError('No se pudo cargar el detalle del empleado.')
+    } finally {
+      setDetalleCargando(false)
     }
   }
 
@@ -429,7 +438,7 @@ export default function EmpleadosPage() {
               )}
 
               {/* Spinner mientras carga detalle */}
-              {!editando && !detalle && modal !== 'nuevo' && (
+              {!editando && detalleCargando && (
                 <div className="flex justify-center py-8">
                   <Loader2 size={24} className="animate-spin text-blue-600" />
                 </div>
