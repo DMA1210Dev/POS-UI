@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema/acl/templates/capabilities/desktop.json",
+  "identifier": "default",
+  "description": "Capability por defecto para la app de escritorio POS",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "opener:default"
+  ]
+}
