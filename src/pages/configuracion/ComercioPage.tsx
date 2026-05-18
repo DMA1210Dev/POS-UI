@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Store, Receipt, Upload, Trash2, ImageIcon, ShieldCheck, User, Users, Vault, Mail, SendHorizonal, Palette } from 'lucide-react'
@@ -10,6 +10,7 @@ import { useRoles } from '../../context/RolesContext'
 import { Card, CardHeader, CardBody } from '../../components/ui/Card'
 import Input from '../../components/ui/Input'
 import Button from '../../components/ui/Button'
+import ImageCropModal from '../../components/ui/ImageCropModal'
 
 // ── Toggle reutilizable ───────────────────────────────────────────────────────
 function Toggle({ label, desc, children }: { label: string; desc: string; children: React.ReactNode }) {
@@ -46,6 +47,35 @@ export default function ComercioPage() {
   const fileRef    = useRef<HTMLInputElement>(null)
   const fileRefTag = useRef<HTMLInputElement>(null)
   const [probandoSmtp, setProbandoSmtp] = useState(false)
+
+  // Estado del modal de recorte
+  const [cropModal, setCropModal] = useState<{
+    src: string
+    fileName: string
+    aspect: number | undefined
+    title: string
+    onConfirm: (file: File) => void
+  } | null>(null)
+
+  /** Abre el modal de recorte a partir de un File */
+  const openCrop = useCallback((
+    file: File,
+    aspect: number | undefined,
+    title: string,
+    onConfirm: (file: File) => void,
+  ) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      setCropModal({
+        src: reader.result as string,
+        fileName: file.name,
+        aspect,
+        title,
+        onConfirm,
+      })
+    }
+    reader.readAsDataURL(file)
+  }, [])
 
   const { register, handleSubmit, reset, control, setValue, getValues,
           formState: { errors, isDirty } } = useForm<UpdateComercioDto>()
@@ -380,22 +410,32 @@ export default function ComercioPage() {
                 <input
                   ref={fileRef}
                   type="file"
-                  accept=".png,.jpg,.jpeg,.gif,.webp,.svg"
+                  accept=".png,.jpg,.jpeg,.gif,.webp"
                   className="hidden"
                   onChange={e => {
                     const file = e.target.files?.[0]
-                    if (file) subirLogo.mutate(file)
+                    if (file) openCrop(
+                      file,
+                      undefined,           // aspecto libre
+                      'Recortar logo del menú',
+                      (cropped) => subirLogo.mutate(cropped),
+                    )
                     e.target.value = ''
                   }}
                 />
                 <input
                   ref={fileRefTag}
                   type="file"
-                  accept=".png,.ico,.svg,.jpg,.jpeg,.webp"
+                  accept=".png,.ico,.jpg,.jpeg,.webp"
                   className="hidden"
                   onChange={e => {
                     const file = e.target.files?.[0]
-                    if (file) subirLogoTag.mutate(file)
+                    if (file) openCrop(
+                      file,
+                      1,                   // aspecto cuadrado para favicon
+                      'Recortar favicon (cuadrado)',
+                      (cropped) => subirLogoTag.mutate(cropped),
+                    )
                     e.target.value = ''
                   }}
                 />
@@ -672,6 +712,21 @@ export default function ComercioPage() {
           </Button>
         </div>
       </form>
+
+      {/* Modal de recorte de imagen */}
+      {cropModal && (
+        <ImageCropModal
+          imageSrc={cropModal.src}
+          fileName={cropModal.fileName}
+          aspect={cropModal.aspect}
+          title={cropModal.title}
+          onConfirm={(file) => {
+            cropModal.onConfirm(file)
+            setCropModal(null)
+          }}
+          onCancel={() => setCropModal(null)}
+        />
+      )}
     </div>
   )
 }
