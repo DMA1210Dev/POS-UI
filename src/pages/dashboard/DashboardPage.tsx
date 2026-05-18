@@ -1,7 +1,10 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import {
   ShoppingCart, CreditCard, AlertTriangle, TrendingUp, Clock, CheckCircle2,
+  Package, Users, ClipboardList, BarChart2, Receipt, Vault,
+  UserCog, Store, Warehouse, Briefcase,
 } from 'lucide-react'
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -10,6 +13,7 @@ import {
 import { reportesApi, productosApi, creditosApi, ventasApi } from '../../api'
 import { Card, CardBody } from '../../components/ui/Card'
 import { useAuth } from '../../context/AuthContext'
+import { useComercio } from '../../context/ComercioContext'
 import type { VentaResponse } from '../../types'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -515,6 +519,108 @@ function VistaAdmin() {
   )
 }
 
+// ── Menú de secciones ─────────────────────────────────────────────────────────
+
+interface SeccionItem {
+  to: string
+  label: string
+  desc: string
+  icon: React.ReactNode
+  color: string   // clases Tailwind para el fondo del ícono
+}
+
+function MenuSecciones() {
+  const navigate = useNavigate()
+  const { comercio } = useComercio()
+  const {
+    puedeCrearVentas, puedeVerTodasVentas, isCajero,
+    puedeVerClientes, puedeGestionarCreditos,
+    tieneAccesoProductos, puedeVerStockBajo, puedeGestionarProductos,
+    puedeVerReportes, puedeGestionarCaja, puedeGestionarUsuarios,
+    puedeGestionarEmpleados, isAdmin,
+  } = useAuth()
+
+  const verCaja = puedeGestionarCaja && (comercio?.permitirCajaChica !== false || isAdmin)
+
+  const secciones: SeccionItem[] = [
+    puedeCrearVentas && {
+      to: '/ventas/nueva', label: 'Nueva Venta', desc: 'Registrar una venta',
+      icon: <ShoppingCart size={22} />, color: 'bg-blue-100 text-blue-600',
+    },
+    (puedeVerTodasVentas || isCajero) && {
+      to: '/ventas', label: 'Ventas', desc: 'Historial de ventas',
+      icon: <ClipboardList size={22} />, color: 'bg-indigo-100 text-indigo-600',
+    },
+    puedeVerClientes && {
+      to: '/clientes', label: 'Clientes', desc: 'Gestión de clientes',
+      icon: <Users size={22} />, color: 'bg-violet-100 text-violet-600',
+    },
+    puedeGestionarCreditos && {
+      to: '/creditos', label: 'Créditos', desc: 'Cobros y deudas',
+      icon: <CreditCard size={22} />, color: 'bg-orange-100 text-orange-600',
+    },
+    verCaja && {
+      to: '/caja', label: 'Caja', desc: 'Control de caja chica',
+      icon: <Vault size={22} />, color: 'bg-emerald-100 text-emerald-600',
+    },
+    tieneAccesoProductos && {
+      to: '/productos', label: 'Productos', desc: 'Catálogo de productos',
+      icon: <Package size={22} />, color: 'bg-teal-100 text-teal-600',
+    },
+    puedeVerStockBajo && {
+      to: '/stock-bajo', label: 'Stock Bajo', desc: 'Productos bajo mínimo',
+      icon: <Warehouse size={22} />, color: 'bg-red-100 text-red-500',
+    },
+    puedeVerReportes && {
+      to: '/reportes', label: 'Reportes', desc: 'Análisis y estadísticas',
+      icon: <BarChart2 size={22} />, color: 'bg-cyan-100 text-cyan-600',
+    },
+    puedeGestionarProductos && {
+      to: '/comprobantes', label: 'Comprobantes', desc: 'Tipos de NCF',
+      icon: <Receipt size={22} />, color: 'bg-yellow-100 text-yellow-600',
+    },
+    puedeGestionarEmpleados && {
+      to: '/empleados', label: 'Empleados', desc: 'Gestión de personal',
+      icon: <Briefcase size={22} />, color: 'bg-pink-100 text-pink-600',
+    },
+    puedeGestionarUsuarios && {
+      to: '/usuarios', label: 'Usuarios', desc: 'Accesos al sistema',
+      icon: <UserCog size={22} />, color: 'bg-slate-100 text-slate-600',
+    },
+    puedeGestionarUsuarios && {
+      to: '/comercio', label: 'Mi Comercio', desc: 'Configuración del negocio',
+      icon: <Store size={22} />, color: 'bg-slate-100 text-slate-600',
+    },
+  ].filter(Boolean) as SeccionItem[]
+
+  if (secciones.length === 0) return null
+
+  return (
+    <div>
+      <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+        Acceso rápido
+      </h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        {secciones.map(s => (
+          <button
+            key={s.to}
+            onClick={() => navigate(s.to)}
+            className="group flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all text-center cursor-pointer"
+          >
+            <div className={`p-3 rounded-xl ${s.color} transition-transform group-hover:scale-110`}>
+              {s.icon}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-700 leading-tight">{s.label}</p>
+              <p className="text-xs text-slate-400 mt-0.5 leading-tight">{s.desc}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── DashboardPage ─────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -538,6 +644,10 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      {/* Menú de secciones disponibles */}
+      <MenuSecciones />
+
+      {/* Estadísticas */}
       {vistaAdmin ? <VistaAdmin /> : <VistaCajero ventas={misVentas} />}
     </div>
   )
