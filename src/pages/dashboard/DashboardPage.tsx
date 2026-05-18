@@ -1,10 +1,10 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import {
   ShoppingCart, CreditCard, AlertTriangle, TrendingUp, Clock, CheckCircle2,
   Package, Users, ClipboardList, BarChart2, Receipt, Vault,
-  UserCog, Store, Warehouse, Briefcase,
+  UserCog, Store, Warehouse, Briefcase, LayoutGrid, LineChart as LineChartIcon,
 } from 'lucide-react'
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -623,11 +623,23 @@ function MenuSecciones() {
 
 // ── DashboardPage ─────────────────────────────────────────────────────────────
 
+type TabVista = 'estadisticas' | 'menu'
+
+const STORAGE_KEY = 'dashboard-vista'
+
 export default function DashboardPage() {
   const { isAdmin, isGerente, isCajero } = useAuth()
 
-  // Vista admin-like: AdminSistema + GerenteGeneral + Finanzas
   const vistaAdmin = isAdmin || isGerente
+
+  const [tab, setTab] = useState<TabVista>(
+    () => (localStorage.getItem(STORAGE_KEY) as TabVista | null) ?? 'estadisticas'
+  )
+
+  const cambiarTab = (t: TabVista) => {
+    setTab(t)
+    localStorage.setItem(STORAGE_KEY, t)
+  }
 
   const { data: misVentas = [] } = useQuery({
     queryKey: ['ventas', 'mis-ventas'],
@@ -637,18 +649,49 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-800">Dashboard</h2>
-        <p className="text-slate-500 text-sm mt-1">
-          {vistaAdmin ? 'Resumen general del negocio' : 'Resumen de tus ventas'}
-        </p>
+      {/* Encabezado + toggle */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">Dashboard</h2>
+          <p className="text-slate-500 text-sm mt-1">
+            {vistaAdmin ? 'Resumen general del negocio' : 'Resumen de tus ventas'}
+          </p>
+        </div>
+
+        {/* Selector de vista */}
+        <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 self-start sm:self-auto">
+          <button
+            onClick={() => cambiarTab('estadisticas')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              tab === 'estadisticas'
+                ? 'bg-white text-slate-800 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <LineChartIcon size={15} />
+            Estadísticas
+          </button>
+          <button
+            onClick={() => cambiarTab('menu')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              tab === 'menu'
+                ? 'bg-white text-slate-800 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <LayoutGrid size={15} />
+            Menú
+          </button>
+        </div>
       </div>
 
-      {/* Menú de secciones disponibles */}
-      <MenuSecciones />
-
-      {/* Estadísticas */}
-      {vistaAdmin ? <VistaAdmin /> : <VistaCajero ventas={misVentas} />}
+      {/* Contenido según tab seleccionado */}
+      {tab === 'menu'
+        ? <MenuSecciones />
+        : vistaAdmin
+          ? <VistaAdmin />
+          : <VistaCajero ventas={misVentas} />
+      }
     </div>
   )
 }
