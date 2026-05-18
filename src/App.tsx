@@ -5,6 +5,7 @@ import LoginPage from './pages/auth/LoginPage'
 import LicenciaBlockPage, { type LicenciaCodigo } from './pages/LicenciaBlockPage'
 import { useAuth } from './context/AuthContext'
 import { useComercio } from './context/ComercioContext'
+import ErrorBoundary from './components/ui/ErrorBoundary'
 
 const TITULOS: Record<string, string> = {
   '/login':        'Iniciar sesión',
@@ -98,7 +99,9 @@ function PageLoader() {
 }
 
 const S = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<PageLoader />}>{children}</Suspense>
+  <ErrorBoundary>
+    <Suspense fallback={<PageLoader />}>{children}</Suspense>
+  </ErrorBoundary>
 )
 
 function AppRoutes() {
