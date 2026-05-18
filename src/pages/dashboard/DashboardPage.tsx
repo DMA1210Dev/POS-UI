@@ -633,7 +633,7 @@ export default function DashboardPage() {
   const vistaAdmin = isAdmin || isGerente
 
   const [tab, setTab] = useState<TabVista>(
-    () => (localStorage.getItem(STORAGE_KEY) as TabVista | null) ?? 'estadisticas'
+    () => (localStorage.getItem(STORAGE_KEY) as TabVista | null) ?? 'menu'
   )
 
   const cambiarTab = (t: TabVista) => {
