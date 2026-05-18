@@ -1,67 +1,59 @@
-import { useState, useCallback } from 'react'
-import Cropper, { type Area } from 'react-easy-crop'
-import { Crop, ZoomIn, ZoomOut, RotateCw, Check, X } from 'lucide-react'
+import { useState, useRef, useCallback } from 'react'
+import ReactCrop, {
+  centerCrop, makeAspectCrop,
+  type Crop, type PixelCrop,
+} from 'react-image-crop'
+import 'react-image-crop/dist/ReactCrop.css'
+import { Crop as CropIcon, Check, X, RotateCw, Maximize2 } from 'lucide-react'
 import Button from './Button'
 
-// ── Utilidad: recortar imagen con Canvas ────────────────────────────────────
-async function getCroppedFile(
-  imageSrc: string,
-  pixelCrop: Area,
-  rotation = 0,
-  fileName = 'logo.png',
+// ── Utilidad: aplica el recorte con Canvas ──────────────────────────────────
+function cropImageToFile(
+  image: HTMLImageElement,
+  canvas: HTMLCanvasElement,
+  crop: PixelCrop,
+  rotation: number,
+  fileName: string,
 ): Promise<File> {
-  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.onerror = reject
-    img.src = imageSrc
-  })
+  const ctx = canvas.getContext('2d')!
+  const scaleX = image.naturalWidth  / image.width
+  const scaleY = image.naturalHeight / image.height
+  const pixelRatio = window.devicePixelRatio || 1
 
-  const canvas  = document.createElement('canvas')
-  const ctx     = canvas.getContext('2d')!
-  const radians = (rotation * Math.PI) / 180
+  canvas.width  = Math.floor(crop.width  * scaleX * pixelRatio)
+  canvas.height = Math.floor(crop.height * scaleY * pixelRatio)
 
-  // Tamaño del canvas rotado
-  const sin = Math.abs(Math.sin(radians))
-  const cos = Math.abs(Math.cos(radians))
-  const bw  = image.width * cos + image.height * sin
-  const bh  = image.width * sin + image.height * cos
+  ctx.scale(pixelRatio, pixelRatio)
+  ctx.imageSmoothingQuality = 'high'
 
-  const offCanvas = document.createElement('canvas')
-  offCanvas.width  = bw
-  offCanvas.height = bh
-  const offCtx = offCanvas.getContext('2d')!
-  offCtx.translate(bw / 2, bh / 2)
-  offCtx.rotate(radians)
-  offCtx.drawImage(image, -image.width / 2, -image.height / 2)
+  const cropX = crop.x * scaleX
+  const cropY = crop.y * scaleY
+  const centerX = image.naturalWidth  / 2
+  const centerY = image.naturalHeight / 2
+  const rad = (rotation * Math.PI) / 180
 
-  canvas.width  = pixelCrop.width
-  canvas.height = pixelCrop.height
-  ctx.drawImage(
-    offCanvas,
-    pixelCrop.x, pixelCrop.y,
-    pixelCrop.width, pixelCrop.height,
-    0, 0,
-    pixelCrop.width, pixelCrop.height,
-  )
+  ctx.save()
+  ctx.translate(-cropX, -cropY)
+  ctx.translate(centerX, centerY)
+  ctx.rotate(rad)
+  ctx.translate(-centerX, -centerY)
+  ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight)
+  ctx.restore()
 
   return new Promise<File>((resolve, reject) => {
     canvas.toBlob(blob => {
       if (!blob) { reject(new Error('Canvas vacío')); return }
-      resolve(new File([blob], fileName, { type: 'image/png' }))
-    }, 'image/png')
+      resolve(new File([blob], fileName.replace(/\.[^.]+$/, '.png'), { type: 'image/png' }))
+    }, 'image/png', 1)
   })
 }
 
 // ── Props ───────────────────────────────────────────────────────────────────
 interface ImageCropModalProps {
-  /** Data URL de la imagen original (desde FileReader) */
   imageSrc: string
-  /** Nombre del archivo para el File resultante */
   fileName?: string
-  /** Relación de aspecto del recorte. undefined = libre */
+  /** Fija aspecto (ej. 1 para cuadrado). undefined = completamente libre */
   aspect?: number
-  /** Título que se muestra en el modal */
   title?: string
   onConfirm: (file: File) => void
   onCancel: () => void
@@ -76,24 +68,43 @@ export default function ImageCropModal({
   onConfirm,
   onCancel,
 }: ImageCropModalProps) {
-  const [crop,       setCrop]       = useState({ x: 0, y: 0 })
-  const [zoom,       setZoom]       = useState(1)
-  const [rotation,   setRotation]   = useState(0)
-  const [croppedArea, setCroppedArea] = useState<Area | null>(null)
-  const [applying,   setApplying]   = useState(false)
+  const imgRef    = useRef<HTMLImageElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
-    setCroppedArea(croppedPixels)
-  }, [])
+  const [crop,     setCrop]     = useState<Crop>()
+  const [completed, setCompleted] = useState<PixelCrop>()
+  const [rotation, setRotation] = useState(0)
+  const [applying, setApplying] = useState(false)
+
+  // Al cargar la imagen inicializa el recorte centrado
+  const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth: nw, naturalHeight: nh } = e.currentTarget
+    const initial = aspect
+      ? centerCrop(makeAspectCrop({ unit: '%', width: 80 }, aspect, nw, nh), nw, nh)
+      : centerCrop({ unit: '%', width: 80, height: 80 }, nw, nh)
+    setCrop(initial)
+  }, [aspect])
+
+  // Seleccionar todo
+  const selectAll = () => {
+    if (!imgRef.current) return
+    const { naturalWidth: nw, naturalHeight: nh } = imgRef.current
+    const full = aspect
+      ? centerCrop(makeAspectCrop({ unit: '%', width: 100 }, aspect, nw, nh), nw, nh)
+      : ({ unit: '%' as const, x: 0, y: 0, width: 100, height: 100 })
+    setCrop(full)
+  }
 
   const handleConfirm = async () => {
-    if (!croppedArea) return
+    if (!completed || !imgRef.current || !canvasRef.current) return
     setApplying(true)
     try {
-      const file = await getCroppedFile(imageSrc, croppedArea, rotation, fileName)
+      const file = await cropImageToFile(
+        imgRef.current, canvasRef.current, completed, rotation, fileName,
+      )
       onConfirm(file)
     } catch {
-      /* silencioso — el usuario puede reintentar */
+      /* silencioso */
     } finally {
       setApplying(false)
     }
@@ -101,77 +112,64 @@ export default function ImageCropModal({
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[70] p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl flex flex-col overflow-hidden">
 
         {/* Cabecera */}
         <div className="flex items-center justify-between px-5 py-4 border-b shrink-0">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-blue-50">
-              <Crop size={16} className="text-blue-600" />
+              <CropIcon size={16} className="text-blue-600" />
             </div>
-            <h3 className="font-semibold text-slate-800">{title}</h3>
+            <div>
+              <h3 className="font-semibold text-slate-800 leading-tight">{title}</h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Arrastra las esquinas o bordes para ajustar el recorte
+              </p>
+            </div>
           </div>
-          <button onClick={onCancel} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+          <button onClick={onCancel} className="text-slate-400 hover:text-slate-600 text-xl leading-none ml-4">✕</button>
         </div>
 
         {/* Área de recorte */}
-        <div className="relative bg-slate-900" style={{ height: 340 }}>
-          <Cropper
-            image={imageSrc}
+        <div className="bg-slate-800 flex items-center justify-center overflow-auto p-3" style={{ maxHeight: 420, minHeight: 260 }}>
+          <ReactCrop
             crop={crop}
-            zoom={zoom}
-            rotation={rotation}
+            onChange={c => setCrop(c)}
+            onComplete={c => setCompleted(c)}
             aspect={aspect}
-            onCropChange={setCrop}
-            onZoomChange={setZoom}
-            onCropComplete={onCropComplete}
-            style={{
-              containerStyle: { borderRadius: 0 },
-              cropAreaStyle:  { border: '2px solid #3b82f6', borderRadius: 8 },
-            }}
-          />
+            minWidth={20}
+            minHeight={20}
+            keepSelection
+            style={{ maxHeight: 390 }}
+          >
+            <img
+              ref={imgRef}
+              src={imageSrc}
+              alt="Preview"
+              style={{
+                maxHeight: 390,
+                maxWidth: '100%',
+                transform: `rotate(${rotation}deg)`,
+                transition: 'transform 0.15s ease',
+              }}
+              onLoad={onImageLoad}
+            />
+          </ReactCrop>
         </div>
 
         {/* Controles */}
         <div className="px-5 py-4 space-y-3 shrink-0">
 
-          {/* Zoom */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setZoom(z => Math.max(1, z - 0.1))}
-              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
-              title="Alejar"
-            >
-              <ZoomOut size={16} />
-            </button>
-            <input
-              type="range"
-              min={1} max={3} step={0.05}
-              value={zoom}
-              onChange={e => setZoom(Number(e.target.value))}
-              className="flex-1 accent-blue-600 h-1.5"
-            />
-            <button
-              onClick={() => setZoom(z => Math.min(3, z + 0.1))}
-              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
-              title="Acercar"
-            >
-              <ZoomIn size={16} />
-            </button>
-            <span className="text-xs text-slate-400 w-10 text-right">{Math.round(zoom * 100)}%</span>
-          </div>
-
           {/* Rotación */}
           <div className="flex items-center gap-3">
             <RotateCw size={15} className="text-slate-400 shrink-0" />
             <input
-              type="range"
-              min={-180} max={180} step={1}
+              type="range" min={-180} max={180} step={1}
               value={rotation}
               onChange={e => setRotation(Number(e.target.value))}
               className="flex-1 accent-blue-600 h-1.5"
             />
-            <span className="text-xs text-slate-400 w-10 text-right">{rotation}°</span>
+            <span className="text-xs text-slate-400 w-10 text-right font-mono">{rotation}°</span>
             {rotation !== 0 && (
               <button
                 onClick={() => setRotation(0)}
@@ -182,13 +180,20 @@ export default function ImageCropModal({
             )}
           </div>
 
-          {/* Botones */}
-          <div className="flex gap-2 pt-1">
-            <Button
+          {/* Acciones rápidas + botones */}
+          <div className="flex items-center gap-2">
+            <button
               type="button"
-              variant="secondary"
+              onClick={selectAll}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
+              title="Seleccionar toda la imagen"
+            >
+              <Maximize2 size={12} /> Todo
+            </button>
+            <div className="flex-1" />
+            <Button
+              type="button" variant="secondary"
               icon={<X size={14} />}
-              className="flex-1 justify-center"
               onClick={onCancel}
             >
               Cancelar
@@ -196,15 +201,18 @@ export default function ImageCropModal({
             <Button
               type="button"
               icon={<Check size={14} />}
-              className="flex-1 justify-center"
               loading={applying}
+              disabled={!completed || completed.width < 1 || completed.height < 1}
               onClick={handleConfirm}
             >
-              Aplicar recorte
+              Aplicar
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Canvas oculto para generar el archivo */}
+      <canvas ref={canvasRef} className="hidden" />
     </div>
   )
 }

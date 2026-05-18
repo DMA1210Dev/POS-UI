@@ -432,8 +432,8 @@ export default function ComercioPage() {
                     const file = e.target.files?.[0]
                     if (file) openCrop(
                       file,
-                      1,                   // aspecto cuadrado para favicon
-                      'Recortar favicon (cuadrado)',
+                      undefined,           // aspecto libre
+                      'Recortar favicon',
                       (cropped) => subirLogoTag.mutate(cropped),
                     )
                     e.target.value = ''
