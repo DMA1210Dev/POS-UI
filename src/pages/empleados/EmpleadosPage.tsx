@@ -5,6 +5,7 @@ import {
   ChevronDown, ChevronUp, UserCheck, UserX, Loader2,
 } from 'lucide-react'
 import api from '../../lib/axios'
+import EmptyState from '../../components/ui/EmptyState'
 import type { EmpleadoListDto, EmpleadoDetailDto, SaveEmpleadoDto, UsuarioOpcionDto } from '../../types'
 
 // ── helpers ───────────────────────────────────────────────────────────────
@@ -256,9 +257,7 @@ export default function EmpleadosPage() {
       </div>
 
       {/* Error global */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>
-      )}
+      {error && <EmptyState variant="error" title="Error al cargar empleados" description={error} onRetry={cargar} />}
 
       {/* Tabla */}
       {loading ? (
@@ -266,10 +265,7 @@ export default function EmpleadosPage() {
           <Loader2 size={28} className="animate-spin text-blue-600" />
         </div>
       ) : filtrados.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
-          <Briefcase size={40} className="mx-auto mb-3 opacity-40" />
-          <p className="text-sm">No hay empleados que mostrar.</p>
-        </div>
+        <EmptyState title="No hay empleados" description="No se encontraron empleados con los filtros seleccionados." />
       ) : (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">

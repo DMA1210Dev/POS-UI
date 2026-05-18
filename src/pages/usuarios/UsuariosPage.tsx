@@ -5,6 +5,7 @@ import { usuariosApi } from '../../api'
 import { Card } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
 import { useToast, errMsg } from '../../context/ToastContext'
 import { useRoles } from '../../context/RolesContext'
 import type { UsuarioResponse, RegisterUsuarioDto } from '../../types'
@@ -70,7 +71,7 @@ export default function UsuariosPage() {
       .join('')
   }, [])
 
-  const { data: usuarios = [], isLoading } = useQuery({
+  const { data: usuarios = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['usuarios'],
     queryFn: usuariosApi.getAll,
   })
@@ -233,8 +234,9 @@ export default function UsuariosPage() {
                   </td>
                 </tr>
               ))}
-              {!isLoading && usuarios.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">No hay usuarios</td></tr>
+              {isError && <EmptyState colSpan={6} variant="error" onRetry={refetch} />}
+              {!isLoading && !isError && usuarios.length === 0 && (
+                <EmptyState colSpan={6} title="No hay usuarios" description="Aún no se han creado usuarios en el sistema." />
               )}
             </tbody>
           </table>

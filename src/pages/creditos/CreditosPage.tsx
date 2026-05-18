@@ -5,6 +5,7 @@ import { creditosApi } from '../../api'
 import { Card, CardHeader, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
 import { useToast, errMsg } from '../../context/ToastContext'
 import { useAuth } from '../../context/AuthContext'
 import type { CreditoResponse } from '../../types'
@@ -127,7 +128,7 @@ export default function CreditosPage() {
   const [obsv, setObsv]             = useState('')
   const [mostrarTodos, setMostrarTodos] = useState(false)
 
-  const { data: creditos = [], isLoading } = useQuery({
+  const { data: creditos = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['creditos'],
     queryFn: creditosApi.getAll,
   })
@@ -251,12 +252,9 @@ export default function CreditosPage() {
                   onAbonar={handleAbonar}
                 />
               ))}
-              {!isLoading && visibles.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
-                    No hay créditos
-                  </td>
-                </tr>
+              {isError && <EmptyState colSpan={8} variant="error" onRetry={refetch} />}
+              {!isLoading && !isError && visibles.length === 0 && (
+                <EmptyState colSpan={8} title="No hay créditos" description="No se encontraron créditos con los filtros seleccionados." />
               )}
             </tbody>
           </table>

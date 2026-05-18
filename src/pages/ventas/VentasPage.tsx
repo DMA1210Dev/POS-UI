@@ -9,6 +9,7 @@ import { generarPdfDesdeCotizacion } from './CotizacionModal'
 import { Card } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
 import { useAuth } from '../../context/AuthContext'
 import { useToast, errMsg } from '../../context/ToastContext'
 import { useComercio } from '../../context/ComercioContext'
@@ -1232,13 +1233,13 @@ export default function VentasPage() {
   const [cotizarVenta,    setCotizarVenta]    = useState<VentaResponse | null>(null)
   const [validezCot,      setValidezCot]      = useState(15)
 
-  const { data: ventas, isLoading } = useQuery<VentaResponse[]>({
+  const { data: ventas, isLoading, isError: errorVentas, refetch: refetchVentas } = useQuery<VentaResponse[]>({
     queryKey: ['ventas', puedeVerTodasVentas],
     queryFn:  async () => puedeVerTodasVentas ? ventasApi.getAll() : ventasApi.misVentas(),
   })
   const listaVentas: VentaResponse[] = ventas ?? []
 
-  const { data: devoluciones = [], isLoading: loadingDevs } = useQuery<DevolucionResponse[]>({
+  const { data: devoluciones = [], isLoading: loadingDevs, isError: errorDevs, refetch: refetchDevs } = useQuery<DevolucionResponse[]>({
     queryKey: ['devoluciones', puedeVerTodasVentas],
     queryFn:  () => ventasApi.getDevoluciones(),
   })
@@ -1310,7 +1311,7 @@ export default function VentasPage() {
   const pendientes = listaVentas.filter(v => v.estado === 'Pendiente')
 
   // ── Cotizaciones ────────────────────────────────────────────────────────────
-  const { data: cotizaciones = [], isLoading: loadingCots } = useQuery<CotizacionResponse[]>({
+  const { data: cotizaciones = [], isLoading: loadingCots, isError: errorCots, refetch: refetchCots } = useQuery<CotizacionResponse[]>({
     queryKey: ['cotizaciones'],
     queryFn:  cotizacionesApi.getAll,
     refetchInterval: 60_000, // refrescar cada minuto para detectar vencidas
@@ -1533,8 +1534,9 @@ export default function VentasPage() {
                   </td>
                 </tr>
               ))}
-              {!isLoading && listaVentas.length === 0 && (
-                <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-400">No hay ventas registradas</td></tr>
+              {errorVentas && <EmptyState colSpan={8} variant="error" onRetry={refetchVentas} />}
+              {!isLoading && !errorVentas && listaVentas.length === 0 && (
+                <EmptyState colSpan={8} title="No hay ventas registradas" description="Aún no se han registrado ventas." />
               )}
             </tbody>
           </table>
@@ -1622,12 +1624,9 @@ export default function VentasPage() {
                   </tr>
                 )
               })}
-              {!loadingDevs && devoluciones.length === 0 && (
-                <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-slate-400">
-                    No hay devoluciones registradas
-                  </td>
-                </tr>
+              {errorDevs && <EmptyState colSpan={9} variant="error" onRetry={refetchDevs} />}
+              {!loadingDevs && !errorDevs && devoluciones.length === 0 && (
+                <EmptyState colSpan={9} title="No hay devoluciones registradas" description="No se han procesado devoluciones." />
               )}
             </tbody>
           </table>
@@ -1698,12 +1697,9 @@ export default function VentasPage() {
                   </tr>
                 )
               })}
-              {!loadingCots && cotizaciones.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
-                    No hay cotizaciones vigentes
-                  </td>
-                </tr>
+              {errorCots && <EmptyState colSpan={8} variant="error" onRetry={refetchCots} />}
+              {!loadingCots && !errorCots && cotizaciones.length === 0 && (
+                <EmptyState colSpan={8} title="No hay cotizaciones vigentes" description="No hay cotizaciones activas en este momento." />
               )}
             </tbody>
           </table>

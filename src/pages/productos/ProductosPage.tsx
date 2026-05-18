@@ -5,6 +5,7 @@ import { productosApi } from '../../api'
 import { Card, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
 import ProductoModal from './ProductoModal'
 import CategoriasModal from './CategoriasModal'
 import { useToast, errMsg } from '../../context/ToastContext'
@@ -25,7 +26,7 @@ export default function ProductosPage() {
   const [stockModal, setStockModal] = useState<ProductoResponse | null>(null)
   const [nuevoStock, setNuevoStock] = useState('')
 
-  const { data: productos = [], isLoading } = useQuery({
+  const { data: productos = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['productos', search],
     queryFn: () => productosApi.getAll({ search: search || undefined }),
   })
@@ -141,8 +142,9 @@ export default function ProductosPage() {
                   </td>
                 </tr>
               ))}
-              {!isLoading && productos.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400">No hay productos</td></tr>
+              {isError && <EmptyState colSpan={7} variant="error" onRetry={refetch} />}
+              {!isLoading && !isError && productos.length === 0 && (
+                <EmptyState colSpan={7} title="No hay productos" description="Aún no se han registrado productos." />
               )}
             </tbody>
           </table>

@@ -5,6 +5,7 @@ import { clientesApi } from '../../api'
 import { Card, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
+import EmptyState from '../../components/ui/EmptyState'
 import ClienteModal from './ClienteModal'
 import { useAuth } from '../../context/AuthContext'
 import { useComercio } from '../../context/ComercioContext'
@@ -27,7 +28,7 @@ export default function ClientesPage() {
   const [modoEdicion, setModoEdicion] = useState(false)
 
   const esMayoristaParam = filtroTipo === 'mayorista' ? true : filtroTipo === 'minorista' ? false : undefined
-  const { data: clientes = [], isLoading } = useQuery({
+  const { data: clientes = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['clientes', search, soloDeuda, filtroTipo],
     queryFn: () => clientesApi.getAll({
       search: search || undefined,
@@ -119,8 +120,9 @@ export default function ClientesPage() {
                   </td>
                 </tr>
               ))}
-              {!isLoading && clientes.length === 0 && (
-                <tr><td colSpan={verMayoristas ? 8 : 7} className="px-4 py-8 text-center text-slate-400">No hay clientes</td></tr>
+              {isError && <EmptyState colSpan={verMayoristas ? 8 : 7} variant="error" onRetry={refetch} />}
+              {!isLoading && !isError && clientes.length === 0 && (
+                <EmptyState colSpan={verMayoristas ? 8 : 7} title="No hay clientes" description="Aún no se han registrado clientes." />
               )}
             </tbody>
           </table>
