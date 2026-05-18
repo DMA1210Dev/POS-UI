@@ -16,6 +16,7 @@ import type {
   CotizacionResponse, CreateCotizacionDto,
   RolDefinicion, CreateRolDto, UpdateRolDto,
 } from '../types'
+import { extractItems } from '../types'
 
 // ── Comercio ──────────────────────────────────────────────────────────────
 export interface ComercioResponse {
@@ -173,9 +174,9 @@ export const categoriasApi = {
 // ── Productos ─────────────────────────────────────────────────────────────
 export const productosApi = {
   getAll: (params?: { search?: string; categoriaId?: number; tipo?: string; soloActivos?: boolean }) =>
-    api.get<ProductoResponse[]>('/productos', { params }).then(r => r.data),
+    api.get('/productos', { params }).then(r => extractItems<ProductoResponse>(r.data)),
   stockBajo: () =>
-    api.get<ProductoResponse[]>('/productos/stock-bajo').then(r => r.data),
+    api.get('/productos/stock-bajo').then(r => extractItems<ProductoResponse>(r.data)),
   getById: (id: number) =>
     api.get<ProductoResponse>(`/productos/${id}`).then(r => r.data),
   create: (dto: CreateProductoDto) =>
@@ -193,9 +194,9 @@ export const productosApi = {
 // ── Ventas ────────────────────────────────────────────────────────────────
 export const ventasApi = {
   getAll: (params?: { desde?: string; hasta?: string; tipoPago?: string; usuarioId?: number }) =>
-    api.get<VentaResponse[]>('/ventas', { params }).then(r => r.data),
+    api.get('/ventas', { params }).then(r => extractItems<VentaResponse>(r.data)),
   misVentas: () =>
-    api.get<VentaResponse[]>('/ventas/mis-ventas').then(r => r.data),
+    api.get('/ventas/mis-ventas').then(r => extractItems<VentaResponse>(r.data)),
   getById: (id: number) =>
     api.get<VentaResponse>(`/ventas/${id}`).then(r => r.data),
   create: (dto: CreateVentaDto) =>
@@ -209,13 +210,13 @@ export const ventasApi = {
   devolver: (id: number, dto: CreateDevolucionDto) =>
     api.post<DevolucionResponse>(`/ventas/${id}/devolucion`, dto).then(r => r.data),
   getDevoluciones: (params?: { desde?: string; hasta?: string }) =>
-    api.get<DevolucionResponse[]>('/ventas/devoluciones', { params }).then(r => r.data),
+    api.get('/ventas/devoluciones', { params }).then(r => extractItems<DevolucionResponse>(r.data)),
 }
 
 // ── Clientes ──────────────────────────────────────────────────────────────
 export const clientesApi = {
   getAll: (params?: { search?: string; soloConDeuda?: boolean; esMayorista?: boolean }) =>
-    api.get<ClienteResponse[]>('/clientes', { params }).then(r => r.data),
+    api.get('/clientes', { params }).then(r => extractItems<ClienteResponse>(r.data)),
   getById: (id: number) =>
     api.get<ClienteResponse>(`/clientes/${id}`).then(r => r.data),
   create: (dto: CreateClienteDto) =>
@@ -229,11 +230,11 @@ export const clientesApi = {
 // ── Créditos ──────────────────────────────────────────────────────────────
 export const creditosApi = {
   getAll: () =>
-    api.get<CreditoResponse[]>('/creditos').then(r => r.data),
+    api.get('/creditos').then(r => extractItems<CreditoResponse>(r.data)),
   resumen: () =>
     api.get<ResumenCreditos>('/creditos/resumen').then(r => r.data),
   porCliente: (clienteId: number) =>
-    api.get<CreditoResponse[]>(`/creditos/cliente/${clienteId}`).then(r => r.data),
+    api.get(`/creditos/cliente/${clienteId}`).then(r => extractItems<CreditoResponse>(r.data)),
   getById: (id: number) =>
     api.get<CreditoResponse>(`/creditos/${id}`).then(r => r.data),
   registrarPago: (id: number, dto: CreatePagoDto) =>
@@ -245,7 +246,7 @@ export const creditosApi = {
 // ── Usuarios ──────────────────────────────────────────────────────────────
 export const usuariosApi = {
   getAll: () =>
-    api.get<UsuarioResponse[]>('/usuarios').then(r => r.data),
+    api.get('/usuarios').then(r => extractItems<UsuarioResponse>(r.data)),
   getById: (id: number) =>
     api.get<UsuarioResponse>(`/usuarios/${id}`).then(r => r.data),
   create: (dto: RegisterUsuarioDto) =>
@@ -269,7 +270,7 @@ export const usuariosApi = {
 // ── Comprobantes ──────────────────────────────────────────────────────────
 export const comprobantesApi = {
   getAll: (soloActivos = false) =>
-    api.get<TipoComprobanteResponse[]>('/comprobantes', { params: { soloActivos } }).then(r => r.data),
+    api.get('/comprobantes', { params: { soloActivos } }).then(r => extractItems<TipoComprobanteResponse>(r.data)),
   create: (dto: CreateTipoComprobanteDto) =>
     api.post<TipoComprobanteResponse>('/comprobantes', dto).then(r => r.data),
   update: (id: number, dto: UpdateTipoComprobanteDto) =>
@@ -284,7 +285,7 @@ export const comprobantesApi = {
   ncfProximo: (tipoId: number) =>
     api.get<NcfProximoResponse>(`/comprobantes/${tipoId}/ncf-proximo`).then(r => r.data),
   ncfPool: (tipoId: number, estado?: string) =>
-    api.get<NcfSecuenciaResponse[]>(`/comprobantes/${tipoId}/ncf-pool`, { params: { estado } }).then(r => r.data),
+    api.get(`/comprobantes/${tipoId}/ncf-pool`, { params: { estado } }).then(r => extractItems<NcfSecuenciaResponse>(r.data)),
   ncfPoolResumen: (tipoId: number) =>
     api.get<NcfPoolResumenResponse>(`/comprobantes/${tipoId}/ncf-pool/resumen`).then(r => r.data),
   cargarNcfLote: (dto: CargarNcfLoteDto) =>
@@ -308,14 +309,14 @@ export const cajaApi = {
   cerrar: (id: number, dto: CerrarCajaDto) =>
     api.post<CajaSessionResponse>(`/caja/${id}/cerrar`, dto).then(r => r.data),
   getAll: (params?: { desde?: string; hasta?: string; usuarioId?: number }) =>
-    api.get<CajaSessionResponse[]>('/caja', { params }).then(r => r.data),
+    api.get('/caja', { params }).then(r => extractItems<CajaSessionResponse>(r.data)),
   getById: (id: number) =>
     api.get<CajaSessionResponse>(`/caja/${id}`).then(r => r.data),
   misSesiones: (params?: { desde?: string; hasta?: string }) =>
-    api.get<CajaSessionResponse[]>('/caja/mis-sesiones', { params }).then(r => r.data),
+    api.get('/caja/mis-sesiones', { params }).then(r => extractItems<CajaSessionResponse>(r.data)),
   /** Sesiones activas con totales en tiempo real — solo Admin/Gerente */
   activasConTotales: () =>
-    api.get<CajaSessionResponse[]>('/caja/activas').then(r => r.data),
+    api.get('/caja/activas').then(r => extractItems<CajaSessionResponse>(r.data)),
   /** Activa o desactiva validación de facturas — solo Admin/Gerente */
   validar: (id: number, dto: ValidarCajaDto) =>
     api.patch<CajaSessionResponse>(`/caja/${id}/validar`, dto).then(r => r.data),
@@ -328,7 +329,7 @@ export const reportesApi = {
   itbis: (params?: { desde?: string; hasta?: string }) =>
     api.get<ReporteItbis>('/reportes/itbis', { params }).then(r => r.data),
   productosMasVendidos: (params?: { desde?: string; hasta?: string; top?: number }) =>
-    api.get<ProductoMasVendido[]>('/reportes/productos-mas-vendidos', { params }).then(r => r.data),
+    api.get('/reportes/productos-mas-vendidos', { params }).then(r => extractItems<ProductoMasVendido>(r.data)),
   rentabilidad: (params?: { desde?: string; hasta?: string }) =>
     api.get<ReporteRentabilidad>('/reportes/rentabilidad', { params }).then(r => r.data),
 }
@@ -346,7 +347,7 @@ export const permisosApi = {
 // ── Permisos por rol (editables por el admin) ─────────────────────────────
 export const permisosRolApi = {
   getAll: () =>
-    api.get<PermisosRol[]>('/permisos-rol').then(r => r.data),
+    api.get('/permisos-rol').then(r => extractItems<PermisosRol>(r.data)),
   update: (rol: string, dto: Omit<PermisosRol, 'rol'>) =>
     api.put<PermisosRol>(`/permisos-rol/${rol}`, dto).then(r => r.data),
 }
@@ -354,7 +355,7 @@ export const permisosRolApi = {
 // ── Cotizaciones ──────────────────────────────────────────────────────────────────────────
 export const cotizacionesApi = {
   getAll: () =>
-    api.get<CotizacionResponse[]>('/cotizaciones').then(r => r.data),
+    api.get('/cotizaciones').then(r => extractItems<CotizacionResponse>(r.data)),
   getById: (id: number) =>
     api.get<CotizacionResponse>(`/cotizaciones/${id}`).then(r => r.data),
   create: (dto: CreateCotizacionDto) =>

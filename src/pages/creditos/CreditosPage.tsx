@@ -128,10 +128,11 @@ export default function CreditosPage() {
   const [obsv, setObsv]             = useState('')
   const [mostrarTodos, setMostrarTodos] = useState(false)
 
-  const { data: creditos = [], isLoading, isError, refetch } = useQuery({
+  const { data: _creditos, isLoading, isError, refetch } = useQuery({
     queryKey: ['creditos'],
     queryFn: creditosApi.getAll,
   })
+  const creditos = Array.isArray(_creditos) ? _creditos : []
 
   const { data: resumen } = useQuery({
     queryKey: ['creditos', 'resumen'],

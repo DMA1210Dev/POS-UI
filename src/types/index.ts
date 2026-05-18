@@ -1,3 +1,25 @@
+// ── Paginación ────────────────────────────────────────────────────────────
+/** Estructura de respuesta paginada que devuelve el backend */
+export interface PaginatedResponse<T> {
+  items: T[]
+  page: number
+  pageSize: number
+  total: number
+  totalPages: number
+}
+
+/**
+ * Extrae el array de una respuesta que puede ser paginada o un array plano.
+ * Compatible con backends que devuelven { items: [...] } o directamente [...].
+ */
+export function extractItems<T>(data: T[] | PaginatedResponse<T>): T[] {
+  if (Array.isArray(data)) return data
+  if (data && Array.isArray((data as PaginatedResponse<T>).items)) {
+    return (data as PaginatedResponse<T>).items
+  }
+  return []
+}
+
 // ── Auth ──────────────────────────────────────────────────────────────────
 
 export interface LoginDto {

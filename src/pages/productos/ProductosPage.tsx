@@ -26,10 +26,11 @@ export default function ProductosPage() {
   const [stockModal, setStockModal] = useState<ProductoResponse | null>(null)
   const [nuevoStock, setNuevoStock] = useState('')
 
-  const { data: productos = [], isLoading, isError, refetch } = useQuery({
+  const { data: _productos, isLoading, isError, refetch } = useQuery({
     queryKey: ['productos', search],
     queryFn: () => productosApi.getAll({ search: search || undefined }),
   })
+  const productos = Array.isArray(_productos) ? _productos : []
 
   const eliminar = useMutation({
     mutationFn: (id: number) => productosApi.delete(id),

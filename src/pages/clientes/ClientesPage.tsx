@@ -28,7 +28,7 @@ export default function ClientesPage() {
   const [modoEdicion, setModoEdicion] = useState(false)
 
   const esMayoristaParam = filtroTipo === 'mayorista' ? true : filtroTipo === 'minorista' ? false : undefined
-  const { data: clientes = [], isLoading, isError, refetch } = useQuery({
+  const { data: _clientes, isLoading, isError, refetch } = useQuery({
     queryKey: ['clientes', search, soloDeuda, filtroTipo],
     queryFn: () => clientesApi.getAll({
       search: search || undefined,
@@ -36,6 +36,7 @@ export default function ClientesPage() {
       esMayorista: esMayoristaParam,
     }),
   })
+  const clientes = Array.isArray(_clientes) ? _clientes : []
 
   return (
     <div className="space-y-6">

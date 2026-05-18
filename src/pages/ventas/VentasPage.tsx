@@ -1237,12 +1237,14 @@ export default function VentasPage() {
     queryKey: ['ventas', puedeVerTodasVentas],
     queryFn:  async () => puedeVerTodasVentas ? ventasApi.getAll() : ventasApi.misVentas(),
   })
-  const listaVentas: VentaResponse[] = ventas ?? []
+  // Garantiza que siempre sea array aunque el backend devuelva objeto o null
+  const listaVentas: VentaResponse[] = Array.isArray(ventas) ? ventas : []
 
-  const { data: devoluciones = [], isLoading: loadingDevs, isError: errorDevs, refetch: refetchDevs } = useQuery<DevolucionResponse[]>({
+  const { data: _devoluciones, isLoading: loadingDevs, isError: errorDevs, refetch: refetchDevs } = useQuery<DevolucionResponse[]>({
     queryKey: ['devoluciones', puedeVerTodasVentas],
     queryFn:  () => ventasApi.getDevoluciones(),
   })
+  const devoluciones: DevolucionResponse[] = Array.isArray(_devoluciones) ? _devoluciones : []
 
   // Crédito del detalle activo (si aplica)
   const { data: creditosDetalle = [] } = useQuery({
@@ -1311,11 +1313,12 @@ export default function VentasPage() {
   const pendientes = listaVentas.filter(v => v.estado === 'Pendiente')
 
   // ── Cotizaciones ────────────────────────────────────────────────────────────
-  const { data: cotizaciones = [], isLoading: loadingCots, isError: errorCots, refetch: refetchCots } = useQuery<CotizacionResponse[]>({
+  const { data: _cotizaciones, isLoading: loadingCots, isError: errorCots, refetch: refetchCots } = useQuery<CotizacionResponse[]>({
     queryKey: ['cotizaciones'],
     queryFn:  cotizacionesApi.getAll,
     refetchInterval: 60_000, // refrescar cada minuto para detectar vencidas
   })
+  const cotizaciones: CotizacionResponse[] = Array.isArray(_cotizaciones) ? _cotizaciones : []
 
   const cancelarCotMut = useMutation({
     mutationFn: (id: number) => cotizacionesApi.cancelar(id),

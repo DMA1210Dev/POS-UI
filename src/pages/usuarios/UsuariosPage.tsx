@@ -71,10 +71,11 @@ export default function UsuariosPage() {
       .join('')
   }, [])
 
-  const { data: usuarios = [], isLoading, isError, refetch } = useQuery({
+  const { data: _usuarios, isLoading, isError, refetch } = useQuery({
     queryKey: ['usuarios'],
     queryFn: usuariosApi.getAll,
   })
+  const usuarios = Array.isArray(_usuarios) ? _usuarios : []
 
   const crear = useMutation({
     mutationFn: () => usuariosApi.create({
