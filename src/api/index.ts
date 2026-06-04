@@ -15,6 +15,7 @@ import type {
   CajaSessionResponse, AbrirCajaDto, CerrarCajaDto, ValidarCajaDto,
   CotizacionResponse, CreateCotizacionDto,
   RolDefinicion, CreateRolDto, UpdateRolDto,
+  NotificacionResponse,
 } from '../types'
 import { extractItems } from '../types'
 
@@ -207,6 +208,8 @@ export const ventasApi = {
     api.post<VentaResponse>(`/ventas/${id}/aprobar`).then(r => r.data),
   anular: (id: number) =>
     api.delete<VentaResponse>(`/ventas/${id}`).then(r => r.data),
+  asignarAprobador: (id: number, aprobadorId: number) =>
+    api.put<VentaResponse>(`/ventas/${id}/aprobador`, { aprobadorId }).then(r => r.data),
   devolver: (id: number, dto: CreateDevolucionDto) =>
     api.post<DevolucionResponse>(`/ventas/${id}/devolucion`, dto).then(r => r.data),
   getDevoluciones: (params?: { desde?: string; hasta?: string }) =>
@@ -408,4 +411,17 @@ export const licenciasAdminApi = {
 
   eliminar: (key: string) =>
     api.delete(`/licencias-admin/${key}`),
+}
+
+// ── Notificaciones ────────────────────────────────────────────────────────────
+export const notificacionesApi = {
+  /** Notificaciones del usuario autenticado */
+  getAll: () =>
+    api.get<NotificacionResponse[]>('/notificaciones').then(r =>
+      Array.isArray(r.data) ? r.data : []
+    ),
+  marcarLeida: (id: number) =>
+    api.put(`/notificaciones/${id}/leer`).then(r => r.data),
+  marcarTodasLeidas: () =>
+    api.put('/notificaciones/leer-todas').then(r => r.data),
 }

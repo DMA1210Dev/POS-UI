@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { useComercio } from '../../context/ComercioContext'
 import { useRoles } from '../../context/RolesContext'
+import NotificacionBell from '../ui/NotificacionBell'
 
 interface NavItem {
   to: string
@@ -165,10 +166,13 @@ export default function Sidebar() {
             className="h-8 mx-auto mb-2 block"
           />
         )}
-        <p className="text-xs text-white/50 truncate text-center">
-          {user?.nombre}
-          <span className="text-white/40"> · {rolLabel}</span>
-        </p>
+        <div className="flex items-center justify-between gap-1">
+          <p className="text-xs text-white/50 truncate">
+            {user?.nombre}
+            <span className="text-white/40"> · {rolLabel}</span>
+          </p>
+          <NotificacionBell />
+        </div>
       </div>
 
       {/* Nav */}

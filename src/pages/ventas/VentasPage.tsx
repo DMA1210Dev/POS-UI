@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Eye, XCircle, Printer, CheckCircle, AlertTriangle, Pencil, Receipt, RotateCcw, FileX, FileText, Clock, ShoppingBag, Ban } from 'lucide-react'
+import { Plus, Eye, XCircle, Printer, CheckCircle, AlertTriangle, Pencil, Receipt, RotateCcw, FileX, FileText, Clock, ShoppingBag, Ban, UserCheck, Check } from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import { ventasApi, creditosApi, cotizacionesApi } from '../../api'
+import { ventasApi, creditosApi, cotizacionesApi, usuariosApi } from '../../api'
 import { generarPdfDesdeCotizacion } from './CotizacionModal'
 import { Card } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -13,7 +13,7 @@ import EmptyState from '../../components/ui/EmptyState'
 import { useAuth } from '../../context/AuthContext'
 import { useToast, errMsg } from '../../context/ToastContext'
 import { useComercio } from '../../context/ComercioContext'
-import type { VentaResponse, CreditoResponse, DevolucionResponse, DetalleVentaResponse, CotizacionResponse } from '../../types'
+import type { VentaResponse, CreditoResponse, DevolucionResponse, DetalleVentaResponse, CotizacionResponse, UsuarioResponse } from '../../types'
 
 // ── Modal de confirmación ─────────────────────────────────────────────────────
 interface ConfirmModalProps {
@@ -26,6 +26,13 @@ interface ConfirmModalProps {
 
 function ConfirmModal({ tipo, venta, loading, onConfirm, onCancel }: ConfirmModalProps) {
   const esAprobar = tipo === 'aprobar'
+  // Previene doble envío (el usuario podría hacer doble-click antes del primer re-render)
+  const [submitted, setSubmitted] = useState(false)
+  const handleConfirm = () => {
+    if (submitted || loading) return
+    setSubmitted(true)
+    onConfirm()
+  }
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
@@ -88,14 +95,120 @@ function ConfirmModal({ tipo, venta, loading, onConfirm, onCancel }: ConfirmModa
             Cancelar
           </button>
           <button
-            onClick={onConfirm}
-            disabled={loading}
+            onClick={handleConfirm}
+            disabled={loading || submitted}
             className={`flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
               esAprobar ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'
             }`}
           >
-            {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+            {(loading || submitted) && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
             {esAprobar ? 'Sí, aprobar' : 'Sí, anular'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Modal: asignar aprobador específico ──────────────────────────────────────
+interface AsignarAprobadorModalProps {
+  venta: VentaResponse
+  loading: boolean
+  onConfirm: (aprobadorId: number) => void
+  onCancel: () => void
+}
+
+function AsignarAprobadorModal({ venta, loading, onConfirm, onCancel }: AsignarAprobadorModalProps) {
+  const [selectedId, setSelectedId] = useState<number | null>(
+    venta.aprobadorId ?? null
+  )
+  const [search, setSearch] = useState('')
+
+  const { data: usuarios = [] } = useQuery<UsuarioResponse[]>({
+    queryKey: ['usuarios'],
+    queryFn: usuariosApi.getAll,
+  })
+
+  const filtered = usuarios
+    .filter(u => u.activo)
+    .filter(u =>
+      u.nombre.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
+    )
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+        {/* Cabecera */}
+        <div className="flex items-center gap-3 px-6 pt-6 pb-4">
+          <div className="p-2.5 rounded-full bg-blue-100">
+            <UserCheck size={22} className="text-blue-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-800 text-base">Asignar aprobador</h3>
+            <p className="text-xs text-slate-400">Factura #{venta.id} · selecciona quién debe aprobarla</p>
+          </div>
+        </div>
+
+        <div className="px-6 pb-2 space-y-3">
+          <p className="text-sm text-slate-600">
+            La persona asignada recibirá una notificación para aprobar esta venta.
+          </p>
+
+          {/* Buscador */}
+          <input
+            type="text"
+            placeholder="Buscar usuario..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-400 transition-colors"
+          />
+
+          {/* Lista de usuarios */}
+          <div className="space-y-1 max-h-52 overflow-y-auto">
+            {filtered.length === 0 && (
+              <p className="text-center text-xs text-slate-400 py-4">No se encontraron usuarios</p>
+            )}
+            {filtered.map(u => (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => setSelectedId(u.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-colors border ${
+                  selectedId === u.id
+                    ? 'bg-blue-50 border-blue-200'
+                    : 'border-transparent hover:bg-slate-50'
+                }`}
+              >
+                <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600 shrink-0 uppercase">
+                  {u.nombre[0]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-800 truncate">{u.nombre}</p>
+                  <p className="text-xs text-slate-400 truncate">{u.email}</p>
+                </div>
+                {selectedId === u.id && <Check size={14} className="text-blue-600 shrink-0" />}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Acciones */}
+        <div className="flex gap-2 px-6 py-4">
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="flex-1 px-4 py-2 text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={() => selectedId && onConfirm(selectedId)}
+            disabled={loading || !selectedId}
+            className="flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+            Asignar
           </button>
         </div>
       </div>
@@ -1225,6 +1338,7 @@ export default function VentasPage() {
   const [detalle,    setDetalle]    = useState<VentaResponse | null>(null)
   const [printing,   setPrinting]   = useState<number | null>(null)
   const [confirm,    setConfirm]    = useState<{ tipo: 'aprobar' | 'anular'; venta: VentaResponse } | null>(null)
+  const [asignarAprobadorVenta, setAsignarAprobadorVenta] = useState<VentaResponse | null>(null)
   const [devolver,        setDevolver]        = useState<VentaResponse | null>(null)
   const [devResult,       setDevResult]       = useState<DevolucionResponse | null>(null)
   const [devOriginalVenta, setDevOriginalVenta] = useState<VentaResponse | null>(null)
@@ -1274,6 +1388,19 @@ export default function VentasPage() {
       setDetalle(null)
     },
     onError: (e) => { error(errMsg(e)); setConfirm(null) },
+  })
+
+  const asignarAprobadorMut = useMutation({
+    mutationFn: ({ id, aprobadorId }: { id: number; aprobadorId: number }) =>
+      ventasApi.asignarAprobador(id, aprobadorId),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['ventas'] })
+      success(`Aprobador asignado: ${data.aprobadorNombre ?? ''}`)
+      setAsignarAprobadorVenta(null)
+      // Actualiza el panel de detalle si está abierto para la misma venta
+      if (detalle?.id === data.id) setDetalle(data)
+    },
+    onError: (e) => { error(errMsg(e)); setAsignarAprobadorVenta(null) },
   })
 
   const devolverMut = useMutation({
@@ -1515,6 +1642,12 @@ export default function VentasPage() {
                           title="Aprobar venta"
                           onClick={() => setConfirm({ tipo: 'aprobar', venta: v })} />
                       )}
+                      {puedeAprobarVentas && v.estado === 'Pendiente' && (
+                        <Button variant="ghost" size="sm" icon={<UserCheck size={14} />}
+                          className="text-blue-500 hover:bg-blue-50"
+                          title="Asignar aprobador"
+                          onClick={() => setAsignarAprobadorVenta(v)} />
+                      )}
                       {puedeAnularVentas && v.estado === 'Pendiente' && (
                         <Button variant="ghost" size="sm" icon={<XCircle size={14} />}
                           className="text-red-500 hover:bg-red-50"
@@ -1724,6 +1857,18 @@ export default function VentasPage() {
         />
       )}
 
+      {/* ── Modal asignar aprobador ───────────────────────────────────────── */}
+      {asignarAprobadorVenta && (
+        <AsignarAprobadorModal
+          venta={asignarAprobadorVenta}
+          loading={asignarAprobadorMut.isPending}
+          onConfirm={(aprobadorId) =>
+            asignarAprobadorMut.mutate({ id: asignarAprobadorVenta.id, aprobadorId })
+          }
+          onCancel={() => setAsignarAprobadorVenta(null)}
+        />
+      )}
+
       {/* ── Modal devolución ─────────────────────────────────────────────── */}
       {devolver && (
         <DevolucionModal
@@ -1906,6 +2051,14 @@ export default function VentasPage() {
                 )}
                 {puedeAprobarVentas && detalle.estado === 'Pendiente' && (
                   <button
+                    onClick={() => setAsignarAprobadorVenta(detalle)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
+                  >
+                    <UserCheck size={13} /> {detalle.aprobadorNombre ? 'Cambiar aprobador' : 'Asignar aprobador'}
+                  </button>
+                )}
+                {puedeAprobarVentas && detalle.estado === 'Pendiente' && (
+                  <button
                     onClick={() => setConfirm({ tipo: 'aprobar', venta: detalle })}
                     className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors"
                   >
@@ -1952,6 +2105,15 @@ export default function VentasPage() {
                 <span><Badge color={detalle.tipoPago === 'Contado' ? 'green' : 'blue'}>{detalle.tipoPago}</Badge></span>
                 <span className="text-slate-400">Estado</span>
                 <span><Badge color={estadoColor[detalle.estado]}>{detalle.estado}</Badge></span>
+                {detalle.aprobadorNombre && (
+                  <>
+                    <span className="text-slate-400">Aprobador</span>
+                    <span className="flex items-center gap-1 font-medium text-blue-700">
+                      <UserCheck size={12} className="text-blue-500" />
+                      {detalle.aprobadorNombre}
+                    </span>
+                  </>
+                )}
                 {detalle.esMayorista && (
                   <>
                     <span className="text-slate-400">Tipo venta</span>

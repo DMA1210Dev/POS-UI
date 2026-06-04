@@ -223,6 +223,8 @@ export interface VentaResponse {
   aplicaItbisComprobante: boolean
   ncf?: string
   ncfValidado: boolean
+  aprobadorId?: number
+  aprobadorNombre?: string
   detalles: DetalleVentaResponse[]
 }
 
@@ -666,4 +668,22 @@ export interface UsuarioOpcionDto {
   id:     number
   nombre: string
   email:  string
+}
+
+// ── Notificaciones ────────────────────────────────────────────────────────────
+
+export type TipoNotificacion =
+  | 'AprobacionPendiente'
+  | 'VentaAprobada'
+  | 'VentaAnulada'
+  | 'AprobadorAsignado'
+  | 'General'
+
+export interface NotificacionResponse {
+  id: number
+  tipo: TipoNotificacion
+  mensaje: string
+  ventaId?: number
+  leida: boolean
+  fechaCreacion: string
 }
