@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { X, Pencil } from 'lucide-react'
 import { clientesApi, comprobantesApi } from '../../api'
@@ -29,9 +29,13 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
   // Nuevos registros abren directo en edición; registros existentes abren en vista (o edición si se pasa modoEdicion)
   const [editando, setEditando] = useState(!cliente || modoEdicion)
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateClienteDto & { activo: boolean }>({
-    defaultValues: { porcentajeDescuento: 0, esMayorista: false, diasCredito: 0 },
-  })
+  const { register, handleSubmit, reset, setValue, control, formState: { errors } } =
+    useForm<CreateClienteDto & { activo: boolean }>({
+      defaultValues: { porcentajeDescuento: 0, esMayorista: false, diasCredito: 0 },
+    })
+
+  // Para leer el valor actual de diasCredito y pintar el pill activo
+  const diasCreditoActual = useWatch({ control, name: 'diasCredito' })
 
   const { data: comprobantes = [] } = useQuery({
     queryKey: ['comprobantes', 'activos'],
@@ -110,7 +114,7 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
           </div>
         ) : (
           /* Modo edición */
-          <form onSubmit={handleSubmit(d => cliente ? actualizar.mutate(d) : crear.mutate(d as CreateClienteDto))} className="px-6 py-5 space-y-4">
+          <form onSubmit={handleSubmit(d => cliente ? actualizar.mutate(d) : crear.mutate(d as CreateClienteDto))} className="px-6 py-5 space-y-4 overflow-y-auto max-h-[75vh]">
             <Input label="Nombre *" error={errors.nombre?.message} {...register('nombre', { required: 'Requerido' })} />
             <Input label="Cédula (11 dígitos)" {...register('cedula')} />
             <Input label="Teléfono" {...register('telefono')} />
@@ -162,26 +166,38 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
             <div className="rounded-xl border border-slate-200 p-3 space-y-3 bg-slate-50">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Condiciones de crédito</p>
 
+              {/* Límite — solo setValueAs, sin valueAsNumber (se contradicen) */}
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">Límite de crédito (RD$)</label>
                 <input
                   type="number" step="0.01" min="0" placeholder="Sin límite"
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  {...register('limiteCredito', { min: 0, valueAsNumber: true, setValueAs: v => v === '' || isNaN(v) ? undefined : Number(v) })}
+                  {...register('limiteCredito', {
+                    setValueAs: v => (v === '' || v === null || v === undefined) ? undefined : Number(v),
+                  })}
                 />
                 <p className="text-xs text-slate-400 mt-1">Dejar vacío = sin límite</p>
               </div>
 
+              {/* Plazo — pills controlados con setValue para evitar conflictos radio+number */}
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">Plazo de pago</label>
+                {/* Campo oculto que guarda el valor real */}
+                <input type="hidden" {...register('diasCredito', { valueAsNumber: true })} />
                 <div className="flex gap-1.5 flex-wrap">
                   {[0, 15, 30, 60, 90, 120].map(d => (
-                    <label key={d} className="cursor-pointer">
-                      <input type="radio" value={d} {...register('diasCredito', { valueAsNumber: true })} className="sr-only" />
-                      <span className="block px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors peer-checked:bg-teal-600 peer-checked:text-white border-slate-300 text-slate-600 hover:border-teal-400 has-[:checked]:bg-teal-600 has-[:checked]:text-white has-[:checked]:border-teal-600">
-                        {d === 0 ? 'Sin plazo' : `${d}d`}
-                      </span>
-                    </label>
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setValue('diasCredito', d, { shouldDirty: true })}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors ${
+                        Number(diasCreditoActual) === d
+                          ? 'bg-teal-600 text-white border-teal-600'
+                          : 'border-slate-300 text-slate-600 hover:border-teal-400 hover:text-teal-600'
+                      }`}
+                    >
+                      {d === 0 ? 'Sin plazo' : `${d}d`}
+                    </button>
                   ))}
                 </div>
                 <p className="text-xs text-slate-400 mt-1">Fecha de vencimiento auto-calculada al crear facturas a crédito</p>
