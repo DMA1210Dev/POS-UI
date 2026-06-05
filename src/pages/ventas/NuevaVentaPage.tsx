@@ -776,18 +776,23 @@ export default function NuevaVentaPage() {
   }
 
   const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0)
-  const total    = subtotal - descuento
+  const total    = Math.max(0, subtotal - descuento)
   const hayCarrito = carrito.length > 0 || !!tipoComprobanteId || !!clienteId
 
   // ITBIS extraído del precio (precio consumidor ya lo incluye)
-  // itbis_item = precio_con_itbis × pct / (100 + pct)
+  // Se aplica el factor de descuento para que el ITBIS refleje el monto real post-descuento.
+  // Ejemplo: precio RD$118 con 18% → ITBIS pleno = RD$18.
+  //          Con 10% descuento → factor = 0.9 → ITBIS ajustado = RD$16.20
+  const factorDescuento = subtotal > 0 ? total / subtotal : 1
   const tipoSeleccionado = tiposComp.find(t => t.id === tipoComprobanteId)
   const mostrarItbis = tipoSeleccionado ? tipoSeleccionado.aplicaItbis : true
   const itbisTotal = mostrarItbis
     ? carrito.reduce((s, i) => {
         const pct = i.porcentajeImpuesto ?? 0
         if (!i.aplicaImpuesto || pct <= 0) return s
-        return s + (i.precio * i.cantidad) * pct / (100 + pct)
+        // Precio efectivo del ítem después de distribuir el descuento proporcionalmente
+        const precioEfectivo = i.precio * factorDescuento
+        return s + (precioEfectivo * i.cantidad) * pct / (100 + pct)
       }, 0)
     : 0
 
@@ -990,7 +995,12 @@ export default function NuevaVentaPage() {
                 <span>Subtotal</span><span>{fmt(subtotal)}</span>
               </div>
               <div className="flex justify-between text-slate-500">
-                <span className="flex items-center gap-1">ITBIS <span className="text-[10px] text-slate-400">(incl.)</span></span>
+                <span className="flex items-center gap-1">
+                  ITBIS
+                  <span className="text-[10px] text-slate-400">
+                    {descuento > 0 ? '(c/desc.)' : '(incl.)'}
+                  </span>
+                </span>
                 <span>{fmt(itbisTotal)}</span>
               </div>
               {descuento > 0 && (
