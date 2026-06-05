@@ -125,12 +125,11 @@ function AsignarAprobadorModal({ venta, loading, onConfirm, onCancel }: AsignarA
   const [search, setSearch] = useState('')
 
   const { data: usuarios = [] } = useQuery<UsuarioResponse[]>({
-    queryKey: ['usuarios'],
-    queryFn: usuariosApi.getAll,
+    queryKey: ['usuarios-aprobadores'],
+    queryFn: usuariosApi.getAprobadores,
   })
 
   const filtered = usuarios
-    .filter(u => u.activo)
     .filter(u =>
       u.nombre.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase())
