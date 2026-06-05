@@ -30,7 +30,7 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
   const [editando, setEditando] = useState(!cliente || modoEdicion)
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateClienteDto & { activo: boolean }>({
-    defaultValues: { porcentajeDescuento: 0, esMayorista: false },
+    defaultValues: { porcentajeDescuento: 0, esMayorista: false, diasCredito: 0 },
   })
 
   const { data: comprobantes = [] } = useQuery({
@@ -99,6 +99,8 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
             <Campo label="Comprobante" valor={
               comprobante ? `${comprobante.nombre} (${comprobante.codigo})` : cliente.nombreComprobante
             } />
+            <Campo label="Límite crédito" valor={cliente.limiteCredito != null ? fmt(cliente.limiteCredito) : null} />
+            <Campo label="Plazo crédito"  valor={cliente.diasCredito > 0 ? `${cliente.diasCredito} días` : null} />
             <Campo label="Deuda"     valor={cliente.totalDeuda > 0 ? <span className="text-red-600">{fmt(cliente.totalDeuda)}</span> : null} />
             <Campo label="Créditos"  valor={cliente.creditosActivos > 0 ? <span className="text-orange-600">{cliente.creditosActivos} activos</span> : null} />
             <Campo label="Estado"    valor={<Badge color={cliente.activo ? 'green' : 'red'}>{cliente.activo ? 'Activo' : 'Inactivo'}</Badge>} />
@@ -154,6 +156,36 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
                 ? <p className="text-xs text-red-600 mt-1">{errors.tipoComprobanteId.message}</p>
                 : <p className="text-xs text-slate-400 mt-1">Se cargará automáticamente al seleccionar este cliente en una venta</p>
               }
+            </div>
+
+            {/* Crédito */}
+            <div className="rounded-xl border border-slate-200 p-3 space-y-3 bg-slate-50">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Condiciones de crédito</p>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700 block mb-1">Límite de crédito (RD$)</label>
+                <input
+                  type="number" step="0.01" min="0" placeholder="Sin límite"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  {...register('limiteCredito', { min: 0, valueAsNumber: true, setValueAs: v => v === '' || isNaN(v) ? undefined : Number(v) })}
+                />
+                <p className="text-xs text-slate-400 mt-1">Dejar vacío = sin límite</p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700 block mb-1">Plazo de pago</label>
+                <div className="flex gap-1.5 flex-wrap">
+                  {[0, 15, 30, 60, 90, 120].map(d => (
+                    <label key={d} className="cursor-pointer">
+                      <input type="radio" value={d} {...register('diasCredito', { valueAsNumber: true })} className="sr-only" />
+                      <span className="block px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors peer-checked:bg-teal-600 peer-checked:text-white border-slate-300 text-slate-600 hover:border-teal-400 has-[:checked]:bg-teal-600 has-[:checked]:text-white has-[:checked]:border-teal-600">
+                        {d === 0 ? 'Sin plazo' : `${d}d`}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                <p className="text-xs text-slate-400 mt-1">Fecha de vencimiento auto-calculada al crear facturas a crédito</p>
+              </div>
             </div>
 
             {isAdmin && (

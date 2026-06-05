@@ -564,6 +564,22 @@ export default function NuevaVentaPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clienteId, tiposComp.length])
 
+  // ── Auto-fecha vencimiento crédito ────────────────────────────────────────
+  // Cuando se selecciona cliente Y se cambia a Crédito, auto-calcula la fecha
+  // a partir de los días de crédito del cliente (si tiene).
+  useEffect(() => {
+    if (tipoPago !== 'Credito' || !clienteId) return
+    const cliente = clientes.find(c => c.id === clienteId)
+    if (!cliente || cliente.diasCredito <= 0) return
+    // Solo auto-llenar si no hay fecha manual ya establecida
+    if (!fechaVenc) {
+      const hoy = new Date()
+      hoy.setDate(hoy.getDate() + cliente.diasCredito)
+      setFechaVenc(hoy.toISOString().split('T')[0])
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clienteId, tipoPago, clientes])
+
   // ── Mutación de reserva de NCF ────────────────────────────────────────────
   const [reservando,        setReservando]        = useState(false)
   const [confirmarCancelar, setConfirmarCancelar] = useState(false)
@@ -851,6 +867,18 @@ export default function NuevaVentaPage() {
                   {clienteSeleccionado.creditosActivos > 0 && (
                     <span className="text-orange-500">{clienteSeleccionado.creditosActivos} crédito(s)</span>
                   )}
+                  {clienteSeleccionado.diasCredito > 0 && (
+                    <span className="text-teal-600">{clienteSeleccionado.diasCredito}d crédito</span>
+                  )}
+                  {clienteSeleccionado.limiteCredito != null && (
+                    <span className={
+                      clienteSeleccionado.totalDeuda >= clienteSeleccionado.limiteCredito
+                        ? 'text-red-600 font-semibold'
+                        : 'text-slate-500'
+                    }>
+                      Límite: {fmt(clienteSeleccionado.limiteCredito)}
+                    </span>
+                  )}
                   {clienteSeleccionado.nombreComprobante && (
                     <span className="text-indigo-600">{clienteSeleccionado.nombreComprobante}</span>
                   )}
@@ -858,10 +886,25 @@ export default function NuevaVentaPage() {
               )}
             </div>
 
+            {/* Alerta de límite de crédito excedido */}
+            {tipoPago === 'Credito' && clienteSeleccionado?.limiteCredito != null &&
+             clienteSeleccionado.totalDeuda >= clienteSeleccionado.limiteCredito && (
+              <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5 text-xs text-red-700">
+                <AlertTriangle size={13} className="shrink-0 mt-0.5" />
+                <span>
+                  <strong>Límite de crédito alcanzado.</strong> Deuda actual: {fmt(clienteSeleccionado.totalDeuda)} · Límite: {fmt(clienteSeleccionado.limiteCredito)}.
+                  No se puede crear esta venta a crédito.
+                </span>
+              </div>
+            )}
+
             {/* Fecha vencimiento crédito */}
             {modoCarrito === 'venta' && tipoPago === 'Credito' && (
-              <Input label="Vencimiento crédito" type="date" value={fechaVenc}
-                onChange={e => setFechaVenc(e.target.value)} />
+              <div>
+                <Input label={`Vencimiento crédito${clienteSeleccionado?.diasCredito ? ` (${clienteSeleccionado.diasCredito} días)` : ''}`}
+                  type="date" value={fechaVenc}
+                  onChange={e => setFechaVenc(e.target.value)} />
+              </div>
             )}
 
             {/* Comprobante */}
@@ -937,8 +980,11 @@ export default function NuevaVentaPage() {
                   (!(comercio?.permitirVentaSinCliente ?? true) && !clienteId) ||
                   reservando ||
                   // Comprobante requerido solo cuando no hay cliente ni comprobante elegido
-                  // (si hay cliente, el backend aplica B02 por defecto automáticamente)
-                  (!(comercio?.permitirVentaSinComprobante ?? false) && !tipoComprobanteId && !clienteId)
+                  (!(comercio?.permitirVentaSinComprobante ?? false) && !tipoComprobanteId && !clienteId) ||
+                  // Bloquear si el cliente ya alcanzó su límite de crédito
+                  (tipoPago === 'Credito' &&
+                   clienteSeleccionado?.limiteCredito != null &&
+                   clienteSeleccionado.totalDeuda >= clienteSeleccionado.limiteCredito)
                 }
                 onClick={() => crear.mutate()}>
                 {tipoPago === 'Credito' ? 'Registrar a crédito' : 'Cobrar'}

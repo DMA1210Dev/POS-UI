@@ -424,6 +424,8 @@ export interface ClienteResponse {
   creditosActivos: number
   tipoComprobanteId?: number
   nombreComprobante?: string
+  limiteCredito?: number
+  diasCredito: number
 }
 
 export interface CreateClienteDto {
@@ -435,6 +437,8 @@ export interface CreateClienteDto {
   esMayorista: boolean
   porcentajeDescuento: number
   tipoComprobanteId: number
+  limiteCredito?: number
+  diasCredito: number
 }
 
 export interface UpdateClienteDto extends CreateClienteDto {
