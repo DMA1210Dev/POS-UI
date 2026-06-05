@@ -7,7 +7,6 @@ import autoTable from 'jspdf-autotable'
 import { productosApi, clientesApi, ventasApi, comprobantesApi, cotizacionesApi, categoriasApi, usuariosApi } from '../../api'
 import { Card, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import Input from '../../components/ui/Input'
 import BarcodeInput from '../../components/ui/BarcodeInput'
 import Badge from '../../components/ui/Badge'
 import { ComprobanteSelector } from '../../components/ventas/ComprobanteSelector'
@@ -565,19 +564,24 @@ export default function NuevaVentaPage() {
   }, [clienteId, tiposComp.length])
 
   // ── Auto-fecha vencimiento crédito ────────────────────────────────────────
-  // Cuando se selecciona cliente Y se cambia a Crédito, auto-calcula la fecha
-  // a partir de los días de crédito del cliente (si tiene).
+  // Siempre recalcula cuando cambia el cliente o el tipo de pago.
+  // Si el cliente tiene diasCredito > 0 → hoy + N días.
+  // Si no tiene plazo → limpia la fecha (sin vencimiento).
   useEffect(() => {
-    if (tipoPago !== 'Credito' || !clienteId) return
+    if (tipoPago !== 'Credito' || !clienteId) {
+      setFechaVenc('')
+      return
+    }
     const cliente = clientes.find(c => c.id === clienteId)
-    if (!cliente || cliente.diasCredito <= 0) return
-    // Solo auto-llenar si no hay fecha manual ya establecida
-    if (!fechaVenc) {
+    if (!cliente) return
+
+    if (cliente.diasCredito > 0) {
       const hoy = new Date()
       hoy.setDate(hoy.getDate() + cliente.diasCredito)
       setFechaVenc(hoy.toISOString().split('T')[0])
+    } else {
+      setFechaVenc('')
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clienteId, tipoPago, clientes])
 
   // ── Mutación de reserva de NCF ────────────────────────────────────────────
@@ -898,12 +902,33 @@ export default function NuevaVentaPage() {
               </div>
             )}
 
-            {/* Fecha vencimiento crédito */}
+            {/* Fecha vencimiento crédito — solo lectura, calculada del cliente */}
             {modoCarrito === 'venta' && tipoPago === 'Credito' && (
               <div>
-                <Input label={`Vencimiento crédito${clienteSeleccionado?.diasCredito ? ` (${clienteSeleccionado.diasCredito} días)` : ''}`}
-                  type="date" value={fechaVenc}
-                  onChange={e => setFechaVenc(e.target.value)} />
+                <label className="text-sm font-medium text-slate-700 block mb-1">
+                  Vencimiento de pago
+                  {clienteSeleccionado?.diasCredito && clienteSeleccionado.diasCredito > 0 && (
+                    <span className="ml-1.5 text-xs font-normal text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded-md">
+                      {clienteSeleccionado.diasCredito} días
+                    </span>
+                  )}
+                </label>
+                <div className={`w-full px-3 py-2 text-sm rounded-lg border flex items-center gap-2 ${
+                  fechaVenc
+                    ? 'bg-teal-50 border-teal-200 text-teal-800 font-medium'
+                    : 'bg-slate-50 border-slate-200 text-slate-400 italic'
+                }`}>
+                  <span>
+                    {fechaVenc
+                      ? new Date(fechaVenc + 'T00:00:00').toLocaleDateString('es-DO', { day: '2-digit', month: 'long', year: 'numeric' })
+                      : 'Sin fecha límite definida'}
+                  </span>
+                </div>
+                {!fechaVenc && clienteSeleccionado && (
+                  <p className="text-xs text-slate-400 mt-1">
+                    Configura el plazo de crédito en el perfil del cliente para auto-calcular la fecha.
+                  </p>
+                )}
               </div>
             )}
 
