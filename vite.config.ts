@@ -19,7 +19,7 @@ export default defineConfig({
     // En modo Tauri dev, el frontend llama directo al VPS → no necesita proxy
     proxy: isTauri ? {} : {
       '/api': {
-        target: 'https://pruebasremota.somee.com',
+        target: 'http://localhost:5050',
         changeOrigin: true,
       },
     },
