@@ -79,13 +79,20 @@ export default function Sidebar() {
       label: 'Contabilidad',
       icon: <BookOpen size={16} />,
       items: [
-        puedeVerReportes         && { to: '/reportes',      label: 'Reportes',      icon: <BarChart2 size={16} /> },
         puedeGestionarProductos  && { to: '/comprobantes',  label: 'Comprobantes',  icon: <Receipt size={16} /> },
         puedeGestionarUsuarios   && { to: '/contabilidad/cuentas', label: 'Catálogo de Cuentas', icon: <BookOpen size={16} /> },
         puedeVerReportes         && { to: '/contabilidad/asientos', label: 'Asientos', icon: <FileText size={16} /> },
-        puedeVerReportes         && { to: '/contabilidad/mayor-general', label: 'Mayor General', icon: <BarChart2 size={16} /> },
-        puedeVerReportes         && { to: '/contabilidad/balance-general', label: 'Balance General', icon: <BarChart2 size={16} /> },
-        puedeVerReportes         && { to: '/contabilidad/estado-saldos', label: 'Estado de Saldos', icon: <BarChart2 size={16} /> },
+      ].filter(Boolean) as NavItem[],
+    },
+    {
+      key: 'reportes',
+      label: 'Reportes',
+      icon: <BarChart2 size={16} />,
+      items: [
+        puedeVerReportes && { to: '/reportes', label: 'Dashboard', icon: <BarChart2 size={16} /> },
+        puedeVerReportes && { to: '/contabilidad/mayor-general', label: 'Mayor General', icon: <BarChart2 size={16} /> },
+        puedeVerReportes && { to: '/contabilidad/balance-general', label: 'Balance General', icon: <BarChart2 size={16} /> },
+        puedeVerReportes && { to: '/contabilidad/estado-saldos', label: 'Estado de Saldos', icon: <BarChart2 size={16} /> },
       ].filter(Boolean) as NavItem[],
     },
     {
