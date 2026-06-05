@@ -782,32 +782,37 @@ export default function NuevaVentaPage() {
   const tipoSeleccionado = tiposComp.find(t => t.id === tipoComprobanteId)
   const mostrarItbis = tipoSeleccionado ? tipoSeleccionado.aplicaItbis : true
 
-  // ── Desglose fiscal ────────────────────────────────────────────────────────
-  // El precio de cada ítem ya incluye ITBIS (precio consumidor final).
-  // Extraemos la base y el ITBIS por separado para mostrar el desglose correcto.
+  // ── Desglose fiscal dinámico ───────────────────────────────────────────────
+  // Los precios ya incluyen ITBIS. Extraemos base e ITBIS y aplicamos el
+  // descuento proporcionalmente a ambos para que los tres números cuadren:
   //
-  //   Base (s/ITBIS) + ITBIS - Descuento = Total   ← todos los números cuadran
+  //   Base ajustada + ITBIS ajustado = Total
   //
-  // Ejemplo: precio RD$118, pct 18%, descuento RD$11.80
-  //   Base     = 118 × 100/118  = RD$100.00
-  //   ITBIS    = 118 × 18/118   = RD$18.00
-  //   Descuento                 = RD$11.80
-  //   Total    = 100 + 18 − 11.80 = RD$106.20 ✓
+  // Ejemplo: precio RD$118 (18% ITBIS), descuento 10% (RD$11.80)
+  //   factor          = (118 − 11.80) / 118  = 0.9
+  //   Base ajustada   = 100 × 0.9  = RD$90.00
+  //   ITBIS ajustado  = 18  × 0.9  = RD$16.20
+  //   Total           = 90 + 16.20 = RD$106.20 ✓
 
-  const subtotalBase = mostrarItbis
+  const factorDescuento = subtotal > 0 ? total / subtotal : 1
+
+  // Base e ITBIS a precio de lista (antes del descuento)
+  const baseCompleta = mostrarItbis
     ? carrito.reduce((s, i) => {
         const pct = i.porcentajeImpuesto ?? 0
         if (!i.aplicaImpuesto || pct <= 0) return s + i.precio * i.cantidad
         return s + (i.precio * i.cantidad) * 100 / (100 + pct)
       }, 0)
     : subtotal
+  const itbisCompleto = mostrarItbis ? subtotal - baseCompleta : 0
 
-  // ITBIS sobre precio completo (para el desglose visible)
-  const itbisTotal = mostrarItbis ? subtotal - subtotalBase : 0
+  // Aplicar factor: base e ITBIS ya con el descuento reflejado
+  const subtotalBase = baseCompleta * factorDescuento   // ← baja con el descuento
+  const itbisTotal   = itbisCompleto * factorDescuento  // ← se ajusta proporcionalmente
 
-  // Factor para otros cálculos internos que requieran ITBIS ajustado al descuento
-  const _factorDescuento = subtotal > 0 ? total / subtotal : 1
-  void _factorDescuento // usado solo como referencia
+  // Porcentaje de ITBIS representativo (del primer ítem gravado)
+  const pctItbisRef = carrito.find(i => i.aplicaImpuesto && (i.porcentajeImpuesto ?? 0) > 0)
+    ?.porcentajeImpuesto ?? 18
 
   const categoriaSeleccionada = categorias.find(c => c.id === categoriaId)
 
@@ -1004,7 +1009,8 @@ export default function NuevaVentaPage() {
 
             {/* Totales */}
             <div className="text-sm space-y-1 pt-2 border-t border-slate-100">
-              {/* Subtotal base sin ITBIS */}
+
+              {/* Subtotal base (ya con descuento aplicado) */}
               <div className="flex justify-between text-slate-500">
                 <span className="flex items-center gap-1">
                   Subtotal
@@ -1013,26 +1019,24 @@ export default function NuevaVentaPage() {
                 <span>{fmt(subtotalBase)}</span>
               </div>
 
-              {/* ITBIS */}
+              {/* ITBIS ajustado al descuento */}
               {mostrarItbis && itbisTotal > 0 && (
                 <div className="flex justify-between text-slate-500">
                   <span className="flex items-center gap-1">
                     ITBIS
-                    {carrito.some(i => i.aplicaImpuesto && (i.porcentajeImpuesto ?? 0) > 0) && (
-                      <span className="text-[10px] text-slate-400">
-                        ({carrito.find(i => i.aplicaImpuesto && (i.porcentajeImpuesto ?? 0) > 0)?.porcentajeImpuesto ?? 18}%)
-                      </span>
-                    )}
+                    <span className="text-[10px] text-slate-400">({pctItbisRef}%)</span>
                   </span>
                   <span>{fmt(itbisTotal)}</span>
                 </div>
               )}
 
-              {/* Descuento */}
+              {/* Chip de ahorro — informativo, fuera de la ecuación */}
               {descuento > 0 && (
-                <div className="flex justify-between text-green-600 font-medium">
-                  <span>Descuento{clienteSeleccionado?.porcentajeDescuento ? ` (${clienteSeleccionado.porcentajeDescuento}%)` : ''}</span>
-                  <span>-{fmt(descuento)}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-green-600 bg-green-50 border border-green-200 rounded-full px-2 py-0.5">
+                    Ahorro{clienteSeleccionado?.porcentajeDescuento ? ` (${clienteSeleccionado.porcentajeDescuento}%)` : ''}
+                  </span>
+                  <span className="text-[11px] text-green-600 font-medium">-{fmt(descuento)}</span>
                 </div>
               )}
 
