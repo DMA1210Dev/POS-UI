@@ -385,7 +385,7 @@ export default function CreditosPage() {
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
               <tr>
-                {['Cliente', 'Total', 'Pagado', 'Saldo', 'Avance', 'Vencimiento', 'Estado', ''].map(h => (
+                {['Cliente', 'Total', 'Pagado', 'Saldo', 'Vencimiento', 'Estado', ''].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-medium">{h}</th>
                 ))}
               </tr>
@@ -395,7 +395,6 @@ export default function CreditosPage() {
                 <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-400">Cargando...</td></tr>
               )}
               {visibles.map(c => {
-                const pct = c.montoTotal > 0 ? Math.round((c.montoPagado / c.montoTotal) * 100) : 0
                 const vencido = c.estado === 'Vencido'
                 return (
                   <tr key={c.id} className="hover:bg-slate-50 transition-colors">
@@ -406,18 +405,6 @@ export default function CreditosPage() {
                     <td className="px-4 py-3 font-mono text-sm">{fmt(c.montoTotal)}</td>
                     <td className="px-4 py-3 font-mono text-sm text-emerald-600">{fmt(c.montoPagado)}</td>
                     <td className="px-4 py-3 font-mono font-bold text-sm text-red-600">{fmt(c.saldo)}</td>
-                    {/* Barra de avance */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2 min-w-[80px]">
-                        <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                          <div
-                            className={`h-1.5 rounded-full ${pct >= 100 ? 'bg-emerald-500' : pct > 50 ? 'bg-blue-500' : 'bg-amber-400'}`}
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <span className="text-[11px] text-slate-500 shrink-0">{pct}%</span>
-                      </div>
-                    </td>
                     <td className={`px-4 py-3 text-sm ${vencido ? 'text-red-500 font-medium' : 'text-slate-500'}`}>
                       {c.fechaVencimiento ? fmtFecha(c.fechaVencimiento) : '—'}
                     </td>
