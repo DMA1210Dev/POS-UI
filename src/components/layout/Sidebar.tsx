@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
-  LayoutDashboard, Package, ShoppingCart, Users, CreditCard,
+  LayoutDashboard, Package, ShoppingCart, Users,
   BarChart2, UserCog, LogOut, AlertTriangle, UserCircle, Store, Palette, Receipt, Vault,
   ChevronDown, Clock,
   BookOpen, Warehouse, ClipboardList, TrendingUp, DollarSign, Briefcase, FolderKanban,

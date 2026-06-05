@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import * as XLSX from 'xlsx'
-import { FileSpreadsheet, Loader, Users, DollarSign, Building, AlertTriangle, X } from 'lucide-react'
+import { FileSpreadsheet, Users, DollarSign, Building, AlertTriangle, X } from 'lucide-react'
 import api from '../../lib/axios'
 import { Card, CardHeader, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -215,8 +215,8 @@ export default function NominaGeneralPage() {
         </CardHeader>
         <CardBody>
           {(() => {
-            const sum = (sel: (n: typeof data.nominas[number]) => number) =>
-              NUM(data.nominas.reduce((s, n) => s + sel(n), 0))
+            const sum = (sel: (n: typeof data!.nominas[number]) => number) =>
+              NUM(data!.nominas.reduce((s, n) => s + sel(n), 0))
 
             const afpEmp  = sum(n => n.descuentosEmpleado.afpEmpleado)
             const afpEmpresa = sum(n => n.aportesEmpresa.afpEmpresa)

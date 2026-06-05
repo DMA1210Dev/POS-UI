@@ -223,8 +223,8 @@ type FormatoImpresion = 'A4' | '80mm' | '58mm'
 const getFormato = (): FormatoImpresion =>
   (localStorage.getItem('pos_formato') as FormatoImpresion) ?? '80mm'
 
-const estadoColor: Record<string, 'success' | 'warning' | 'danger' | 'gray' | 'brand'> = {
-  Completada: 'success', Pendiente: 'warning', Cancelada: 'danger', Devuelta: 'gray', DevueltaParcial: 'brand',
+const estadoColor: Record<string, 'green' | 'yellow' | 'red' | 'gray' | 'blue'> = {
+  Completada: 'green', Pendiente: 'yellow', Cancelada: 'red', Devuelta: 'gray', DevueltaParcial: 'blue',
 }
 
 // ── Modal devolución (parcial o completa) ─────────────────────────────────────
@@ -1432,8 +1432,8 @@ export default function VentasPage() {
     setFormato(f)
   }
 
-const estadoCreditoColor: Record<string, 'success'|'warning'|'danger'|'gray'|'brand'> = {
-  Pendiente: 'warning', PagadoParcial: 'brand', Saldado: 'success', Vencido: 'danger', Cancelado: 'gray',
+const estadoCreditoColor: Record<string, 'green'|'yellow'|'red'|'gray'|'blue'> = {
+  Pendiente: 'yellow', PagadoParcial: 'blue', Saldado: 'green', Vencido: 'red', Cancelado: 'gray',
 }
 
   const pendientes = listaVentas.filter(v => v.estado === 'Pendiente')
@@ -1605,7 +1605,7 @@ const estadoCreditoColor: Record<string, 'success'|'warning'|'danger'|'gray'|'br
                   <td className="px-4 py-3">{v.nombreCliente ?? <span className="text-slate-300">—</span>}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-col gap-1">
-                      <Badge color={v.tipoPago === 'Contado' ? 'success' : 'brand'}>{v.tipoPago}</Badge>
+                      <Badge color={v.tipoPago === 'Contado' ? 'green' : 'blue'}>{v.tipoPago}</Badge>
                       {v.esMayorista && <Badge color="purple">Mayorista</Badge>}
                       {v.codigoComprobante && (
                         <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-indigo-700 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
@@ -1730,7 +1730,7 @@ const estadoCreditoColor: Record<string, 'success'|'warning'|'danger'|'gray'|'br
                       }
                     </td>
                     <td className="px-4 py-3">
-                      <Badge color={dev.estado === 'Completada' ? 'success' : 'warning'}>
+                      <Badge color={dev.estado === 'Completada' ? 'green' : 'yellow'}>
                         {dev.estado === 'PendienteComprobanteE' ? 'Pendiente e-CF' : dev.estado}
                       </Badge>
                     </td>
@@ -2101,7 +2101,7 @@ const estadoCreditoColor: Record<string, 'success'|'warning'|'danger'|'gray'|'br
                 <span className="text-slate-400">Cajero</span>
                 <span className="font-medium">{detalle.nombreUsuario}</span>
                 <span className="text-slate-400">Tipo pago</span>
-                <span><Badge color={detalle.tipoPago === 'Contado' ? 'success' : 'brand'}>{detalle.tipoPago}</Badge></span>
+                <span><Badge color={detalle.tipoPago === 'Contado' ? 'green' : 'blue'}>{detalle.tipoPago}</Badge></span>
                 <span className="text-slate-400">Estado</span>
                 <span><Badge color={estadoColor[detalle.estado]}>{detalle.estado}</Badge></span>
                 {detalle.aprobadorNombre && (

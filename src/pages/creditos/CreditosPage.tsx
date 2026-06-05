@@ -21,8 +21,8 @@ const fmt       = (n: number) => new Intl.NumberFormat('es-DO', { style: 'curren
 const fmtFecha  = (d: string) => new Date(d + (d.includes('T') ? '' : 'T00:00:00')).toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' })
 const fmtDetalle = (d: string) => new Date(d).toLocaleString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 
-const estadoColor: Record<string, 'warning' | 'brand' | 'success' | 'danger' | 'gray'> = {
-  Pendiente: 'warning', PagadoParcial: 'brand', Saldado: 'success', Vencido: 'danger', Cancelado: 'gray',
+const estadoColor: Record<string, 'yellow' | 'blue' | 'green' | 'red' | 'gray'> = {
+  Pendiente: 'yellow', PagadoParcial: 'blue', Saldado: 'green', Vencido: 'red', Cancelado: 'gray',
 }
 
 // ── Labels de método de pago ──────────────────────────────────────────────────
@@ -32,127 +32,6 @@ const metodoPagoLabel: Record<MetodoPago, string> = {
   Transferencia: 'Transferencia bancaria',
   Cheque:        'Cheque',
   Otro:          'Otro',
-}
-
-// ── Recibo completo del cliente ───────────────────────────────────────────────
-// Muestra todos sus créditos activos/vencidos + detalle del último pago
-function imprimirReciboCliente(
-  creditos: CreditoResponse[],
-  clienteNombre: string,
-  ultimoPago: { monto: number; metodoPago: MetodoPago; observacion?: string; nombreUsuario: string; fechaPago: string } | null,
-  comercioNombre: string,
-) {
-  const doc = new jsPDF({ unit: 'mm', format: [80, 200] })
-  const W = 80; const ML = 4; const MR = 4
-  let y = 5
-
-  const center = (txt: string, yy: number, sz = 9) => {
-    doc.setFontSize(sz); doc.text(txt, W / 2, yy, { align: 'center' }); return yy + sz * 0.45
-  }
-  const hline = (yy: number) => {
-    doc.setDrawColor(180); doc.line(ML, yy, W - MR, yy); return yy + 3
-  }
-  const row = (lbl: string, val: string, yy: number, boldVal = false, sz = 8) => {
-    doc.setFontSize(sz); doc.setFont('helvetica', 'normal'); doc.text(lbl, ML, yy)
-    doc.setFont('helvetica', boldVal ? 'bold' : 'normal'); doc.text(val, W - MR, yy, { align: 'right' })
-    return yy + 4
-  }
-
-  // ── Cabecera ──────────────────────────────────────────────────────────────
-  doc.setFont('helvetica', 'bold')
-  y = center(comercioNombre, y, 11) + 2
-  doc.setFont('helvetica', 'normal')
-  y = center('RECIBO DE COBRO', y, 9) + 1
-  y = center(new Date().toLocaleString('es-DO', { dateStyle: 'short', timeStyle: 'short' }), y, 7.5) + 1
-  y = hline(y)
-
-  // ── Cliente ───────────────────────────────────────────────────────────────
-  doc.setFontSize(8); doc.setFont('helvetica', 'bold')
-  doc.text('CLIENTE:', ML, y); y += 4
-  doc.setFont('helvetica', 'normal')
-  doc.text(clienteNombre, ML, y); y += 5
-  y = hline(y)
-
-  // ── Detalle de facturas ───────────────────────────────────────────────────
-  doc.setFontSize(7.5); doc.setFont('helvetica', 'bold')
-  doc.text('DETALLE DE FACTURAS', ML, y); y += 4
-  doc.setFont('helvetica', 'normal')
-
-  const activos = creditos.filter(c => c.estado !== 'Saldado' && c.estado !== 'Cancelado')
-
-  if (activos.length === 0) {
-    doc.setFontSize(7.5); doc.setFont('helvetica', 'italic')
-    doc.text('Sin facturas pendientes', ML, y); y += 4
-  } else {
-    for (const c of activos) {
-      // Referencia
-      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold')
-      doc.text(`Factura #${c.ventaId}`, ML, y)
-      // Estado badge
-      const estadoX = W - MR - doc.getTextWidth(c.estado)
-      doc.setFont('helvetica', 'normal'); doc.text(c.estado, estadoX, y); y += 3.5
-
-      // Fecha de crédito y vencimiento
-      doc.setFontSize(7)
-      const fechaCred = `Créd: ${fmtFecha(c.fechaCreacion)}`
-      const fechaVenc = c.fechaVencimiento ? `  Vence: ${fmtFecha(c.fechaVencimiento)}` : ''
-      doc.text(fechaCred + fechaVenc, ML, y); y += 3.5
-
-      // Montos
-      doc.setFontSize(7.5)
-      y = row('  Total:', fmt(c.montoTotal), y)
-      y = row('  Pagado:', fmt(c.montoPagado), y)
-      doc.setFont('helvetica', 'bold')
-      y = row('  Saldo:', fmt(c.saldo), y, true)
-      doc.setFont('helvetica', 'normal')
-
-      // Días de crédito (extraído de fechas)
-      if (c.fechaVencimiento) {
-        const dias = Math.round(
-          (new Date(c.fechaVencimiento).getTime() - new Date(c.fechaCreacion).getTime()) / 86400000
-        )
-        y = row('  Plazo:', `${dias} días`, y)
-      }
-
-      doc.setDrawColor(220); doc.line(ML + 2, y, W - MR - 2, y); y += 2.5
-    }
-  }
-
-  y = hline(y)
-
-  // ── Totales del cliente ────────────────────────────────────────────────────
-  const totalDeuda   = activos.reduce((s, c) => s + c.saldo, 0)
-  const totalMonto   = activos.reduce((s, c) => s + c.montoTotal, 0)
-  doc.setFontSize(8)
-  y = row('Total adeudado:', fmt(totalDeuda), y, true)
-  y = row('Nro. facturas:', String(activos.length), y)
-  y = hline(y)
-
-  // ── Información del pago ──────────────────────────────────────────────────
-  if (ultimoPago) {
-    doc.setFontSize(7.5); doc.setFont('helvetica', 'bold')
-    doc.text('PAGO RECIBIDO', ML, y); y += 4
-
-    doc.setFont('helvetica', 'normal')
-    y = row('Monto:', fmt(ultimoPago.monto), y, true)
-    y = row('Método:', metodoPagoLabel[ultimoPago.metodoPago], y)
-    y = row('Fecha:', fmtDetalle(ultimoPago.fechaPago), y)
-    y = row('Recibido por:', ultimoPago.nombreUsuario, y)
-    if (ultimoPago.observacion) {
-      doc.setFontSize(7); doc.setFont('helvetica', 'italic')
-      const lines = doc.splitTextToSize(`"${ultimoPago.observacion}"`, W - ML - MR)
-      doc.text(lines, ML, y); y += lines.length * 3.5
-    }
-    y = hline(y)
-  }
-
-  // ── Pie ────────────────────────────────────────────────────────────────────
-  doc.setFontSize(7.5); doc.setFont('helvetica', 'normal')
-  doc.text('¡Gracias por su pago!', W / 2, y, { align: 'center' }); y += 3.5
-  doc.text('Conserve este recibo como comprobante.', W / 2, y, { align: 'center' })
-
-  doc.autoPrint()
-  window.open(URL.createObjectURL(doc.output('blob')), '_blank')
 }
 
 // ── Impresión recibo de abono individual ──────────────────────────────────────
@@ -426,7 +305,7 @@ export default function CreditosPage() {
 
   const registrarPago = useMutation({
     mutationFn: () =>
-      creditosApi.registrarPago(pagoModal!.id, { monto: parseFloat(montoPago), observacion: obsv }),
+      creditosApi.registrarPago(pagoModal!.id, { monto: parseFloat(montoPago), observacion: obsv, metodoPago: 'Efectivo' }),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['creditos'] })
       // Actualiza el detalle si está abierto

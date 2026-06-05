@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Palette, Upload, Trash2, ImageIcon, RefreshCw, PaintBucket, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 import { comercioApi, type UpdateComercioDto } from '../../api'
 import { useComercio } from '../../context/ComercioContext'

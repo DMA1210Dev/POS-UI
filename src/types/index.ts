@@ -777,6 +777,7 @@ export interface EmpleadoNomina {
   otrosDescuentos: number
   anioFiscal: number
   cuentaBanco?: string | null
+  cedula?: string | null
 }
 
 export interface NominaGeneralResponse {

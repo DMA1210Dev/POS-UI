@@ -229,7 +229,7 @@ export default function EditarVentaPage() {
         </button>
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Editar Venta #{ventaId}</h2>
-          <p className="text-sm text-slate-400">Estado actual: <Badge color={venta.estado === 'Pendiente' ? 'warning' : 'success'}>{venta.estado}</Badge></p>
+          <p className="text-sm text-slate-400">Estado actual: <Badge color={venta.estado === 'Pendiente' ? 'yellow' : 'green'}>{venta.estado}</Badge></p>
         </div>
       </div>
 

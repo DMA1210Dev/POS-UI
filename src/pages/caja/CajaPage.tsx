@@ -344,7 +344,7 @@ function TarjetaSesion({ sesion }: { sesion: CajaSessionResponse }) {
             <p className="text-sm font-medium text-slate-800">{sesion.nombreUsuario}</p>
             <p className="text-xs text-slate-400">{fmtFecha(sesion.fechaApertura)}</p>
           </div>
-          <Badge color={sesion.estado === 'Abierta' ? 'success' : 'gray'}>{sesion.estado}</Badge>
+          <Badge color={sesion.estado === 'Abierta' ? 'green' : 'gray'}>{sesion.estado}</Badge>
           {sesion.validacionAdmin != null && (
             <ValidacionBadge valor={sesion.validacionAdmin} />
           )}
@@ -469,7 +469,7 @@ function SesionActivaPanel({
             <span className="w-2.5 h-2.5 rounded-full bg-success-500 animate-pulse" />
             <h3 className="font-semibold text-slate-700">Sesión en curso</h3>
           </div>
-          <Badge color="success">Abierta</Badge>
+          <Badge color="green">Abierta</Badge>
         </div>
       </CardHeader>
       <CardBody className="space-y-4">
@@ -731,7 +731,7 @@ function CajerosActivosPanel({
                 </button>
               </div>
 
-              <Badge color="success">Abierta</Badge>
+              <Badge color="green">Abierta</Badge>
             </div>
           ))}
         </div>

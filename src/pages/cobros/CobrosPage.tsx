@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Search, DollarSign, RefreshCw, User, FileText, Calendar,
-  Phone, CreditCard, CheckCircle, AlertTriangle, Clock, Printer, Receipt,
-  ChevronRight, X, Circle, CircleCheckBig, Banknote,
+  Phone, CreditCard, CheckCircle, Clock, Printer, Receipt,
+  ChevronRight, Circle, CircleCheckBig, Banknote,
 } from 'lucide-react'
 import { cobrosApi } from '../../api'
-import { Card, CardHeader, CardBody } from '../../components/ui/Card'
+import { Card, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
@@ -51,7 +51,7 @@ function FacturaRow({
             <div className="flex items-center gap-2">
               <span className="font-semibold text-slate-800">Factura #{factura.ventaId}</span>
               <Badge color={estadoColor[factura.estado]}>{fmtEstado(factura.estado)}</Badge>
-              {factura.vencida && <Badge color="danger">Vencida</Badge>}
+              {factura.vencida && <Badge color="red">Vencida</Badge>}
               <button
                 onClick={onVerPagos}
                 title="Ver historial de pagos"
@@ -136,7 +136,7 @@ export default function CobrosPage() {
   })
   const clientes = Array.isArray(_clientes) ? _clientes : []
 
-  const { data: _facturas, isLoading: loadFacturas, refetch: refetchFacturas } = useQuery({
+  const { data: _facturas, isLoading: loadFacturas, refetch: _refetchFacturas } = useQuery({
     queryKey: ['cobros', 'facturas', clienteSel?.id],
     queryFn: () => cobrosApi.facturasCliente(clienteSel!.id),
     enabled: !!clienteSel,
