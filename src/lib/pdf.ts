@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf'
 import { fmt, fmtFecha, fmtDetalle, metodoPagoLabel } from './format'
-import type { MetodoPago, PagoCreditoResponse } from '../types'
+import type { MetodoPago } from '../types'
 
 type Doc = jsPDF
 

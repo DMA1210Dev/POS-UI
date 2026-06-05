@@ -6,7 +6,7 @@ import { Card, CardHeader, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import EmptyState from '../../components/ui/EmptyState'
 import Badge from '../../components/ui/Badge'
-import type { NominaGeneralResponse } from '../../types'
+import type { NominaGeneralResponse, NominaResponse } from '../../types'
 
 const fmt = (n: number) =>
   `RD$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -215,8 +215,8 @@ export default function NominaGeneralPage() {
         </CardHeader>
         <CardBody>
           {(() => {
-            const sum = (sel: (n: typeof data!.nominas[number]) => number) =>
-              NUM(data!.nominas.reduce((s, n) => s + sel(n), 0))
+            const sum = (sel: (_: NominaResponse) => number) =>
+              data.nominas.reduce((s, n) => s + sel(n), 0)
 
             const afpEmp  = sum(n => n.descuentosEmpleado.afpEmpleado)
             const afpEmpresa = sum(n => n.aportesEmpresa.afpEmpresa)

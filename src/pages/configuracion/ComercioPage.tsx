@@ -88,30 +88,6 @@ export default function ComercioPage() {
     onError:   (e) => error(errMsg(e)),
   })
 
-  const subirLogo = useMutation({
-    mutationFn: (file: File) => comercioApi.uploadLogo(file),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['comercio'] }); success('Logo actualizado') },
-    onError:   (e) => error(errMsg(e)),
-  })
-
-  const eliminarLogo = useMutation({
-    mutationFn: () => comercioApi.deleteLogo(),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['comercio'] }); success('Logo eliminado') },
-    onError:   (e) => error(errMsg(e)),
-  })
-
-  const subirLogoTag = useMutation({
-    mutationFn: (file: File) => comercioApi.uploadLogoTag(file),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['comercio'] }); success('Favicon actualizado') },
-    onError:   (e) => error(errMsg(e)),
-  })
-
-  const eliminarLogoTag = useMutation({
-    mutationFn: () => comercioApi.deleteLogoTag(),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['comercio'] }); success('Favicon eliminado') },
-    onError:   (e) => error(errMsg(e)),
-  })
-
   const toggleRol = (val: string, checked: boolean) => {
     const prev = getValues('rolesAprobadores') ?? []
     setValue(

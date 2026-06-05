@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   DollarSign, RefreshCw, History, Eye, Printer,
   CreditCard, CheckCircle, AlertTriangle, Clock, User, FileText,
-  Receipt,
 } from 'lucide-react'
 import jsPDF from 'jspdf'
 import { creditosApi } from '../../api'
@@ -14,7 +13,7 @@ import EmptyState from '../../components/ui/EmptyState'
 import { useToast, errMsg } from '../../context/ToastContext'
 import { useAuth } from '../../context/AuthContext'
 import { useComercio } from '../../context/ComercioContext'
-import type { CreditoResponse, PagoCreditoResponse, MetodoPago } from '../../types'
+import type { CreditoResponse, PagoCreditoResponse } from '../../types'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const fmt       = (n: number) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(n)
@@ -23,15 +22,6 @@ const fmtDetalle = (d: string) => new Date(d).toLocaleString('es-DO', { day: '2-
 
 const estadoColor: Record<string, 'yellow' | 'blue' | 'green' | 'red' | 'gray'> = {
   Pendiente: 'yellow', PagadoParcial: 'blue', Saldado: 'green', Vencido: 'red', Cancelado: 'gray',
-}
-
-// ── Labels de método de pago ──────────────────────────────────────────────────
-const metodoPagoLabel: Record<MetodoPago, string> = {
-  Efectivo:      'Efectivo',
-  Tarjeta:       'Tarjeta de crédito/débito',
-  Transferencia: 'Transferencia bancaria',
-  Cheque:        'Cheque',
-  Otro:          'Otro',
 }
 
 // ── Impresión recibo de abono individual ──────────────────────────────────────
