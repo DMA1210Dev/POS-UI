@@ -17,6 +17,7 @@ import type {
   RolDefinicion, CreateRolDto, UpdateRolDto,
   NotificacionResponse,
   ClienteDeudaDto, FacturaCreditoDto, PagarFacturasDto, PagarFacturasResponseDto,
+  CuentaContableResponse, CuentaContableTree, CreateCuentaContableDto, UpdateCuentaContableDto,
 } from '../types'
 import { extractItems } from '../types'
 
@@ -439,4 +440,22 @@ export const notificacionesApi = {
     api.put(`/notificaciones/${id}/leer`).then(r => r.data),
   marcarTodasLeidas: () =>
     api.put('/notificaciones/leer-todas').then(r => r.data),
+}
+
+// ── Cuentas Contables ─────────────────────────────────────────────────────────
+export const cuentasContablesApi = {
+  getAll: (params?: { soloActivas?: boolean }) =>
+    api.get<CuentaContableResponse[]>('/cuentas-contables', { params }).then(r => r.data),
+  getTree: (params?: { soloActivas?: boolean }) =>
+    api.get<CuentaContableTree[]>('/cuentas-contables/arbol', { params }).then(r => r.data),
+  getById: (id: number) =>
+    api.get<CuentaContableResponse>(`/cuentas-contables/${id}`).then(r => r.data),
+  create: (dto: CreateCuentaContableDto) =>
+    api.post<CuentaContableResponse>('/cuentas-contables', dto).then(r => r.data),
+  update: (id: number, dto: UpdateCuentaContableDto) =>
+    api.put<CuentaContableResponse>(`/cuentas-contables/${id}`, dto).then(r => r.data),
+  delete: (id: number) =>
+    api.delete(`/cuentas-contables/${id}`),
+  inicializar: () =>
+    api.post<{ mensaje: string }>('/cuentas-contables/inicializar').then(r => r.data),
 }

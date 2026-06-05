@@ -81,6 +81,7 @@ export default function Sidebar() {
       items: [
         puedeVerReportes         && { to: '/reportes',      label: 'Reportes',      icon: <BarChart2 size={16} /> },
         puedeGestionarProductos  && { to: '/comprobantes',  label: 'Comprobantes',  icon: <Receipt size={16} /> },
+        puedeGestionarUsuarios   && { to: '/contabilidad/cuentas', label: 'Catálogo de Cuentas', icon: <BookOpen size={16} /> },
       ].filter(Boolean) as NavItem[],
     },
     {

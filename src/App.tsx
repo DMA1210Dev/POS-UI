@@ -28,6 +28,7 @@ const TITULOS: Record<string, string> = {
   '/configuracion/permisos': 'Permisos de Usuarios',
   '/configuracion/roles':    'Gestión de Roles',
   '/configuracion/servidor': 'Estado del Servidor',
+  '/contabilidad/cuentas':   'Catálogo de Cuentas',
 }
 
 function PageTitle() {
@@ -79,6 +80,7 @@ const PermisosPage      = lazy(() => import('./pages/configuracion/PermisosPage'
 const RolesPage         = lazy(() => import('./pages/configuracion/RolesPage'))
 const ServidorPage      = lazy(() => import('./pages/configuracion/ServidorPage'))
 const CajaPage          = lazy(() => import('./pages/caja/CajaPage'))
+const CatalogoCuentasPage = lazy(() => import('./pages/contabilidad/CatalogoCuentasPage'))
 const ProximamentePage  = lazy(() => import('./pages/ProximamentePage'))
 const RecuperarPage     = lazy(() => import('./pages/auth/RecuperarPage'))
 
@@ -228,6 +230,11 @@ function AppRoutes() {
           </RoleRoute>
         } />
         <Route path="compras"   element={<S><ProximamentePage /></S>} />
+        <Route path="contabilidad/cuentas" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><CatalogoCuentasPage /></S>
+          </RoleRoute>
+        } />
         <Route path="proyectos" element={<S><ProximamentePage /></S>} />
         <Route path="*" element={<Navigate to={homePage} replace />} />
       </Route>

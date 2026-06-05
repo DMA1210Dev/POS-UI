@@ -838,3 +838,49 @@ export interface NominaResponse {
   explicacion: ExplicacionNomina
   validaciones: string[]
 }
+
+// ── Cuentas Contables ──────────────────────────────────────────────────────
+export type TipoCuenta = 'Activo' | 'Pasivo' | 'Patrimonio' | 'Ingreso' | 'Gasto'
+
+export interface CuentaContableResponse {
+  id: number
+  codigo: string
+  nombre: string
+  descripcion?: string | null
+  tipo: TipoCuenta
+  tipoLabel: string
+  nivel: number
+  cuentaPadreId?: number | null
+  cuentaPadreNombre?: string | null
+  activo: boolean
+}
+
+export interface CuentaContableTree {
+  id: number
+  codigo: string
+  nombre: string
+  descripcion?: string | null
+  tipo: TipoCuenta
+  tipoLabel: string
+  nivel: number
+  cuentaPadreId?: number | null
+  activo: boolean
+  subCuentas: CuentaContableTree[]
+}
+
+export interface CreateCuentaContableDto {
+  codigo: string
+  nombre: string
+  descripcion?: string
+  tipo: TipoCuenta
+  nivel: number
+  cuentaPadreId?: number | null
+}
+
+export interface UpdateCuentaContableDto {
+  codigo: string
+  nombre: string
+  descripcion?: string
+  tipo: TipoCuenta
+  activo: boolean
+}
