@@ -12,8 +12,8 @@ export default function ProximamentePage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-6">
-      <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center">
-        <Clock size={40} className="text-blue-400" />
+      <div className="w-20 h-20 rounded-full bg-brand-50 flex items-center justify-center">
+        <Clock size={40} className="text-brand-400" />
       </div>
       <div className="space-y-2">
         <h2 className="text-2xl font-bold text-slate-800">Próximamente</h2>

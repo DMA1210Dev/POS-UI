@@ -77,10 +77,10 @@ function Celda({ value, onClick }: { value: boolean; onClick?: () => void }) {
       title={onClick ? (value ? 'Quitar permiso' : 'Dar permiso') : undefined}
       className={`mx-auto w-7 h-7 rounded-full flex items-center justify-center transition-all
         ${onClick ? 'cursor-pointer hover:scale-110 active:scale-95' : 'cursor-default'}
-        ${value ? 'bg-emerald-100 hover:bg-emerald-200' : 'bg-slate-100 hover:bg-red-100'}`}
+        ${value ? 'bg-success-100 hover:bg-success-200' : 'bg-slate-100 hover:bg-danger-100'}`}
     >
       {value
-        ? <Check size={13} className="text-emerald-600" strokeWidth={2.5} />
+        ? <Check size={13} className="text-success-600" strokeWidth={2.5} />
         : <X size={13} className="text-slate-400" strokeWidth={2.5} />
       }
     </button>
@@ -112,8 +112,8 @@ function CeldaOverride({
                 ? opt === 'rol'
                   ? 'bg-slate-600 text-white'
                   : opt === 'si'
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-red-500 text-white'
+                    ? 'bg-success-500 text-white'
+                    : 'bg-danger-500 text-white'
                 : 'bg-white text-slate-400 hover:bg-slate-50'
             }`}
           >
@@ -290,7 +290,7 @@ export default function PermisosPage() {
                                   type="button"
                                   onClick={() => guardarRol.mutate()}
                                   disabled={guardarRol.isPending}
-                                  className="text-[10px] font-semibold px-2 py-0.5 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-colors"
+                                  className="text-[10px] font-semibold px-2 py-0.5 bg-success-500 text-white rounded-full hover:bg-success-600 transition-colors"
                                 >
                                   {guardarRol.isPending ? '…' : 'Guardar'}
                                 </button>
@@ -333,7 +333,7 @@ export default function PermisosPage() {
                         ...items.map((perm, pi) => (
                           <tr
                             key={perm.key}
-                            className={`border-t border-slate-100 ${pi % 2 === 0 ? '' : 'bg-slate-50/40'} hover:bg-blue-50/20 transition-colors`}
+                            className={`border-t border-slate-100 ${pi % 2 === 0 ? '' : 'bg-slate-50/40'} hover:bg-brand-50/20 transition-colors`}
                           >
                             <td className="px-5 py-2.5 text-slate-700 font-medium sticky left-0 bg-white border-r border-slate-100 text-sm">
                               {perm.label}
@@ -367,8 +367,8 @@ export default function PermisosPage() {
 
               <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-5 text-xs text-slate-500">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-4 h-4 rounded-full bg-emerald-100 inline-flex items-center justify-center">
-                    <Check size={9} className="text-emerald-600" strokeWidth={2.5} />
+                  <span className="w-4 h-4 rounded-full bg-success-100 inline-flex items-center justify-center">
+                    <Check size={9} className="text-success-600" strokeWidth={2.5} />
                   </span>
                   Tiene acceso
                 </span>
@@ -555,8 +555,8 @@ export default function PermisosPage() {
                 <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-5 text-xs text-slate-500 flex-wrap">
                   <span className="font-semibold text-slate-600">Override:</span>
                   <span><span className="font-mono bg-slate-600 text-white px-1.5 rounded text-[10px]">Rol</span> — usa el permiso del rol ★</span>
-                  <span><span className="font-mono bg-emerald-500 text-white px-1.5 rounded text-[10px]">Sí</span> — forzar acceso</span>
-                  <span><span className="font-mono bg-red-500 text-white px-1.5 rounded text-[10px]">No</span> — denegar acceso</span>
+                  <span><span className="font-mono bg-success-500 text-white px-1.5 rounded text-[10px]">Sí</span> — forzar acceso</span>
+                  <span><span className="font-mono bg-danger-500 text-white px-1.5 rounded text-[10px]">No</span> — denegar acceso</span>
                   <span className="ml-auto text-slate-400">★ = rol del usuario seleccionado</span>
                 </div>
               </div>

@@ -52,7 +52,7 @@ export default function ClientesPage() {
             <div className="relative flex-1 min-w-[200px] max-w-xs">
               <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
               <input placeholder="Buscar por nombre, cédula o teléfono..." value={search} onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100" />
             </div>
             {/* Filtro mayorista/minorista — visible según configuración del comercio */}
             {verMayoristas && (
@@ -64,7 +64,7 @@ export default function ClientesPage() {
                       filtroTipo === t
                         ? t === 'mayorista'
                           ? 'bg-purple-600 text-white'
-                          : 'bg-blue-600 text-white'
+                          : 'bg-brand-600 text-white'
                         : 'text-slate-600 hover:bg-slate-50'
                     }`}>
                     {t === 'todos' ? 'Todos' : t === 'minorista' ? 'Minoristas' : 'Mayoristas'}
@@ -104,7 +104,7 @@ export default function ClientesPage() {
                     <Badge color={c.creditosActivos > 0 ? 'orange' : 'gray'}>{c.creditosActivos}</Badge>
                   </td>
                   <td className="px-4 py-3 font-semibold">
-                    <span className={c.totalDeuda > 0 ? 'text-red-600' : 'text-slate-400'}>
+                    <span className={c.totalDeuda > 0 ? 'text-danger-600' : 'text-slate-400'}>
                       {c.totalDeuda > 0 ? fmt(c.totalDeuda) : '—'}
                     </span>
                   </td>

@@ -448,12 +448,14 @@ export interface UpdateClienteDto extends CreateClienteDto {
 // ── Créditos ──────────────────────────────────────────────────────────────
 
 export type EstadoCredito = 'Pendiente' | 'PagadoParcial' | 'Saldado' | 'Vencido' | 'Cancelado'
+export type MetodoPago = 'Efectivo' | 'Tarjeta' | 'Transferencia' | 'Cheque' | 'Otro'
 
 export interface PagoCreditoResponse {
   id: number
   monto: number
   fechaPago: string
   observacion?: string
+  metodoPago: MetodoPago
   nombreUsuario: string
 }
 
@@ -484,6 +486,7 @@ export interface ResumenCreditos {
 export interface CreatePagoDto {
   monto: number
   observacion?: string
+  metodoPago: MetodoPago
 }
 
 // ── Roles ─────────────────────────────────────────────────────────────────
@@ -648,12 +651,19 @@ export interface EmpleadoListDto {
   usuarioId?:      number
   nombreUsuario?:  string
   activo:          boolean
+  cuentaBanco?:    string | null
+  cedula?:         string | null
 }
 
 export interface EmpleadoDetailDto extends EmpleadoListDto {
   direccion?:    string
   emailUsuario?: string
   fechaCreacion: string
+  otrosDescuentos?: number | null
+  dependientesSFS?: number | null
+  riesgoLaboralPorcentaje?: number | null
+  cuentaBanco?: string | null
+  cedula?:      string | null
 }
 
 export interface SaveEmpleadoDto {
@@ -666,12 +676,76 @@ export interface SaveEmpleadoDto {
   fechaCumpleanos?: string | null  // "YYYY-MM-DD"
   usuarioId?:      number | null
   activo:          boolean
+  otrosDescuentos?: number | null
+  dependientesSFS?: number | null
+  riesgoLaboralPorcentaje?: number | null
+  cuentaBanco?: string | null
+  cedula?:      string | null
 }
 
 export interface UsuarioOpcionDto {
   id:     number
   nombre: string
   email:  string
+}
+
+// ── Cobros (nuevo módulo) ─────────────────────────────────────────────────────
+
+export interface ClienteDeudaDto {
+  id: number
+  nombre: string
+  telefono?: string
+  cedula?: string
+  totalAdeudado: number
+  totalFacturado: number
+  facturasPendientes: number
+  facturasVencidas: number
+  diasCredito: number
+  limiteCredito?: number
+}
+
+export interface FacturaCreditoDto {
+  creditoId: number
+  ventaId: number
+  fechaVenta: string
+  fechaVencimiento?: string
+  montoTotal: number
+  montoPagado: number
+  saldo: number
+  diasCredito: number
+  vencida: boolean
+  estado: EstadoCredito
+  pagos: PagoCreditoResponse[]
+}
+
+export interface PagoFacturaItemDto {
+  creditoId: number
+  monto: number
+}
+
+export interface PagarFacturasDto {
+  clienteId: number
+  pagos: PagoFacturaItemDto[]
+  metodoPago: MetodoPago
+  observacion?: string
+}
+
+export interface PagoFacturaRealizadoDto {
+  creditoId: number
+  ventaId: number
+  monto: number
+  saldoRestante: number
+}
+
+export interface PagarFacturasResponseDto {
+  pagoGlobalId: number
+  totalPagado: number
+  metodoPago: MetodoPago
+  observacion?: string
+  fechaPago: string
+  nombreUsuario: string
+  nombreCliente: string
+  facturasPagadas: PagoFacturaRealizadoDto[]
 }
 
 // ── Notificaciones ────────────────────────────────────────────────────────────
@@ -690,4 +764,76 @@ export interface NotificacionResponse {
   ventaId?: number
   leida: boolean
   fechaCreacion: string
+}
+
+// ── Nómina ─────────────────────────────────────────────────────────────────
+
+export interface EmpleadoNomina {
+  idEmpleado: number
+  nombre: string
+  posicion?: string | null
+  departamento?: string | null
+  salarioBrutoMensual: number
+  otrosDescuentos: number
+  anioFiscal: number
+  cuentaBanco?: string | null
+}
+
+export interface NominaGeneralResponse {
+  nominas: NominaResponse[]
+  totalSalarioBruto: number
+  totalSalarioNeto: number
+  totalCostoEmpresa: number
+  cantidadEmpleados: number
+}
+
+export interface BasesCotizables {
+  baseAFP: number
+  baseSFS: number
+  baseSRL: number
+}
+
+export interface DescuentosEmpleado {
+  afpEmpleado: number
+  sfsEmpleado: number
+  isrMensual: number
+  otrosDescuentosEmpleado: number
+  totalDescuentosEmpleado: number
+  salarioNeto: number
+}
+
+export interface AportesEmpresa {
+  afpEmpresa: number
+  sfsEmpresa: number
+  riesgoLaboralEmpresa: number
+  infotepEmpresa: number
+  totalAportesEmpresa: number
+  costoTotalEmpresa: number
+}
+
+export interface DetalleISR {
+  salarioGravableMensual: number
+  salarioGravableAnual: number
+  isrAnual: number
+  isrMensual: number
+  tramoAplicado: string
+}
+
+export interface ExplicacionNomina {
+  resumen: string
+  afpEmpleado: string
+  sfsEmpleado: string
+  isr: string
+  aportesEmpresa: string
+  costoTotalEmpresa: string
+}
+
+export interface NominaResponse {
+  empleado: EmpleadoNomina
+  basesCotizables: BasesCotizables
+  descuentosEmpleado: DescuentosEmpleado
+  aportesEmpresa: AportesEmpresa
+  detalleISR: DetalleISR
+  explicacion: ExplicacionNomina
+  validaciones: string[]
 }

@@ -204,7 +204,7 @@ export default function EditarVentaPage() {
   if (loadingVenta || !inicializado) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -229,7 +229,7 @@ export default function EditarVentaPage() {
         </button>
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Editar Venta #{ventaId}</h2>
-          <p className="text-sm text-slate-400">Estado actual: <Badge color={venta.estado === 'Pendiente' ? 'yellow' : 'green'}>{venta.estado}</Badge></p>
+          <p className="text-sm text-slate-400">Estado actual: <Badge color={venta.estado === 'Pendiente' ? 'warning' : 'success'}>{venta.estado}</Badge></p>
         </div>
       </div>
 
@@ -260,13 +260,13 @@ export default function EditarVentaPage() {
                     const tieneMayorista = p.precioMayorista != null
                     return (
                       <button key={p.id} onClick={() => agregarProducto(p)}
-                        className="w-full px-4 py-2.5 text-left hover:bg-blue-50 flex justify-between items-center text-sm">
+                        className="w-full px-4 py-2.5 text-left hover:bg-brand-50 flex justify-between items-center text-sm">
                         <div>
                           <p className="font-medium text-slate-800">{p.nombre}</p>
                           <p className="text-xs text-slate-400">{p.presentacion} · {p.nombreCategoria}</p>
                         </div>
                         <div className="text-right">
-                          <p className={`font-semibold ${esMayorista && tieneMayorista ? 'text-purple-600' : 'text-blue-600'}`}>
+                          <p className={`font-semibold ${esMayorista && tieneMayorista ? 'text-purple-600' : 'text-brand-600'}`}>
                             {fmt(precioMostrar)}
                           </p>
                           {esMayorista && tieneMayorista && (
@@ -323,7 +323,7 @@ export default function EditarVentaPage() {
                             </>
                           : <input type="number" step="0.001" value={item.cantidad}
                               onChange={e => actualizarCantidad(item.productoId, e.target.value)}
-                              className="w-20 px-2 py-1 text-sm border border-slate-300 rounded-lg text-center outline-none focus:border-blue-500" />
+                              className="w-20 px-2 py-1 text-sm border border-slate-300 rounded-lg text-center outline-none focus:border-brand-500" />
                         }
                         <span className="text-xs text-slate-400 w-8">{item.unidadMedida}</span>
                       </div>
@@ -332,7 +332,7 @@ export default function EditarVentaPage() {
                       </p>
                       <button
                         onClick={() => setCarrito(prev => prev.filter(i => i.productoId !== item.productoId))}
-                        className="text-red-400 hover:text-red-600 flex-shrink-0">
+                        className="text-danger-400 hover:text-danger-600 flex-shrink-0">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -355,8 +355,8 @@ export default function EditarVentaPage() {
                     <button key={t} onClick={() => setTipoPago(t)}
                       className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
                         tipoPago === t
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'border-slate-300 text-slate-600 hover:border-blue-400'
+                          ? 'bg-brand-600 text-white border-brand-600'
+                          : 'border-slate-300 text-slate-600 hover:border-brand-400'
                       }`}>{t}
                     </button>
                   ))}
@@ -365,12 +365,12 @@ export default function EditarVentaPage() {
 
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">
-                  Cliente {tipoPago === 'Credito' && <span className="text-red-500">*</span>}
+                  Cliente {tipoPago === 'Credito' && <span className="text-danger-500">*</span>}
                 </label>
                 <select
                   value={clienteId ?? ''}
                   onChange={e => setClienteId(Number(e.target.value) || undefined)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500"
                 >
                   <option value="">Sin cliente / Mostrador</option>
                   {clientes.map(c => (
@@ -386,7 +386,7 @@ export default function EditarVentaPage() {
                     Usando precios mayoristas para {clienteSeleccionado?.nombre}
                   </p>
                 ) : clienteSeleccionado ? (
-                  <p className="text-xs text-blue-600 mt-1 font-medium">Usando precios minoristas</p>
+                  <p className="text-xs text-brand-600 mt-1 font-medium">Usando precios minoristas</p>
                 ) : (
                   <p className="text-xs text-slate-400 mt-1">Sin cliente — precios minoristas</p>
                 )}
@@ -406,7 +406,7 @@ export default function EditarVentaPage() {
                 <label className="text-sm font-medium text-slate-700 block mb-1">Descuento (RD$)</label>
                 <input type="number" step="0.01" min="0" value={descuento}
                   onChange={e => setDescuento(parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500" />
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500" />
               </div>
 
               <div className="pt-2 border-t space-y-2 text-sm">
@@ -414,7 +414,7 @@ export default function EditarVentaPage() {
                   <span>Subtotal</span><span>{fmt(subtotal)}</span>
                 </div>
                 {descuento > 0 && (
-                  <div className="flex justify-between text-green-600 font-medium">
+                  <div className="flex justify-between text-success-600 font-medium">
                     <span>Descuento</span><span>-{fmt(descuento)}</span>
                   </div>
                 )}

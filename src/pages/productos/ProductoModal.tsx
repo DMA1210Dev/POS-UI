@@ -92,7 +92,7 @@ export default function ProductoModal({ producto, onClose, onSuccess }: Props) {
     return acc
   }, {} as Record<string, UnidadMedidaOption[]>)
 
-  const selectClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+  const selectClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -107,7 +107,7 @@ export default function ProductoModal({ producto, onClose, onSuccess }: Props) {
           <div className="flex items-center gap-2">
             {producto && !editando && (
               <button onClick={() => setEditando(true)}
-                className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
+                className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors">
                 <Pencil size={12} /> Editar
               </button>
             )}
@@ -164,7 +164,7 @@ export default function ProductoModal({ producto, onClose, onSuccess }: Props) {
                 <option value="">Seleccionar...</option>
                 {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
               </select>
-              {errors.categoriaId && <p className="text-xs text-red-600 mt-1">Requerido</p>}
+              {errors.categoriaId && <p className="text-xs text-danger-600 mt-1">Requerido</p>}
             </div>
 
             <Input label="Precio menudeo (con ITBIS) *" type="number" step="0.01"

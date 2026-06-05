@@ -16,6 +16,7 @@ const TITULOS: Record<string, string> = {
   '/productos':    'Productos',
   '/stock-bajo':   'Stock Bajo',
   '/clientes':     'Clientes',
+  '/cobros':       'Cobros',
   '/creditos':     'Créditos',
   '/usuarios':     'Usuarios',
   '/empleados':    'Empleados',
@@ -40,19 +41,6 @@ function PageTitle() {
     document.title = `${nombre} | ${appName}`
   }, [pathname, appName])
 
-  // Actualiza el favicon con el logo del comercio
-  useEffect(() => {
-    const existing = document.querySelector("link[rel='icon']") as HTMLLinkElement | null
-    const link: HTMLLinkElement = existing ?? document.createElement('link')
-    if (!existing) {
-      link.rel = 'icon'
-      document.head.appendChild(link)
-    }
-    link.href = comercio?.logoUrl
-      ? comercio.logoUrl.split('?')[0] + '?v=' + Date.now()   // cache-buster fresco
-      : '/vite.svg'
-  }, [comercio?.logoUrl])
-
   return null
 }
 
@@ -76,12 +64,16 @@ const VentasPage     = lazy(() => import('./pages/ventas/VentasPage'))
 const NuevaVentaPage  = lazy(() => import('./pages/ventas/NuevaVentaPage'))
 const EditarVentaPage = lazy(() => import('./pages/ventas/EditarVentaPage'))
 const ClientesPage   = lazy(() => import('./pages/clientes/ClientesPage'))
+const CobrosPage     = lazy(() => import('./pages/cobros/CobrosPage'))
 const CreditosPage   = lazy(() => import('./pages/creditos/CreditosPage'))
 const UsuariosPage   = lazy(() => import('./pages/usuarios/UsuariosPage'))
 const EmpleadosPage  = lazy(() => import('./pages/empleados/EmpleadosPage'))
+const NominaPage     = lazy(() => import('./pages/nomina/NominaPage'))
+const NominaGeneralPage = lazy(() => import('./pages/nomina/NominaGeneralPage'))
 const ReportesPage   = lazy(() => import('./pages/reportes/ReportesPage'))
 const PerfilPage     = lazy(() => import('./pages/perfil/PerfilPage'))
 const ComercioPage      = lazy(() => import('./pages/configuracion/ComercioPage'))
+const AparienciaPage    = lazy(() => import('./pages/configuracion/AparienciaPage'))
 const ComprobantesPage  = lazy(() => import('./pages/configuracion/ComprobantesPage'))
 const PermisosPage      = lazy(() => import('./pages/configuracion/PermisosPage'))
 const RolesPage         = lazy(() => import('./pages/configuracion/RolesPage'))
@@ -93,7 +85,7 @@ const RecuperarPage     = lazy(() => import('./pages/auth/RecuperarPage'))
 function PageLoader() {
   return (
     <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
     </div>
   )
 }
@@ -164,6 +156,11 @@ function AppRoutes() {
             <S><ClientesPage /></S>
           </RoleRoute>
         } />
+        <Route path="cobros" element={
+          <RoleRoute allowed={puedeGestionarCreditos}>
+            <S><CobrosPage /></S>
+          </RoleRoute>
+        } />
         <Route path="creditos" element={
           <RoleRoute allowed={puedeGestionarCreditos}>
             <S><CreditosPage /></S>
@@ -179,6 +176,16 @@ function AppRoutes() {
             <S><EmpleadosPage /></S>
           </RoleRoute>
         } />
+        <Route path="nomina" element={
+          <RoleRoute allowed={puedeGestionarEmpleados}>
+            <S><NominaPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="nomina/general" element={
+          <RoleRoute allowed={puedeGestionarEmpleados}>
+            <S><NominaGeneralPage /></S>
+          </RoleRoute>
+        } />
         <Route path="reportes" element={
           <RoleRoute allowed={puedeVerReportes}>
             <S><ReportesPage /></S>
@@ -188,6 +195,11 @@ function AppRoutes() {
         <Route path="comercio" element={
           <RoleRoute allowed={puedeGestionarUsuarios}>
             <S><ComercioPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="apariencia" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><AparienciaPage /></S>
           </RoleRoute>
         } />
         <Route path="comprobantes" element={

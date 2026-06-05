@@ -134,9 +134,9 @@ function NcfTestModal({ onClose }: { onClose: () => void }) {
         <div className="px-6 py-4 space-y-4">
           {/* Estado de la API */}
           <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium ${
-            estado?.habilitado ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
+            estado?.habilitado ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-700'
           }`}>
-            <span className={`w-2 h-2 rounded-full ${estado?.habilitado ? 'bg-green-500' : 'bg-amber-400'}`} />
+            <span className={`w-2 h-2 rounded-full ${estado?.habilitado ? 'bg-success-500' : 'bg-warning-400'}`} />
             {estado?.mensaje ?? 'Verificando…'}
           </div>
 
@@ -145,13 +145,13 @@ function NcfTestModal({ onClose }: { onClose: () => void }) {
               <label className="text-sm font-medium text-slate-700 block mb-1">NCF *</label>
               <input value={ncf} onChange={e => setNcf(e.target.value.toUpperCase())}
                 placeholder="Ej: B0100000001" maxLength={19}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 font-mono" />
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 font-mono" />
             </div>
             <div>
               <label className="text-sm font-medium text-slate-700 block mb-1">RNC Emisor (opcional)</label>
               <input value={rnc} onChange={e => setRnc(e.target.value)}
                 placeholder="Ej: 1-01-12345-6"
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500" />
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500" />
             </div>
           </div>
 
@@ -161,13 +161,13 @@ function NcfTestModal({ onClose }: { onClose: () => void }) {
 
           {resultado && (
             <div className={`rounded-xl border p-4 space-y-2 text-sm ${
-              resultado.valido ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+              resultado.valido ? 'bg-success-50 border-success-200' : 'bg-danger-50 border-danger-200'
             }`}>
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-slate-700">Resultado</span>
                 <div className="flex items-center gap-2">
                   {resultado.simulado && (
-                    <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Simulado</span>
+                    <span className="text-xs bg-warning-100 text-warning-700 px-2 py-0.5 rounded-full font-medium">Simulado</span>
                   )}
                   <Badge color={resultado.valido ? 'green' : 'red'}>{resultado.estado}</Badge>
                 </div>
@@ -228,7 +228,7 @@ function CargarLoteModal({ tiposB, onClose, onSaved }: CargarLoteModalProps) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="flex justify-between items-center px-6 py-4 border-b">
           <div className="flex items-center gap-2">
-            <Upload size={18} className="text-blue-600" />
+            <Upload size={18} className="text-brand-600" />
             <h3 className="font-semibold text-slate-800">Cargar lote de NCF</h3>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-lg">✕</button>
@@ -239,7 +239,7 @@ function CargarLoteModal({ tiposB, onClose, onSaved }: CargarLoteModalProps) {
             <select
               value={tipoId}
               onChange={e => setTipoId(Number(e.target.value))}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 bg-white"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 bg-white"
             >
               {tiposB.map(t => (
                 <option key={t.id} value={t.id}>{t.codigo} — {t.nombre}</option>
@@ -254,7 +254,7 @@ function CargarLoteModal({ tiposB, onClose, onSaved }: CargarLoteModalProps) {
                 type="number" min={1} value={desde}
                 onChange={e => setDesde(e.target.value)}
                 placeholder="Ej: 1"
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500"
               />
             </div>
             <div>
@@ -263,7 +263,7 @@ function CargarLoteModal({ tiposB, onClose, onSaved }: CargarLoteModalProps) {
                 type="number" min={1} value={hasta}
                 onChange={e => setHasta(e.target.value)}
                 placeholder="Ej: 1000"
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500"
               />
             </div>
           </div>
@@ -292,10 +292,10 @@ function CargarLoteModal({ tiposB, onClose, onSaved }: CargarLoteModalProps) {
 
 // ── Colores de estado NCF ─────────────────────────────────────────────────────
 const estadoNcfColor: Record<string, string> = {
-  Disponible: 'bg-emerald-100 text-emerald-700',
-  Reservado:  'bg-blue-100 text-blue-700',
+  Disponible: 'bg-success-100 text-success-700',
+  Reservado:  'bg-brand-100 text-brand-700',
   Usado:      'bg-slate-100 text-slate-600',
-  Anulado:    'bg-red-100 text-red-600',
+  Anulado:    'bg-danger-100 text-danger-600',
 }
 
 // ── Panel de pool NCF por tipo B ──────────────────────────────────────────────
@@ -330,10 +330,10 @@ function NcfPoolPanel({ tipo }: { tipo: TipoComprobanteResponse }) {
   })
 
   const stats = [
-    { label: 'Disponibles', val: resumen?.disponibles ?? 0, color: 'text-emerald-600' },
-    { label: 'Reservados',  val: resumen?.reservados  ?? 0, color: 'text-blue-600' },
+    { label: 'Disponibles', val: resumen?.disponibles ?? 0, color: 'text-success-600' },
+    { label: 'Reservados',  val: resumen?.reservados  ?? 0, color: 'text-brand-600' },
     { label: 'Usados',      val: resumen?.usados      ?? 0, color: 'text-slate-500' },
-    { label: 'Anulados',    val: resumen?.anulados    ?? 0, color: 'text-red-500' },
+    { label: 'Anulados',    val: resumen?.anulados    ?? 0, color: 'text-danger-500' },
   ]
 
   return (
@@ -347,7 +347,7 @@ function NcfPoolPanel({ tipo }: { tipo: TipoComprobanteResponse }) {
           <span className="font-mono font-bold text-slate-700 bg-white border border-slate-200 px-2 py-0.5 rounded text-sm">{tipo.codigo}</span>
           <span className="text-sm font-medium text-slate-700">{tipo.nombre}</span>
           {(resumen?.disponibles ?? 0) === 0 && (
-            <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">Sin disponibles</span>
+            <span className="text-xs bg-danger-100 text-danger-600 px-2 py-0.5 rounded-full font-medium">Sin disponibles</span>
           )}
         </div>
         <div className="flex items-center gap-4">
@@ -427,7 +427,7 @@ function NcfPoolPanel({ tipo }: { tipo: TipoComprobanteResponse }) {
                     <td className="px-3 py-2">
                       {s.estado === 'Disponible' && (
                         <Button variant="ghost" size="sm" icon={<Trash2 size={12} />}
-                          className="text-red-400 hover:bg-red-50 !p-1"
+                          className="text-danger-400 hover:bg-danger-50 !p-1"
                           loading={eliminar.isPending}
                           onClick={() => { if (window.confirm(`¿Eliminar NCF ${s.ncf}?`)) eliminar.mutate(s.id) }} />
                       )}
@@ -513,7 +513,7 @@ export default function ComprobantesPage() {
                   <td className="px-4 py-3 text-slate-500 text-xs max-w-xs truncate">{c.descripcion ?? '—'}</td>
                   <td className="px-4 py-3">
                     {c.requiereNcf
-                      ? <CheckCircle2 size={16} className="text-emerald-500" />
+                      ? <CheckCircle2 size={16} className="text-success-500" />
                       : <XCircle     size={16} className="text-slate-300" />}
                   </td>
                   <td className="px-4 py-3">
@@ -529,7 +529,7 @@ export default function ComprobantesPage() {
                       <Button variant="ghost" size="sm" icon={<Pencil size={14} />}
                         onClick={() => setModal(c)} />
                       <Button variant="ghost" size="sm" icon={<Trash2 size={14} />}
-                        className="text-red-400 hover:bg-red-50"
+                        className="text-danger-400 hover:bg-danger-50"
                         loading={eliminar.isPending}
                         onClick={() => { if (window.confirm(`¿Eliminar "${c.nombre}"?`)) eliminar.mutate(c.id) }} />
                     </div>
@@ -575,13 +575,13 @@ export default function ComprobantesPage() {
       <Card>
         <CardHeader><h3 className="font-semibold text-slate-700">Integración con API fiscal (NCF)</h3></CardHeader>
         <CardBody className="space-y-3 text-sm text-slate-600">
-          <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-            <FlaskConical size={18} className="text-amber-500 mt-0.5 shrink-0" />
+          <div className="flex items-start gap-3 p-3 bg-warning-50 border border-warning-200 rounded-xl">
+            <FlaskConical size={18} className="text-warning-500 mt-0.5 shrink-0" />
             <div>
-              <p className="font-medium text-amber-800">Modo simulado activo</p>
-              <p className="text-amber-700 text-xs mt-0.5">
+              <p className="font-medium text-warning-800">Modo simulado activo</p>
+              <p className="text-warning-700 text-xs mt-0.5">
                 La validación de NCF está en modo maqueta. El flujo completo está habilitado pero los resultados son simulados.
-                Para conectar con la API real (DGII u otro organismo), configura <code className="bg-amber-100 px-1 rounded">NcfApi:Habilitado = true</code> en <code className="bg-amber-100 px-1 rounded">appsettings.json</code>.
+                Para conectar con la API real (DGII u otro organismo), configura <code className="bg-warning-100 px-1 rounded">NcfApi:Habilitado = true</code> en <code className="bg-warning-100 px-1 rounded">appsettings.json</code>.
               </p>
             </div>
           </div>

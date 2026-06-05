@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Package, ShoppingCart, Users, CreditCard,
-  BarChart2, UserCog, LogOut, AlertTriangle, UserCircle, Store, Receipt, Vault,
+  BarChart2, UserCog, LogOut, AlertTriangle, UserCircle, Store, Palette, Receipt, Vault,
   ChevronDown, Clock,
   BookOpen, Warehouse, ClipboardList, TrendingUp, DollarSign, Briefcase, FolderKanban,
-  Settings, ShieldCheck, Shield, Server,
+  Settings, ShieldCheck, Shield, Server, FileSpreadsheet,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useComercio } from '../../context/ComercioContext'
@@ -70,7 +70,7 @@ export default function Sidebar() {
       label: 'Cobros',
       icon: <DollarSign size={16} />,
       items: [
-        puedeGestionarCreditos && { to: '/creditos', label: 'Créditos', icon: <CreditCard size={16} /> },
+        puedeGestionarCreditos && { to: '/cobros', label: 'Cobros', icon: <DollarSign size={16} /> },
         verCaja                && { to: '/caja',     label: 'Caja',     icon: <Vault size={16} /> },
       ].filter(Boolean) as NavItem[],
     },
@@ -97,6 +97,8 @@ export default function Sidebar() {
       icon: <Briefcase size={16} />,
       items: [
         puedeGestionarEmpleados && { to: '/empleados', label: 'Empleados', icon: <Users size={16} /> },
+        puedeGestionarEmpleados && { to: '/nomina', label: 'Nómina', icon: <Receipt size={16} /> },
+        puedeGestionarEmpleados && { to: '/nomina/general', label: 'Nómina General', icon: <FileSpreadsheet size={16} /> },
       ].filter(Boolean) as NavItem[],
     },
     {
@@ -114,6 +116,7 @@ export default function Sidebar() {
       icon: <Settings size={16} />,
       items: [
         { to: '/comercio',                  label: 'Mi Comercio',    icon: <Store size={16} /> },
+        { to: '/apariencia',                label: 'Apariencia',     icon: <Palette size={16} /> },
         { to: '/usuarios',                  label: 'Usuarios',       icon: <UserCog size={16} /> },
         { to: '/configuracion/roles',       label: 'Roles',          icon: <Shield size={16} /> },
         { to: '/configuracion/permisos',    label: 'Permisos',       icon: <ShieldCheck size={16} /> },
@@ -255,7 +258,7 @@ export default function Sidebar() {
         </NavLink>
         <button
           onClick={logout}
-          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-white/70 hover:bg-red-600 hover:text-white w-full transition-colors"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-white/70 hover:bg-danger-600 hover:text-white w-full transition-colors"
         >
           <LogOut size={16} />
           Cerrar sesión

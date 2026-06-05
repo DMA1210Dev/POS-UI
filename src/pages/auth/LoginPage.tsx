@@ -55,8 +55,8 @@ function OtpInput({ value, onChange }: { value: string[]; onChange: (v: string[]
           onKeyDown={e => handleKey(i, e)}
           onPaste={handlePaste}
           className={`w-11 h-12 text-center text-lg font-bold border-2 rounded-xl outline-none transition-colors ${
-            digit ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-300 text-slate-800'
-          } focus:border-blue-500`}
+            digit ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-800'
+          } focus:border-brand-500`}
         />
       ))}
     </div>
@@ -221,7 +221,7 @@ export default function LoginPage() {
               Iniciar sesión
             </Button>
             <div className="text-center">
-              <Link to="/recuperar" className="text-sm text-slate-500 hover:text-blue-600 transition-colors">
+              <Link to="/recuperar" className="text-sm text-slate-500 hover:text-brand-600 transition-colors">
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>
@@ -233,8 +233,8 @@ export default function LoginPage() {
           <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-5">
             {/* Header */}
             <div className="text-center space-y-1">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-2">
-                <ShieldCheck size={24} className="text-blue-600" />
+              <div className="w-12 h-12 rounded-full bg-brand-100 flex items-center justify-center mx-auto mb-2">
+                <ShieldCheck size={24} className="text-brand-600" />
               </div>
               <h2 className="text-lg font-bold text-slate-800">Verificación en dos pasos</h2>
               <p className="text-sm text-slate-500">
@@ -247,7 +247,7 @@ export default function LoginPage() {
             <OtpInput value={otpCode} onChange={setOtpCode} />
 
             {tfaError && (
-              <p className="text-sm text-red-600 text-center">{tfaError}</p>
+              <p className="text-sm text-danger-600 text-center">{tfaError}</p>
             )}
 
             {/* Recordar dispositivo */}
@@ -256,7 +256,7 @@ export default function LoginPage() {
                 type="checkbox"
                 checked={rememberDevice}
                 onChange={e => setRememberDevice(e.target.checked)}
-                className="w-4 h-4 accent-blue-600"
+                className="w-4 h-4 accent-brand-600"
               />
               <span className="text-sm text-slate-600">Recordar este dispositivo 30 días</span>
             </label>
@@ -277,7 +277,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={resendCode}
                   disabled={resendLoading}
-                  className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1.5 mx-auto disabled:opacity-50"
+                  className="text-sm text-brand-600 hover:text-brand-700 flex items-center gap-1.5 mx-auto disabled:opacity-50"
                 >
                   <RefreshCw size={13} className={resendLoading ? 'animate-spin' : ''} />
                   Reenviar código
@@ -302,10 +302,10 @@ export default function LoginPage() {
       {errorPopup && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-            <div className="bg-red-50 px-6 py-4 flex items-center gap-3 border-b border-red-100">
-              <AlertCircle className="text-red-500 shrink-0" size={22} />
-              <h3 className="font-semibold text-red-700">Error al iniciar sesión</h3>
-              <button onClick={() => setErrorPopup('')} className="ml-auto text-red-400 hover:text-red-600">
+            <div className="bg-danger-50 px-6 py-4 flex items-center gap-3 border-b border-danger-100">
+              <AlertCircle className="text-danger-500 shrink-0" size={22} />
+              <h3 className="font-semibold text-danger-700">Error al iniciar sesión</h3>
+              <button onClick={() => setErrorPopup('')} className="ml-auto text-danger-400 hover:text-danger-600">
                 <X size={18} />
               </button>
             </div>
@@ -313,7 +313,7 @@ export default function LoginPage() {
               <p className="text-slate-700 text-sm">{errorPopup}</p>
               <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                 <div
-                  className="bg-red-400 h-1.5 rounded-full transition-all duration-1000"
+                  className="bg-danger-400 h-1.5 rounded-full transition-all duration-1000"
                   style={{ width: `${(seconds / COUNTDOWN) * 100}%` }}
                 />
               </div>

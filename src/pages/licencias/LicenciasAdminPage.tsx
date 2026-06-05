@@ -4,10 +4,10 @@ import { licenciasAdminApi, type LicenciaAdmin, type CreateLicenciaDto, type Upd
 
 // ── Helpers de estado ─────────────────────────────────────────────────────────
 const ESTADOS = [
-  { value: 'activo',         label: 'Activo',             badge: 'bg-green-100 text-green-700',  icon: CheckCircle },
-  { value: 'mantenimiento',  label: 'Mantenimiento',      badge: 'bg-amber-100 text-amber-700',  icon: Clock },
-  { value: 'bloqueado_pago', label: 'Bloqueado por pago', badge: 'bg-orange-100 text-orange-700', icon: CreditCard },
-  { value: 'bloqueado',      label: 'Bloqueado',          badge: 'bg-red-100 text-red-700',      icon: Lock },
+  { value: 'activo',         label: 'Activo',             badge: 'bg-success-100 text-success-700',  icon: CheckCircle },
+  { value: 'mantenimiento',  label: 'Mantenimiento',      badge: 'bg-warning-100 text-warning-700',  icon: Clock },
+  { value: 'bloqueado_pago', label: 'Bloqueado por pago', badge: 'bg-warning-100 text-warning-700', icon: CreditCard },
+  { value: 'bloqueado',      label: 'Bloqueado',          badge: 'bg-danger-100 text-danger-700',   icon: Lock },
 ] as const
 
 type EstadoValue = typeof ESTADOS[number]['value']
@@ -94,7 +94,7 @@ function LicenciaModal({ licencia, onClose, onSaved }: ModalProps) {
                 onChange={e => setSistemaKey(e.target.value.toUpperCase().replace(/\s/g, '-'))}
                 placeholder="POS-CLIENTE-01"
                 required
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
               <p className="text-xs text-slate-400 mt-1">Identificador único que va en el appsettings.json del deployment.</p>
             </div>
@@ -107,7 +107,7 @@ function LicenciaModal({ licencia, onClose, onSaved }: ModalProps) {
               onChange={e => setNombreCliente(e.target.value)}
               placeholder="Farmacia San José"
               required
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
 
@@ -116,7 +116,7 @@ function LicenciaModal({ licencia, onClose, onSaved }: ModalProps) {
             <select
               value={estado}
               onChange={e => setEstado(e.target.value as EstadoValue)}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               {ESTADOS.map(e => (
                 <option key={e.value} value={e.value}>{e.label}</option>
@@ -132,7 +132,7 @@ function LicenciaModal({ licencia, onClose, onSaved }: ModalProps) {
               type="date"
               value={fechaVencimiento}
               onChange={e => setFechaVencimiento(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
 
@@ -145,11 +145,11 @@ function LicenciaModal({ licencia, onClose, onSaved }: ModalProps) {
               onChange={e => setMensaje(e.target.value)}
               rows={2}
               placeholder="Mensaje que verá el usuario al estar bloqueado..."
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
             />
           </div>
 
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+          {error && <p className="text-sm text-danger-600 bg-danger-50 rounded-lg px-3 py-2">{error}</p>}
 
           <div className="flex gap-2 pt-1">
             <button
@@ -162,7 +162,7 @@ function LicenciaModal({ licencia, onClose, onSaved }: ModalProps) {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 text-sm bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
               {licencia ? 'Guardar cambios' : 'Crear licencia'}
@@ -233,7 +233,7 @@ export default function LicenciasAdminPage() {
           </button>
           <button
             onClick={() => setModal('crear')}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-brand-600 text-white rounded-lg hover:bg-brand-700"
           >
             <Plus size={14} />
             Nueva licencia
@@ -244,19 +244,19 @@ export default function LicenciasAdminPage() {
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center h-48">
-          <Loader2 size={28} className="animate-spin text-blue-500" />
+          <Loader2 size={28} className="animate-spin text-brand-500" />
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-700 text-sm">{error}</p>
-          <button onClick={cargar} className="mt-3 text-sm text-red-600 hover:underline">Reintentar</button>
+        <div className="bg-danger-50 border border-danger-200 rounded-xl p-6 text-center">
+          <p className="text-danger-700 text-sm">{error}</p>
+          <button onClick={cargar} className="mt-3 text-sm text-danger-600 hover:underline">Reintentar</button>
         </div>
       ) : licencias.length === 0 ? (
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-10 text-center">
           <p className="text-slate-500 text-sm">No hay licencias registradas.</p>
           <button
             onClick={() => setModal('crear')}
-            className="mt-3 text-sm text-blue-600 hover:underline"
+            className="mt-3 text-sm text-brand-600 hover:underline"
           >
             Crear la primera licencia
           </button>
@@ -288,7 +288,7 @@ export default function LicenciasAdminPage() {
                     <div className="flex items-center gap-1 justify-end">
                       <button
                         onClick={() => setModal(l)}
-                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
                         title="Editar"
                       >
                         <Pencil size={14} />
@@ -296,7 +296,7 @@ export default function LicenciasAdminPage() {
                       <button
                         onClick={() => handleDelete(l.sistemaKey)}
                         disabled={deleting === l.sistemaKey}
-                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40"
+                        className="p-1.5 text-slate-400 hover:text-danger-600 hover:bg-danger-50 rounded-lg transition-colors disabled:opacity-40"
                         title="Eliminar"
                       >
                         {deleting === l.sistemaKey
@@ -314,9 +314,9 @@ export default function LicenciasAdminPage() {
       )}
 
       {/* Info box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 text-sm text-blue-800 space-y-1">
+      <div className="bg-brand-50 border border-brand-200 rounded-xl px-5 py-4 text-sm text-brand-800 space-y-1">
         <p className="font-semibold">¿Cómo funciona?</p>
-        <p>Cada deployment del API usa su <code className="bg-blue-100 px-1 rounded text-xs">SistemaKey</code> configurada en <code className="bg-blue-100 px-1 rounded text-xs">appsettings.json → Licencia:SistemaKey</code>.</p>
+        <p>Cada deployment del API usa su <code className="bg-brand-100 px-1 rounded text-xs">SistemaKey</code> configurada en <code className="bg-brand-100 px-1 rounded text-xs">appsettings.json → Licencia:SistemaKey</code>.</p>
         <p>Al cambiar el estado aquí, el cambio se refleja en el deployment correspondiente dentro de los minutos configurados en caché.</p>
       </div>
 

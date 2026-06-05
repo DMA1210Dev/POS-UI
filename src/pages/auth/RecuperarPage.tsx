@@ -47,13 +47,13 @@ function ResetOtp({ value, onChange, error }: {
             onChange={e => handleChange(i, e)} onKeyDown={e => handleKey(i, e)}
             onPaste={handlePaste} onFocus={e => e.target.select()}
             className={`w-11 text-center text-xl font-bold font-mono border-2 rounded-xl outline-none transition-colors
-              ${value[i] ? 'border-blue-500 bg-blue-50 text-blue-800' : 'border-slate-200 bg-slate-50 text-slate-800'}
-              focus:border-blue-500 focus:bg-blue-50`}
+              ${value[i] ? 'border-brand-500 bg-brand-50 text-brand-800' : 'border-slate-200 bg-slate-50 text-slate-800'}
+              focus:border-brand-500 focus:bg-brand-50`}
             style={{ height: '52px' }}
           />
         ))}
       </div>
-      {error && <p className="text-xs text-red-500 mt-1.5 text-center">{error}</p>}
+      {error && <p className="text-xs text-danger-500 mt-1.5 text-center">{error}</p>}
     </div>
   )
 }
@@ -87,8 +87,8 @@ function TfaOtp({ value, onChange }: { value: string[]; onChange: (v: string[]) 
           type="text" inputMode="numeric" maxLength={1} value={digit}
           onChange={e => handleChange(i, e)} onKeyDown={e => handleKey(i, e)} onPaste={handlePaste}
           className={`w-11 h-12 text-center text-lg font-bold border-2 rounded-xl outline-none transition-colors ${
-            digit ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-300 text-slate-800'
-          } focus:border-blue-500`}
+            digit ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-800'
+          } focus:border-brand-500`}
         />
       ))}
     </div>
@@ -193,13 +193,13 @@ export default function RecuperarPage() {
           {exitoso ? (
             <div className="space-y-5 text-center">
               <div className="flex justify-center">
-                <CheckCircle size={48} className="text-emerald-500" />
+                <CheckCircle size={48} className="text-success-500" />
               </div>
               <div>
                 <p className="font-semibold text-slate-800 text-lg">¡Contraseña actualizada!</p>
                 <p className="text-slate-500 text-sm mt-1">Ya puedes iniciar sesión con tu nueva contraseña.</p>
               </div>
-              <Link to="/login" className="block w-full text-center py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm">
+              <Link to="/login" className="block w-full text-center py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors text-sm">
                 Ir al inicio de sesión
               </Link>
             </div>
@@ -215,13 +215,13 @@ export default function RecuperarPage() {
                 {...r1('email', { required: 'El email es requerido' })}
               />
               {errorMsg && (
-                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{errorMsg}</p>
+                <p className="text-sm text-danger-600 bg-danger-50 border border-danger-200 rounded-lg px-3 py-2">{errorMsg}</p>
               )}
               <Button type="submit" loading={s1} className="w-full justify-center py-2.5">
                 Continuar
               </Button>
               <div className="text-center">
-                <Link to="/login" className="text-sm text-slate-500 hover:text-blue-600 transition-colors">
+                <Link to="/login" className="text-sm text-slate-500 hover:text-brand-600 transition-colors">
                   ← Volver al inicio de sesión
                 </Link>
               </div>
@@ -242,8 +242,8 @@ export default function RecuperarPage() {
                         onClick={() => { setTfaSelected('totp'); setTfaOtp(Array(6).fill('')); setTfaSendMsg('') }}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                           tfaSelected === 'totp'
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400'
+                            ? 'bg-brand-600 text-white border-brand-600'
+                            : 'bg-white text-slate-600 border-slate-300 hover:border-brand-400'
                         }`}
                       >
                         <Smartphone size={12} /> App autenticadora
@@ -253,8 +253,8 @@ export default function RecuperarPage() {
                         onClick={() => { setTfaSelected('email'); setTfaOtp(Array(6).fill('')); setTfaSendMsg('') }}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                           tfaSelected === 'email'
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400'
+                            ? 'bg-brand-600 text-white border-brand-600'
+                            : 'bg-white text-slate-600 border-slate-300 hover:border-brand-400'
                         }`}
                       >
                         <Mail size={12} /> Correo electrónico
@@ -276,7 +276,7 @@ export default function RecuperarPage() {
                           type="button"
                           onClick={enviarCodigoEmail}
                           disabled={tfaSending}
-                          className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50"
+                          className="flex items-center gap-1.5 text-sm text-brand-600 hover:text-brand-700 disabled:opacity-50"
                         >
                           <RefreshCw size={13} className={tfaSending ? 'animate-spin' : ''} />
                           {tfaSendMsg ? 'Reenviar código' : 'Enviar código al correo'}
@@ -289,7 +289,7 @@ export default function RecuperarPage() {
                             type="button"
                             onClick={enviarCodigoEmail}
                             disabled={tfaSending}
-                            className={`flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 disabled:opacity-50 ${twoFactorMethod !== 'email' ? 'hidden' : ''}`}
+                            className={`flex items-center gap-1.5 text-xs text-brand-600 hover:text-brand-700 disabled:opacity-50 ${twoFactorMethod !== 'email' ? 'hidden' : ''}`}
                           >
                             <RefreshCw size={11} className={tfaSending ? 'animate-spin' : ''} />
                             Reenviar código
@@ -306,8 +306,8 @@ export default function RecuperarPage() {
               ) : (
                 /* ── Sin 2FA: código del administrador ────────────────────── */
                 <>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
-                    <p className="text-sm text-blue-700">
+                  <div className="bg-brand-50 border border-brand-200 rounded-lg px-4 py-3">
+                    <p className="text-sm text-brand-700">
                       Contacta a tu administrador para obtener el código de 6 dígitos.
                     </p>
                   </div>
@@ -342,7 +342,7 @@ export default function RecuperarPage() {
               />
 
               {errorMsg && (
-                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{errorMsg}</p>
+                <p className="text-sm text-danger-600 bg-danger-50 border border-danger-200 rounded-lg px-3 py-2">{errorMsg}</p>
               )}
 
               <Button
@@ -354,7 +354,7 @@ export default function RecuperarPage() {
                 Cambiar contraseña
               </Button>
               <div className="text-center">
-                <Link to="/login" className="text-sm text-slate-500 hover:text-blue-600 transition-colors">
+                <Link to="/login" className="text-sm text-slate-500 hover:text-brand-600 transition-colors">
                   ← Volver al inicio de sesión
                 </Link>
               </div>

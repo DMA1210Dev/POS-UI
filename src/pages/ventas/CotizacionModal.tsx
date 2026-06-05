@@ -259,8 +259,8 @@ export function CotizacionModal({ comercio, onClose }: CotizacionModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-blue-100">
-              <FileText size={20} className="text-blue-600" />
+            <div className="p-2 rounded-xl bg-brand-100">
+              <FileText size={20} className="text-brand-600" />
             </div>
             <div>
               <h2 className="text-base font-semibold text-slate-800">Nueva cotización</h2>
@@ -280,7 +280,7 @@ export function CotizacionModal({ comercio, onClose }: CotizacionModalProps) {
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input ref={searchRef} value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="Buscar producto por nombre o código…"
-                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-blue-500 transition-colors" />
+                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-brand-500 transition-colors" />
             </div>
 
             {search.length > 1 && productos.length > 0 && (
@@ -289,12 +289,12 @@ export function CotizacionModal({ comercio, onClose }: CotizacionModalProps) {
                   const precio = esMayorista && p.precioMayorista ? p.precioMayorista : p.precio
                   return (
                     <button key={p.id} onClick={() => agregarProducto(p)}
-                      className="w-full px-4 py-2.5 text-left hover:bg-blue-50 flex justify-between items-center text-sm transition-colors">
+                      className="w-full px-4 py-2.5 text-left hover:bg-brand-50 flex justify-between items-center text-sm transition-colors">
                       <div>
                         <p className="font-medium text-slate-800">{p.nombre}</p>
                         <p className="text-xs text-slate-400">{p.presentacion} · {p.nombreCategoria}</p>
                       </div>
-                      <p className={`font-semibold ${esMayorista && p.precioMayorista ? 'text-purple-600' : 'text-blue-600'}`}>{fmtM(precio)}</p>
+                      <p className={`font-semibold ${esMayorista && p.precioMayorista ? 'text-purple-600' : 'text-brand-600'}`}>{fmtM(precio)}</p>
                     </button>
                   )
                 })}
@@ -323,7 +323,7 @@ export function CotizacionModal({ comercio, onClose }: CotizacionModalProps) {
                         <label className="text-[10px] text-slate-400">Precio</label>
                         <input type="number" step="0.01" min="0" value={item.precio}
                           onChange={e => actualizarPrecio(item.productoId, e.target.value)}
-                          className="w-24 px-2 py-1 text-xs text-right border border-slate-300 rounded-lg outline-none focus:border-blue-500 bg-white" />
+                          className="w-24 px-2 py-1 text-xs text-right border border-slate-300 rounded-lg outline-none focus:border-brand-500 bg-white" />
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
                         {!item.esMedible
@@ -332,11 +332,11 @@ export function CotizacionModal({ comercio, onClose }: CotizacionModalProps) {
                               <span className="w-6 text-center text-sm font-semibold">{item.cantidad}</span>
                               <button onClick={() => actualizarCantidad(item.productoId, String(item.cantidad + 1))} className="w-6 h-6 rounded-full bg-white border border-slate-200 hover:bg-slate-100 flex items-center justify-center"><Plus size={10} /></button>
                             </>
-                          : <input type="number" step="0.001" value={item.cantidad} onChange={e => actualizarCantidad(item.productoId, e.target.value)} className="w-16 px-1 py-1 text-xs text-center border border-slate-300 rounded-lg outline-none focus:border-blue-500" />
+                          : <input type="number" step="0.001" value={item.cantidad} onChange={e => actualizarCantidad(item.productoId, e.target.value)} className="w-16 px-1 py-1 text-xs text-center border border-slate-300 rounded-lg outline-none focus:border-brand-500" />
                         }
                       </div>
                       <p className="text-sm font-semibold text-slate-800 w-20 text-right flex-shrink-0">{fmtM(item.precio * item.cantidad)}</p>
-                      <button onClick={() => setItems(prev => prev.filter(i => i.productoId !== item.productoId))} className="text-red-400 hover:text-red-600 flex-shrink-0 p-1 rounded-lg hover:bg-red-50"><Trash2 size={13} /></button>
+                      <button onClick={() => setItems(prev => prev.filter(i => i.productoId !== item.productoId))} className="text-danger-400 hover:text-danger-600 flex-shrink-0 p-1 rounded-lg hover:bg-danger-50"><Trash2 size={13} /></button>
                     </div>
                   ))}
                 </div>
@@ -349,7 +349,7 @@ export function CotizacionModal({ comercio, onClose }: CotizacionModalProps) {
             <div>
               <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Cliente (opcional)</label>
               <select value={clienteId ?? ''} onChange={e => handleClienteChange(Number(e.target.value) || undefined)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-blue-500 bg-white">
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-brand-500 bg-white">
                 <option value="">Sin cliente</option>
                 {clientes.map(c => (<option key={c.id} value={c.id}>{c.nombre}{c.esMayorista ? ' [Mayorista]' : ''}</option>))}
               </select>
@@ -359,7 +359,7 @@ export function CotizacionModal({ comercio, onClose }: CotizacionModalProps) {
             <div>
               <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Descuento (RD$)</label>
               <input type="number" step="0.01" min="0" value={descuento} onChange={e => setDescuento(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-blue-500 bg-white" />
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-brand-500 bg-white" />
             </div>
 
             <div>
@@ -367,25 +367,25 @@ export function CotizacionModal({ comercio, onClose }: CotizacionModalProps) {
               <div className="flex gap-1.5 mb-2">
                 {[7, 15, 30].map(d => (
                   <button key={d} onClick={() => setValidez(d)}
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${validez === d ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-slate-300 text-slate-600 hover:border-blue-400'}`}>
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${validez === d ? 'bg-brand-600 text-white border-brand-600' : 'bg-white border-slate-300 text-slate-600 hover:border-brand-400'}`}>
                     {d}d
                   </button>
                 ))}
               </div>
               <input type="number" min="1" max="365" value={validez} onChange={e => setValidez(Math.max(1, parseInt(e.target.value) || 15))}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-blue-500 bg-white text-center" placeholder="Días personalizados" />
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-brand-500 bg-white text-center" placeholder="Días personalizados" />
             </div>
 
             {items.length > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 p-3 space-y-1.5 text-sm">
                 <div className="flex justify-between text-slate-500"><span>Subtotal</span><span>{fmtM(subtotal)}</span></div>
-                {descuento > 0 && <div className="flex justify-between text-green-600 font-medium"><span>Descuento</span><span>-{fmtM(descuento)}</span></div>}
-                <div className="flex justify-between font-bold text-blue-700 text-base border-t pt-1.5"><span>Total</span><span>{fmtM(total)}</span></div>
+                {descuento > 0 && <div className="flex justify-between text-success-600 font-medium"><span>Descuento</span><span>-{fmtM(descuento)}</span></div>}
+                <div className="flex justify-between font-bold text-brand-700 text-base border-t pt-1.5"><span>Total</span><span>{fmtM(total)}</span></div>
               </div>
             )}
 
             <button disabled={items.length === 0 || guardarMut.isPending} onClick={() => guardarMut.mutate()}
-              className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-xl text-white bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               {guardarMut.isPending
                 ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 : <Save size={16} />

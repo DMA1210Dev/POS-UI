@@ -307,15 +307,15 @@ function AsignarAprobadorPostCreacion({
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
 
         {/* Cabecera */}
-        <div className="bg-emerald-50 px-6 pt-5 pb-4 flex items-start gap-3 border-b border-emerald-100">
-          <div className="p-2.5 rounded-full bg-emerald-100 shrink-0">
-            <CreditCard size={20} className="text-emerald-600" />
+        <div className="bg-success-50 px-6 pt-5 pb-4 flex items-start gap-3 border-b border-success-100">
+          <div className="p-2.5 rounded-full bg-success-100 shrink-0">
+            <CreditCard size={20} className="text-success-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-emerald-800 text-base">
+            <h3 className="font-semibold text-success-800 text-base">
               Factura #{ventaId} registrada
             </h3>
-            <p className="text-xs text-emerald-600 mt-0.5">
+            <p className="text-xs text-success-600 mt-0.5">
               ¿Quién debe aprobar esta venta a crédito?
             </p>
           </div>
@@ -332,7 +332,7 @@ function AsignarAprobadorPostCreacion({
             placeholder="Buscar usuario..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-400 transition-colors"
+            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand-400 transition-colors"
             autoFocus
           />
 
@@ -348,7 +348,7 @@ function AsignarAprobadorPostCreacion({
                 onClick={() => setSelectedId(u.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-colors border ${
                   selectedId === u.id
-                    ? 'bg-blue-50 border-blue-200'
+                    ? 'bg-brand-50 border-brand-200'
                     : 'border-transparent hover:bg-slate-50'
                 }`}
               >
@@ -359,7 +359,7 @@ function AsignarAprobadorPostCreacion({
                   <p className="text-sm font-medium text-slate-800 truncate">{u.nombre}</p>
                   <p className="text-xs text-slate-400 truncate">{u.email}</p>
                 </div>
-                {selectedId === u.id && <Check size={14} className="text-blue-600 shrink-0" />}
+                {selectedId === u.id && <Check size={14} className="text-brand-600 shrink-0" />}
               </button>
             ))}
           </div>
@@ -377,7 +377,7 @@ function AsignarAprobadorPostCreacion({
           <button
             onClick={() => selectedId && onAsignar(selectedId)}
             disabled={loading || !selectedId}
-            className="flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white bg-brand-600 hover:bg-brand-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading
               ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
@@ -741,8 +741,15 @@ export default function NuevaVentaPage() {
     },
     onError: (e) => {
       const msg = errMsg(e)
-      // Error de límite de crédito → popup con detalles
-      if (msg.toLowerCase().includes('límite de crédito') || msg.toLowerCase().includes('limite de credito')) {
+      const lower = msg.toLowerCase()
+      if (
+        lower.includes('límite de crédito') ||
+        lower.includes('limite de credito') ||
+        lower.includes('días de crédito') ||
+        lower.includes('dias de credito') ||
+        lower.includes('límite de crédito configurado') ||
+        lower.includes('limite de credito configurado')
+      ) {
         setErrorCredito(msg)
       } else {
         error(msg)
@@ -823,8 +830,8 @@ export default function NuevaVentaPage() {
         {hayCarrito && (
           <Button
             variant="secondary"
-            icon={<XCircle size={15} className="text-red-500" />}
-            className="text-red-500 border-red-200 hover:bg-red-50"
+            icon={<XCircle size={15} className="text-danger-500" />}
+            className="text-danger-500 border-danger-200 hover:bg-danger-50"
             onClick={() => setConfirmarCancelar(true)}
           >
             Cancelar carrito
@@ -850,7 +857,7 @@ export default function NuevaVentaPage() {
                 <button key={modo} onClick={() => handleModoSwitch(modo)}
                   className={`flex-1 py-1.5 transition-colors ${
                     modoCarrito === modo
-                      ? modo === 'venta' ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white'
+                      ? modo === 'venta' ? 'bg-brand-600 text-white' : 'bg-warning-500 text-white'
                       : 'text-slate-600 hover:bg-slate-50'
                   }`}>
                   {modo === 'venta' ? 'Venta' : 'Cotización'}
@@ -865,8 +872,8 @@ export default function NuevaVentaPage() {
                   <button key={t} onClick={() => setTipoPago(t)}
                     className={`flex-1 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                       tipoPago === t
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'border-slate-300 text-slate-600 hover:border-blue-400'
+                        ? 'bg-brand-600 text-white border-brand-600'
+                        : 'border-slate-300 text-slate-600 hover:border-brand-400'
                     }`}>{t}
                   </button>
                 ))}
@@ -878,12 +885,12 @@ export default function NuevaVentaPage() {
               <label className="text-xs font-medium text-slate-600 block mb-1">
                 Cliente{' '}
                 {modoCarrito === 'venta' && (tipoPago === 'Credito' || !(comercio?.permitirVentaSinCliente ?? true)) && (
-                  <span className="text-red-500">*</span>
+                  <span className="text-danger-500">*</span>
                 )}
               </label>
               <select value={clienteId ?? ''}
                 onChange={e => setClienteId(Number(e.target.value) || undefined)}
-                className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500">
+                className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500">
                 <option value="">Sin cliente / Mostrador</option>
                 {clientes.map(c => (
                   <option key={c.id} value={c.id}>
@@ -893,17 +900,17 @@ export default function NuevaVentaPage() {
               </select>
               {clienteSeleccionado && (
                 <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
-                  <span className={esMayorista ? 'text-purple-600 font-medium' : 'text-blue-600'}>
+                  <span className={esMayorista ? 'text-purple-600 font-medium' : 'text-brand-600'}>
                     {esMayorista ? 'Mayorista' : 'Minorista'}
                   </span>
                   {clienteSeleccionado.porcentajeDescuento > 0 && (
-                    <span className="text-green-600">{clienteSeleccionado.porcentajeDescuento}% desc.</span>
+                    <span className="text-success-600">{clienteSeleccionado.porcentajeDescuento}% desc.</span>
                   )}
                   {clienteSeleccionado.totalDeuda > 0 && (
-                    <span className="text-red-500">Deuda: {fmt(clienteSeleccionado.totalDeuda)}</span>
+                    <span className="text-danger-500">Deuda: {fmt(clienteSeleccionado.totalDeuda)}</span>
                   )}
                   {clienteSeleccionado.creditosActivos > 0 && (
-                    <span className="text-orange-500">{clienteSeleccionado.creditosActivos} crédito(s)</span>
+                    <span className="text-warning-500">{clienteSeleccionado.creditosActivos} crédito(s)</span>
                   )}
                   {clienteSeleccionado.diasCredito > 0 && (
                     <span className="text-teal-600">{clienteSeleccionado.diasCredito}d crédito</span>
@@ -911,7 +918,7 @@ export default function NuevaVentaPage() {
                   {clienteSeleccionado.limiteCredito != null && (
                     <span className={
                       clienteSeleccionado.totalDeuda >= clienteSeleccionado.limiteCredito
-                        ? 'text-red-600 font-semibold'
+                        ? 'text-danger-600 font-semibold'
                         : 'text-slate-500'
                     }>
                       Límite: {fmt(clienteSeleccionado.limiteCredito)}
@@ -927,7 +934,7 @@ export default function NuevaVentaPage() {
             {/* Alerta de límite de crédito excedido */}
             {tipoPago === 'Credito' && clienteSeleccionado?.limiteCredito != null &&
              clienteSeleccionado.totalDeuda >= clienteSeleccionado.limiteCredito && (
-              <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5 text-xs text-red-700">
+              <div className="flex items-start gap-2 bg-danger-50 border border-danger-200 rounded-xl px-3 py-2.5 text-xs text-danger-700">
                 <AlertTriangle size={13} className="shrink-0 mt-0.5" />
                 <span>
                   <strong>Límite de crédito alcanzado.</strong> Deuda actual: {fmt(clienteSeleccionado.totalDeuda)} · Límite: {fmt(clienteSeleccionado.limiteCredito)}.
@@ -988,13 +995,13 @@ export default function NuevaVentaPage() {
                     <button key={d} onClick={() => setValidezDias(d)}
                       className={`flex-1 py-1 rounded-lg text-xs font-semibold border transition-colors ${
                         validezDias === d
-                          ? 'bg-amber-500 text-white border-amber-500'
-                          : 'border-slate-300 text-slate-600 hover:border-amber-400'
+                          ? 'bg-warning-500 text-white border-warning-500'
+                          : 'border-slate-300 text-slate-600 hover:border-warning-400'
                       }`}>{d}d</button>
                   ))}
                   <input type="number" min="1" max="365" value={validezDias}
                     onChange={e => setValidezDias(Math.max(1, parseInt(e.target.value) || 15))}
-                    className="w-14 px-2 py-1 text-xs border border-slate-300 rounded-lg text-center outline-none focus:border-amber-400" />
+                    className="w-14 px-2 py-1 text-xs border border-slate-300 rounded-lg text-center outline-none focus:border-warning-400" />
                 </div>
               </div>
             )}
@@ -1004,7 +1011,7 @@ export default function NuevaVentaPage() {
               <label className="text-xs font-medium text-slate-600 shrink-0">Descuento RD$</label>
               <input type="number" step="0.01" min="0" value={descuento}
                 onChange={e => setDescuento(parseFloat(e.target.value) || 0)}
-                className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500" />
+                className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500" />
             </div>
 
             {/* Totales */}
@@ -1033,10 +1040,10 @@ export default function NuevaVentaPage() {
               {/* Chip de ahorro — informativo, fuera de la ecuación */}
               {descuento > 0 && (
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-green-600 bg-green-50 border border-green-200 rounded-full px-2 py-0.5">
+                  <span className="text-[11px] text-success-600 bg-success-50 border border-success-200 rounded-full px-2 py-0.5">
                     Ahorro{clienteSeleccionado?.porcentajeDescuento ? ` (${clienteSeleccionado.porcentajeDescuento}%)` : ''}
                   </span>
-                  <span className="text-[11px] text-green-600 font-medium">-{fmt(descuento)}</span>
+                  <span className="text-[11px] text-success-600 font-medium">-{fmt(descuento)}</span>
                 </div>
               )}
 
@@ -1067,7 +1074,7 @@ export default function NuevaVentaPage() {
                 {tipoPago === 'Credito' ? 'Registrar a crédito' : 'Cobrar'}
               </Button>
             ) : (
-              <Button className="w-full justify-center py-2.5 bg-amber-500 hover:bg-amber-600 border-amber-500"
+              <Button className="w-full justify-center py-2.5 bg-warning-500 hover:bg-warning-600 border-warning-500"
                 loading={cotizarMut.isPending}
                 disabled={carrito.length === 0}
                 onClick={() => cotizarMut.mutate()}
@@ -1109,8 +1116,8 @@ export default function NuevaVentaPage() {
                     onClick={() => setCategoriasOpen(o => !o)}
                     className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
                       categoriaId
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'border-slate-300 text-slate-600 hover:border-blue-400 hover:text-blue-600 bg-white'
+                        ? 'bg-brand-600 text-white border-brand-600'
+                        : 'border-slate-300 text-slate-600 hover:border-brand-400 hover:text-brand-600 bg-white'
                     }`}
                   >
                     <Tag size={14} />
@@ -1124,7 +1131,7 @@ export default function NuevaVentaPage() {
                       <button
                         onClick={() => { setCategoriaId(undefined); setCategoriasOpen(false) }}
                         className={`w-full text-left px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                          !categoriaId ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-slate-50 text-slate-700'
+                          !categoriaId ? 'bg-brand-50 text-brand-700 font-medium' : 'hover:bg-slate-50 text-slate-700'
                         }`}
                       >
                         Todas
@@ -1136,7 +1143,7 @@ export default function NuevaVentaPage() {
                             onClick={() => { setCategoriaId(cat.id); setCategoriasOpen(false) }}
                             className={`w-full text-left px-3 py-1.5 text-sm rounded-lg transition-colors flex justify-between items-center ${
                               categoriaId === cat.id
-                                ? 'bg-blue-50 text-blue-700 font-medium'
+                                ? 'bg-brand-50 text-brand-700 font-medium'
                                 : 'hover:bg-slate-50 text-slate-700'
                             }`}
                           >
@@ -1163,10 +1170,10 @@ export default function NuevaVentaPage() {
                       const tieneMayorista = p.precioMayorista != null
                       return (
                         <button key={p.id} onClick={() => agregarProducto(p)}
-                          className="text-left bg-white border border-slate-200 rounded-xl p-3 hover:border-blue-400 hover:bg-blue-50 hover:shadow-sm transition-all active:scale-95">
+                          className="text-left bg-white border border-slate-200 rounded-xl p-3 hover:border-brand-400 hover:bg-brand-50 hover:shadow-sm transition-all active:scale-95">
                           <p className="font-medium text-slate-800 text-sm leading-snug line-clamp-2 mb-1">{p.nombre}</p>
                           <p className="text-xs text-slate-400 truncate mb-2">{p.presentacion}{p.nombreCategoria ? ` · ${p.nombreCategoria}` : ''}</p>
-                          <p className={`font-bold text-sm ${esMayorista && tieneMayorista ? 'text-purple-600' : 'text-blue-600'}`}>
+                          <p className={`font-bold text-sm ${esMayorista && tieneMayorista ? 'text-purple-600' : 'text-brand-600'}`}>
                             {fmt(precioMostrar)}
                           </p>
                           {esMayorista && tieneMayorista && (
@@ -1188,7 +1195,7 @@ export default function NuevaVentaPage() {
               <h3 className="font-semibold text-slate-700 flex items-center gap-2">
                 <ShoppingCart size={16} /> Carrito
                 {carrito.length > 0 && (
-                  <span className="text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 font-semibold">
+                  <span className="text-xs bg-brand-100 text-brand-700 rounded-full px-2 py-0.5 font-semibold">
                     {carrito.length}
                   </span>
                 )}
@@ -1218,7 +1225,7 @@ export default function NuevaVentaPage() {
                           </>
                         : <input type="number" step="0.001" value={item.cantidad}
                             onChange={e => actualizarCantidad(item.productoId, e.target.value)}
-                            className="w-16 px-2 py-1 text-sm border border-slate-300 rounded-lg text-center outline-none focus:border-blue-500" />
+                            className="w-16 px-2 py-1 text-sm border border-slate-300 rounded-lg text-center outline-none focus:border-brand-500" />
                       }
                     </div>
                     <p className="font-semibold text-slate-800 w-16 text-right text-sm shrink-0">
@@ -1226,7 +1233,7 @@ export default function NuevaVentaPage() {
                     </p>
                     <button
                       onClick={() => setCarrito(prev => prev.filter(i => i.productoId !== item.productoId))}
-                      className="text-red-400 hover:text-red-600 shrink-0">
+                      className="text-danger-400 hover:text-danger-600 shrink-0">
                       <Trash2 size={13} />
                     </button>
                   </div>
@@ -1244,14 +1251,14 @@ export default function NuevaVentaPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
             <div className="px-6 pt-6 pb-2 flex flex-col items-center text-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                <AlertTriangle size={24} className="text-red-500" />
+              <div className="w-12 h-12 rounded-full bg-danger-100 flex items-center justify-center">
+                <AlertTriangle size={24} className="text-danger-500" />
               </div>
               <h3 className="text-lg font-semibold text-slate-800">¿Cancelar el carrito?</h3>
               <p className="text-sm text-slate-500">
                 Se eliminarán todos los productos y configuraciones del carrito actual.
                 {ncfReservado && (
-                  <span className="block mt-1 text-amber-600 font-medium">
+                  <span className="block mt-1 text-warning-600 font-medium">
                     El NCF <span className="font-mono">{ncfReservado}</span> quedará libre en el pool.
                   </span>
                 )}
@@ -1261,7 +1268,7 @@ export default function NuevaVentaPage() {
               <Button variant="secondary" className="flex-1 justify-center" onClick={() => setConfirmarCancelar(false)}>
                 Volver
               </Button>
-              <Button className="flex-1 justify-center bg-red-600 hover:bg-red-700 border-red-600" onClick={ejecutarCancelacion}>
+              <Button className="flex-1 justify-center bg-danger-600 hover:bg-danger-700 border-danger-600" onClick={ejecutarCancelacion}>
                 Sí, cancelar
               </Button>
             </div>
@@ -1269,74 +1276,85 @@ export default function NuevaVentaPage() {
         </div>
       )}
 
-      {/* ── Modal error de límite de crédito ─────────────────────────── */}
+      {/* ── Modal error de crédito ─────────────────────────── */}
       {errorCredito && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-            {/* Franja roja superior */}
-            <div className="h-1.5 bg-red-500 w-full" />
+            <div className="h-1.5 bg-warning-500 w-full" />
 
             <div className="px-6 pt-5 pb-4 flex items-start gap-3">
-              <div className="p-2.5 rounded-full bg-red-100 shrink-0">
-                <AlertTriangle size={22} className="text-red-600" />
+              <div className="p-2.5 rounded-full bg-warning-100 shrink-0">
+                <AlertTriangle size={22} className="text-warning-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-800 text-base">Límite de crédito excedido</h3>
-                <p className="text-xs text-slate-400 mt-0.5">No se puede registrar la venta</p>
+                {errorCredito.toLowerCase().includes('días de crédito') || errorCredito.toLowerCase().includes('dias de credito') ? (
+                  <>
+                    <h3 className="font-semibold text-slate-800 text-base">Cliente no configurado para crédito</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Faltan datos de crédito en la ficha del cliente</p>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="font-semibold text-slate-800 text-base">Límite de crédito excedido</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">No se puede registrar la venta</p>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Desglose de montos */}
-            <div className="mx-6 mb-4 rounded-xl bg-red-50 border border-red-100 p-4 space-y-2 text-sm">
-              {/* Parsea el mensaje para mostrar las cifras en filas */}
-              {(() => {
-                const limiteMatch   = errorCredito.match(/Límite:\s*(RD\$[\d,\.]+)/i)
-                const deudaMatch    = errorCredito.match(/Deuda actual:\s*(RD\$[\d,\.]+)/i)
-                const dispMatch     = errorCredito.match(/Disponible:\s*(RD\$[\d,\.]+)/i)
-                const ventaMatch    = errorCredito.match(/Esta venta \((RD\$[\d,\.]+)\)/i)
-                return (
-                  <div className="space-y-1.5">
-                    {ventaMatch && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Esta venta</span>
-                        <span className="font-bold text-red-700">{ventaMatch[1]}</span>
+            {(errorCredito.toLowerCase().includes('límite') || errorCredito.toLowerCase().includes('limite')) && !errorCredito.toLowerCase().includes('configurado') && (
+              <>
+                <div className="mx-6 mb-4 rounded-xl bg-warning-50 border border-warning-200 p-4 space-y-2 text-sm">
+                  {(() => {
+                    const limiteMatch   = errorCredito.match(/Límite:\s*(RD\$[\d,\.]+)/i)
+                    const deudaMatch    = errorCredito.match(/Deuda actual:\s*(RD\$[\d,\.]+)/i)
+                    const dispMatch     = errorCredito.match(/Disponible:\s*(RD\$[\d,\.]+)/i)
+                    const ventaMatch    = errorCredito.match(/Esta venta \((RD\$[\d,\.]+)\)/i)
+                    return (
+                      <div className="space-y-1.5">
+                        {ventaMatch && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">Esta venta</span>
+                            <span className="font-bold text-warning-700">{ventaMatch[1]}</span>
+                          </div>
+                        )}
+                        {deudaMatch && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">Deuda actual</span>
+                            <span className="font-medium text-slate-700">{deudaMatch[1]}</span>
+                          </div>
+                        )}
+                        {limiteMatch && (
+                          <div className="flex justify-between border-t border-warning-200 pt-1.5 mt-1">
+                            <span className="text-slate-500">Límite del cliente</span>
+                            <span className="font-semibold text-slate-800">{limiteMatch[1]}</span>
+                          </div>
+                        )}
+                        {dispMatch && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">Disponible</span>
+                            <span className={`font-semibold ${parseFloat(dispMatch[1].replace(/[^0-9.]/g,'')) <= 0 ? 'text-warning-600' : 'text-success-600'}`}>{dispMatch[1]}</span>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {deudaMatch && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Deuda actual</span>
-                        <span className="font-medium text-slate-700">{deudaMatch[1]}</span>
-                      </div>
-                    )}
-                    {limiteMatch && (
-                      <div className="flex justify-between border-t border-red-200 pt-1.5 mt-1">
-                        <span className="text-slate-500">Límite del cliente</span>
-                        <span className="font-semibold text-slate-800">{limiteMatch[1]}</span>
-                      </div>
-                    )}
-                    {dispMatch && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Disponible</span>
-                        <span className={`font-semibold ${
-                          parseFloat(dispMatch[1].replace(/[^0-9.]/g,'')) <= 0
-                            ? 'text-red-600'
-                            : 'text-emerald-600'
-                        }`}>{dispMatch[1]}</span>
-                      </div>
-                    )}
-                  </div>
-                )
-              })()}
-            </div>
+                    )
+                  })()}
+                </div>
+                <p className="px-6 pb-4 text-xs text-slate-500">
+                  Para proceder, ajusta el monto de la venta o actualiza el límite de crédito del cliente.
+                </p>
+              </>
+            )}
 
-            <p className="px-6 pb-4 text-xs text-slate-500">
-              Para proceder, ajusta el monto de la venta o actualiza el límite de crédito del cliente.
-            </p>
+            {(errorCredito.toLowerCase().includes('días de crédito') || errorCredito.toLowerCase().includes('dias de credito') || errorCredito.toLowerCase().includes('límite de crédito configurado') || errorCredito.toLowerCase().includes('limite de credito configurado')) && (
+              <div className="mx-6 mb-4 rounded-xl bg-warning-50 border border-warning-200 p-4 text-sm">
+                <p className="text-warning-800">{errorCredito}</p>
+              </div>
+            )}
 
             <div className="px-6 pb-5">
               <button
                 onClick={() => setErrorCredito(null)}
-                className="w-full py-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors"
+                className="w-full py-2 text-sm font-medium bg-warning-500 hover:bg-warning-600 text-white rounded-xl transition-colors"
               >
                 Entendido
               </button>

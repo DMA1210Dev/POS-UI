@@ -112,10 +112,10 @@ export default function ReportesPage() {
 
   const exportButtons = (onExcel: () => void, onPDF: () => void) => (
     <div className="flex gap-2">
-      <button onClick={onExcel} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-lg transition-colors">
+      <button onClick={onExcel} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-success-50 text-success-700 hover:bg-success-100 border border-success-200 rounded-lg transition-colors">
         <FileSpreadsheet size={14} /> Excel
       </button>
-      <button onClick={onPDF} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg transition-colors">
+      <button onClick={onPDF} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-danger-50 text-danger-700 hover:bg-danger-100 border border-danger-200 rounded-lg transition-colors">
         <FileText size={14} /> PDF
       </button>
     </div>
@@ -132,12 +132,12 @@ export default function ReportesPage() {
             <div>
               <label className="text-sm font-medium text-slate-700 block mb-1">Desde</label>
               <input type="date" value={desde} onChange={e => setDesde(e.target.value)}
-                className="px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500" />
+                className="px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500" />
             </div>
             <div>
               <label className="text-sm font-medium text-slate-700 block mb-1">Hasta</label>
               <input type="date" value={hasta} onChange={e => setHasta(e.target.value)}
-                className="px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500" />
+                className="px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500" />
             </div>
           </div>
         </CardBody>
@@ -148,7 +148,7 @@ export default function ReportesPage() {
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              tab === t.key ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'
+              tab === t.key ? 'border-brand-600 text-brand-600' : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}>{t.label}</button>
         ))}
       </div>
@@ -199,9 +199,9 @@ export default function ReportesPage() {
         <div className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {[
-              { label: 'Total ITBIS cobrado', val: fmt(itbis.data.totalItbis),       color: 'text-blue-600' },
+              { label: 'Total ITBIS cobrado', val: fmt(itbis.data.totalItbis),       color: 'text-brand-600' },
               { label: 'Base gravada',         val: fmt(itbis.data.totalBaseGravada), color: 'text-slate-800' },
-              { label: 'Base exenta',          val: fmt(itbis.data.totalBaseExenta),  color: 'text-green-600' },
+              { label: 'Base exenta',          val: fmt(itbis.data.totalBaseExenta),  color: 'text-success-600' },
             ].map(s => (
               <Card key={s.label}><CardBody>
                 <p className="text-xs text-slate-500">{s.label}</p>
@@ -227,7 +227,7 @@ export default function ReportesPage() {
                       <td className="px-4 py-2 font-medium">{p.nombreProducto}</td>
                       <td className="px-4 py-2">{p.cantidadVendida}</td>
                       <td className="px-4 py-2">{fmt(p.baseImponible)}</td>
-                      <td className="px-4 py-2 text-blue-600 font-semibold">{fmt(p.impuesto)}</td>
+                      <td className="px-4 py-2 text-brand-600 font-semibold">{fmt(p.impuesto)}</td>
                       <td className="px-4 py-2 font-bold">{fmt(p.totalVendido)}</td>
                     </tr>
                   ))}
@@ -267,12 +267,12 @@ export default function ReportesPage() {
                       <td className="px-4 py-2 text-slate-500">{p.tipo}</td>
                       <td className="px-4 py-2">{p.cantidadVendida} {p.unidadMedida}</td>
                       <td className="px-4 py-2">{p.numVentas}</td>
-                      <td className="px-4 py-2 font-bold text-green-700">{fmt(p.totalIngresado)}</td>
+                      <td className="px-4 py-2 font-bold text-success-700">{fmt(p.totalIngresado)}</td>
                       <td className="px-4 py-2 text-slate-500">{tieneCosto ? fmt(p.costoTotal) : <span className="text-slate-300">—</span>}</td>
-                      <td className={`px-4 py-2 font-semibold ${tieneCosto ? (margenPositivo ? 'text-emerald-600' : 'text-red-600') : 'text-slate-300'}`}>
+                      <td className={`px-4 py-2 font-semibold ${tieneCosto ? (margenPositivo ? 'text-success-600' : 'text-danger-600') : 'text-slate-300'}`}>
                         {tieneCosto ? fmt(p.margenBruto) : '—'}
                       </td>
-                      <td className={`px-4 py-2 font-semibold ${tieneCosto ? (margenPositivo ? 'text-emerald-600' : 'text-red-600') : 'text-slate-300'}`}>
+                      <td className={`px-4 py-2 font-semibold ${tieneCosto ? (margenPositivo ? 'text-success-600' : 'text-danger-600') : 'text-slate-300'}`}>
                         {tieneCosto ? `${p.porcentajeMargen}%` : '—'}
                       </td>
                     </tr>
@@ -299,8 +299,8 @@ export default function ReportesPage() {
               {[
                 ['Total de ventas',    rentabilidad.data.totalVentas,                ''],
                 ['Ingresos brutos',    fmt(rentabilidad.data.ingresosBrutos),        ''],
-                ['Total ITBIS',        fmt(rentabilidad.data.totalImpuestos),        'text-blue-600'],
-                ['Total descuentos',   fmt(rentabilidad.data.totalDescuentos),       'text-orange-600'],
+                ['Total ITBIS',        fmt(rentabilidad.data.totalImpuestos),        'text-brand-600'],
+                ['Total descuentos',   fmt(rentabilidad.data.totalDescuentos),       'text-warning-600'],
               ].map(([label, val, color]) => (
                 <div key={String(label)} className="flex justify-between">
                   <span className="text-slate-500">{label}</span>
@@ -309,7 +309,7 @@ export default function ReportesPage() {
               ))}
               <div className="pt-3 border-t flex justify-between text-base font-bold">
                 <span>Ingreso neto</span>
-                <span className="text-green-700">{fmt(rentabilidad.data.ingresoNeto)}</span>
+                <span className="text-success-700">{fmt(rentabilidad.data.ingresoNeto)}</span>
               </div>
               <div className="flex justify-between text-slate-600">
                 <span>Promedio por venta</span>
@@ -335,21 +335,21 @@ export default function ReportesPage() {
                 <>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Ingreso neto</span>
-                    <span className="font-semibold text-green-700">{fmt(rentabilidad.data.ingresoNeto)}</span>
+                    <span className="font-semibold text-success-700">{fmt(rentabilidad.data.ingresoNeto)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Costo total</span>
-                    <span className="font-semibold text-red-600">{fmt(rentabilidad.data.costoTotal)}</span>
+                    <span className="font-semibold text-danger-600">{fmt(rentabilidad.data.costoTotal)}</span>
                   </div>
                   <div className="pt-3 border-t flex justify-between text-base font-bold">
                     <span>Ganancia bruta</span>
-                    <span className={rentabilidad.data.gananciaBruta >= 0 ? 'text-emerald-600' : 'text-red-600'}>
+                    <span className={rentabilidad.data.gananciaBruta >= 0 ? 'text-success-600' : 'text-danger-600'}>
                       {fmt(rentabilidad.data.gananciaBruta)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-500">Margen de ganancia</span>
-                    <span className={`text-lg font-bold ${rentabilidad.data.porcentajeMargen >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <span className={`text-lg font-bold ${rentabilidad.data.porcentajeMargen >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
                       {rentabilidad.data.porcentajeMargen}%
                     </span>
                   </div>
@@ -357,7 +357,7 @@ export default function ReportesPage() {
                   <div className="pt-1">
                     <div className="w-full bg-slate-100 rounded-full h-2.5">
                       <div
-                        className={`h-2.5 rounded-full transition-all ${rentabilidad.data.porcentajeMargen >= 0 ? 'bg-emerald-500' : 'bg-red-500'}`}
+                        className={`h-2.5 rounded-full transition-all ${rentabilidad.data.porcentajeMargen >= 0 ? 'bg-success-500' : 'bg-danger-500'}`}
                         style={{ width: `${Math.min(Math.abs(rentabilidad.data.porcentajeMargen), 100)}%` }}
                       />
                     </div>
@@ -378,9 +378,9 @@ export default function ReportesPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                     {[
                       { label: 'Ingresos brutos', val: fmt(rentabilidad.data.ingresosBrutos), color: 'text-slate-800' },
-                      { label: 'Costo total',      val: fmt(rentabilidad.data.costoTotal),     color: 'text-red-600' },
-                      { label: 'Ganancia bruta',   val: fmt(rentabilidad.data.gananciaBruta),  color: rentabilidad.data.gananciaBruta >= 0 ? 'text-emerald-600' : 'text-red-600' },
-                      { label: 'Margen %',         val: `${rentabilidad.data.porcentajeMargen}%`, color: rentabilidad.data.porcentajeMargen >= 0 ? 'text-emerald-600' : 'text-red-600' },
+                      { label: 'Costo total',      val: fmt(rentabilidad.data.costoTotal),     color: 'text-danger-600' },
+                      { label: 'Ganancia bruta',   val: fmt(rentabilidad.data.gananciaBruta),  color: rentabilidad.data.gananciaBruta >= 0 ? 'text-success-600' : 'text-danger-600' },
+                      { label: 'Margen %',         val: `${rentabilidad.data.porcentajeMargen}%`, color: rentabilidad.data.porcentajeMargen >= 0 ? 'text-success-600' : 'text-danger-600' },
                     ].map(s => (
                       <div key={s.label}>
                         <p className="text-xs text-slate-500 mb-1">{s.label}</p>

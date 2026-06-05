@@ -7,7 +7,7 @@ import { useToast, errMsg } from '../../context/ToastContext'
 import { Card } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 
-const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
 
 // ── OTP Input reutilizable ────────────────────────────────────────────────────
 function OtpInput({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
@@ -48,8 +48,8 @@ function OtpInput({ value, onChange }: { value: string[]; onChange: (v: string[]
           onKeyDown={e => handleKey(i, e)}
           onPaste={handlePaste}
           className={`w-10 h-11 text-center text-lg font-bold border-2 rounded-xl outline-none transition-colors ${
-            digit ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-300 text-slate-800'
-          } focus:border-blue-500`}
+            digit ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-800'
+          } focus:border-brand-500`}
         />
       ))}
     </div>
@@ -188,14 +188,14 @@ export default function PerfilPage() {
 
       {/* Info del usuario */}
       <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4">
-        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-          <User className="text-blue-600" size={24} />
+        <div className="w-12 h-12 rounded-full bg-brand-100 flex items-center justify-center">
+          <User className="text-brand-600" size={24} />
         </div>
         <div>
           <p className="font-semibold text-slate-800">{user?.nombre}</p>
           <p className="text-sm text-slate-500">{user?.email}</p>
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium mt-1 inline-block ${
-            user?.rol === 'AdminSistema' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+            user?.rol === 'AdminSistema' ? 'bg-purple-100 text-purple-700' : 'bg-brand-100 text-brand-700'
           }`}>
             {user?.rol}
           </span>
@@ -246,15 +246,15 @@ export default function PerfilPage() {
               <label className="text-sm font-medium text-slate-700 block mb-1">Confirmar nueva contraseña</label>
               <input type="password" value={pwdConfirm} onChange={e => setPwdConfirm(e.target.value)} placeholder="••••••••" className={inputClass} />
               {pwdNuevo && pwdConfirm && !passwordsCoinciden && (
-                <p className="text-xs text-amber-600 mt-1">Las contraseñas no coinciden</p>
+                <p className="text-xs text-warning-600 mt-1">Las contraseñas no coinciden</p>
               )}
             </div>
           </div>
 
           {/* 2FA verification — solo si el usuario tiene 2FA activo */}
           {user?.twoFactorEnabled && (
-            <div className="border border-blue-200 bg-blue-50 rounded-xl p-4 space-y-3">
-              <p className="text-sm font-medium text-blue-800 flex items-center gap-2">
+            <div className="border border-brand-200 bg-brand-50 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-medium text-brand-800 flex items-center gap-2">
                 <ShieldCheck size={15} /> Verificación en dos pasos requerida
               </p>
 
@@ -265,8 +265,8 @@ export default function PerfilPage() {
                   onClick={() => { setPwdTfaMethod('totp'); setPwdTfaOtp(Array(6).fill('')); setPwdTfaSendMsg('') }}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                     pwdTfaMethod === 'totp'
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400'
+                      ? 'bg-brand-600 text-white border-brand-600'
+                      : 'bg-white text-slate-600 border-slate-300 hover:border-brand-400'
                   }`}
                 >
                   <Smartphone size={13} /> App autenticadora
@@ -276,8 +276,8 @@ export default function PerfilPage() {
                   onClick={() => { setPwdTfaMethod('email'); setPwdTfaOtp(Array(6).fill('')); setPwdTfaSendMsg('') }}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                     pwdTfaMethod === 'email'
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400'
+                      ? 'bg-brand-600 text-white border-brand-600'
+                      : 'bg-white text-slate-600 border-slate-300 hover:border-brand-400'
                   }`}
                 >
                   <Mail size={13} /> Correo electrónico
@@ -286,7 +286,7 @@ export default function PerfilPage() {
 
               {pwdTfaMethod === 'totp' ? (
                 <div className="space-y-2">
-                  <p className="text-xs text-blue-700">Ingresa el código de tu app autenticadora.</p>
+                  <p className="text-xs text-brand-700">Ingresa el código de tu app autenticadora.</p>
                   <OtpInput value={pwdTfaOtp} onChange={setPwdTfaOtp} />
                 </div>
               ) : (
@@ -295,7 +295,7 @@ export default function PerfilPage() {
                     type="button"
                     onClick={enviarCodigoCambioPwd}
                     disabled={pwdTfaSending}
-                    className="flex items-center gap-1.5 text-xs text-blue-700 hover:text-blue-800 disabled:opacity-50"
+                    className="flex items-center gap-1.5 text-xs text-brand-700 hover:text-brand-800 disabled:opacity-50"
                   >
                     <RefreshCw size={12} className={pwdTfaSending ? 'animate-spin' : ''} />
                     {pwdTfaSendMsg ? 'Reenviar código' : 'Enviar código al correo'}
@@ -332,7 +332,7 @@ export default function PerfilPage() {
               <ShieldCheck size={16} className="text-slate-500" /> Verificación en dos pasos (2FA)
             </h3>
             {user?.twoFactorEnabled ? (
-              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-green-100 text-green-700">Activo</span>
+              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-success-100 text-success-700">Activo</span>
             ) : (
               <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">Inactivo</span>
             )}
@@ -341,15 +341,15 @@ export default function PerfilPage() {
           {user?.twoFactorEnabled ? (
             // ── 2FA activo ────────────────────────────────────────────────
             <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+              <div className="flex items-center gap-3 p-3 bg-success-50 border border-success-200 rounded-xl">
                 {user.twoFactorMethod === 'email'
-                  ? <Mail size={18} className="text-green-600 shrink-0" />
-                  : <Smartphone size={18} className="text-green-600 shrink-0" />}
+                  ? <Mail size={18} className="text-success-600 shrink-0" />
+                  : <Smartphone size={18} className="text-success-600 shrink-0" />}
                 <div>
-                  <p className="text-sm font-medium text-green-800">
+                  <p className="text-sm font-medium text-success-800">
                     {user.twoFactorMethod === 'email' ? 'Correo electrónico' : 'App autenticadora'}
                   </p>
-                  <p className="text-xs text-green-600">
+                  <p className="text-xs text-success-600">
                     {user.twoFactorMethod === 'email'
                       ? 'Se envía un código a tu correo en cada inicio.'
                       : 'Usa Google Authenticator, Duo o Authy para generar códigos.'}
@@ -394,10 +394,10 @@ export default function PerfilPage() {
                   <button
                     onClick={startSetupTotp}
                     disabled={tfaLoading}
-                    className="w-full flex items-start gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-colors text-left disabled:opacity-50"
+                    className="w-full flex items-start gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-brand-400 hover:bg-brand-50 transition-colors text-left disabled:opacity-50"
                   >
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                      <Smartphone size={18} className="text-blue-600" />
+                    <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
+                      <Smartphone size={18} className="text-brand-600" />
                     </div>
                     <div>
                       <p className="font-medium text-slate-800 text-sm">App autenticadora</p>
@@ -408,7 +408,7 @@ export default function PerfilPage() {
                   <button
                     onClick={startSetupEmail}
                     disabled={tfaLoading}
-                    className="w-full flex items-start gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-colors text-left disabled:opacity-50"
+                    className="w-full flex items-start gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-brand-400 hover:bg-brand-50 transition-colors text-left disabled:opacity-50"
                   >
                     <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
                       <Mail size={18} className="text-purple-600" />
@@ -419,7 +419,7 @@ export default function PerfilPage() {
                     </div>
                   </button>
 
-                  {tfaError && <p className="text-sm text-red-600">{tfaError}</p>}
+                  {tfaError && <p className="text-sm text-danger-600">{tfaError}</p>}
                 </div>
               </>
             )}
@@ -455,7 +455,7 @@ export default function PerfilPage() {
 
                   <OtpInput value={modal.otp} onChange={otp => setModal({ ...modal, otp })} />
 
-                  {tfaError && <p className="text-sm text-red-600 text-center">{tfaError}</p>}
+                  {tfaError && <p className="text-sm text-danger-600 text-center">{tfaError}</p>}
 
                   <Button className="w-full justify-center" loading={tfaLoading}
                     disabled={modal.otp.join('').length < 6}
@@ -480,7 +480,7 @@ export default function PerfilPage() {
 
                   <OtpInput value={modal.otp} onChange={otp => setModal({ ...modal, otp })} />
 
-                  {tfaError && <p className="text-sm text-red-600 text-center">{tfaError}</p>}
+                  {tfaError && <p className="text-sm text-danger-600 text-center">{tfaError}</p>}
 
                   <Button className="w-full justify-center" loading={tfaLoading}
                     disabled={modal.otp.join('').length < 6}
@@ -509,7 +509,7 @@ export default function PerfilPage() {
                     className={inputClass}
                     autoFocus
                   />
-                  {tfaError && <p className="text-sm text-red-600">{tfaError}</p>}
+                  {tfaError && <p className="text-sm text-danger-600">{tfaError}</p>}
                   <Button className="w-full justify-center" variant="secondary" loading={tfaLoading}
                     disabled={!disablePwd}
                     onClick={confirmDisable}>

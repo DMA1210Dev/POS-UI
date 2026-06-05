@@ -100,8 +100,8 @@ export default function CategoriasModal({ onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Tag size={16} className="text-blue-600" />
+            <div className="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center">
+              <Tag size={16} className="text-brand-600" />
             </div>
             <div>
               <h3 className="font-semibold text-slate-800">Categorías</h3>
@@ -127,7 +127,7 @@ export default function CategoriasModal({ onClose }: Props) {
               value={nombre}
               onChange={e => setNombre(e.target.value)}
               placeholder="Nombre de la categoría..."
-              className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+              className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition"
             />
             <Button
               type="submit"
@@ -154,7 +154,7 @@ export default function CategoriasModal({ onClose }: Props) {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Filtrar categorías..."
-              className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
+              className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition"
             />
           </div>
         </div>
@@ -179,13 +179,13 @@ export default function CategoriasModal({ onClose }: Props) {
               key={cat.id}
               className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all ${
                 editando?.id === cat.id
-                  ? 'border-blue-200 bg-blue-50'
+                  ? 'border-brand-200 bg-brand-50'
                   : 'border-transparent hover:border-slate-200 hover:bg-slate-50'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-2 h-2 rounded-full shrink-0 ${
-                  editando?.id === cat.id ? 'bg-blue-500' : 'bg-slate-300'
+                  editando?.id === cat.id ? 'bg-brand-500' : 'bg-slate-300'
                 }`} />
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-slate-800 truncate">{cat.nombre}</p>
@@ -200,11 +200,11 @@ export default function CategoriasModal({ onClose }: Props) {
               <div className="flex items-center gap-1 shrink-0 ml-2">
                 {confirmEliminar === cat.id ? (
                   <>
-                    <span className="text-xs text-red-500 mr-1">¿Eliminar?</span>
+                    <span className="text-xs text-danger-500 mr-1">¿Eliminar?</span>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-600 hover:bg-red-50 text-xs px-2"
+                      className="text-danger-600 hover:bg-danger-50 text-xs px-2"
                       loading={eliminar.isPending}
                       onClick={() => eliminar.mutate(cat.id)}
                     >
@@ -223,14 +223,14 @@ export default function CategoriasModal({ onClose }: Props) {
                   <>
                     <button
                       onClick={() => iniciarEdicion(cat)}
-                      className="w-7 h-7 rounded-lg hover:bg-blue-100 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors"
+                      className="w-7 h-7 rounded-lg hover:bg-brand-100 flex items-center justify-center text-slate-400 hover:text-brand-600 transition-colors"
                       title="Editar"
                     >
                       <Pencil size={13} />
                     </button>
                     <button
                       onClick={() => setConfirmEliminar(cat.id)}
-                      className="w-7 h-7 rounded-lg hover:bg-red-100 flex items-center justify-center text-slate-400 hover:text-red-600 transition-colors"
+                      className="w-7 h-7 rounded-lg hover:bg-danger-100 flex items-center justify-center text-slate-400 hover:text-danger-600 transition-colors"
                       title="Eliminar"
                     >
                       <Trash2 size={13} />

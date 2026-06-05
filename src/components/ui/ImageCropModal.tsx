@@ -117,8 +117,8 @@ export default function ImageCropModal({
         {/* Cabecera */}
         <div className="flex items-center justify-between px-5 py-4 border-b shrink-0">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-blue-50">
-              <CropIcon size={16} className="text-blue-600" />
+            <div className="p-1.5 rounded-lg bg-brand-50">
+              <CropIcon size={16} className="text-brand-600" />
             </div>
             <div>
               <h3 className="font-semibold text-slate-800 leading-tight">{title}</h3>
@@ -167,13 +167,13 @@ export default function ImageCropModal({
               type="range" min={-180} max={180} step={1}
               value={rotation}
               onChange={e => setRotation(Number(e.target.value))}
-              className="flex-1 accent-blue-600 h-1.5"
+              className="flex-1 accent-brand-600 h-1.5"
             />
             <span className="text-xs text-slate-400 w-10 text-right font-mono">{rotation}°</span>
             {rotation !== 0 && (
               <button
                 onClick={() => setRotation(0)}
-                className="text-xs text-blue-500 hover:text-blue-700 font-medium"
+                className="text-xs text-brand-500 hover:text-brand-700 font-medium"
               >
                 Reset
               </button>

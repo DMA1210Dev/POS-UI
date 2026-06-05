@@ -16,6 +16,7 @@ import type {
   CotizacionResponse, CreateCotizacionDto,
   RolDefinicion, CreateRolDto, UpdateRolDto,
   NotificacionResponse,
+  ClienteDeudaDto, FacturaCreditoDto, PagarFacturasDto, PagarFacturasResponseDto,
 } from '../types'
 import { extractItems } from '../types'
 
@@ -41,6 +42,7 @@ export interface ComercioResponse {
   colorMenuFin: string
   colorLogin: string
   colorLoginFin: string
+  coloresJson: string
   smtpHost?: string
   smtpPort?: number
   smtpUseSsl: boolean
@@ -65,6 +67,7 @@ export interface UpdateComercioDto {
   colorMenuFin: string
   colorLogin: string
   colorLoginFin: string
+  coloresJson?: string
   smtpHost?: string
   smtpPort?: number
   smtpUseSsl: boolean
@@ -244,6 +247,16 @@ export const creditosApi = {
     api.post<CreditoResponse>(`/creditos/${id}/pagos`, dto).then(r => r.data),
   actualizarVencidos: () =>
     api.put('/creditos/actualizar-vencidos').then(r => r.data),
+}
+
+// ── Cobros (nuevo módulo) ─────────────────────────────────────────────────
+export const cobrosApi = {
+  clientesConDeuda: () =>
+    api.get<ClienteDeudaDto[]>('/cobros/clientes').then(r => r.data),
+  facturasCliente: (clienteId: number) =>
+    api.get<FacturaCreditoDto[]>(`/cobros/cliente/${clienteId}/facturas`).then(r => r.data),
+  pagar: (dto: PagarFacturasDto) =>
+    api.post<PagarFacturasResponseDto>('/cobros/pagar', dto).then(r => r.data),
 }
 
 // ── Usuarios ──────────────────────────────────────────────────────────────

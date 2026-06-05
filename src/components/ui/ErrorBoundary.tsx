@@ -42,18 +42,18 @@ export default class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="flex flex-col items-center justify-center gap-4 py-20 px-6 text-center">
-          <div className="p-4 rounded-full bg-red-50">
-            <AlertTriangle size={40} className="text-red-400" />
+          <div className="p-4 rounded-full bg-danger-50">
+            <AlertTriangle size={40} className="text-danger-400" />
           </div>
           <div className="space-y-1">
-            <p className="font-semibold text-lg text-red-600">Algo salió mal</p>
+            <p className="font-semibold text-lg text-danger-600">Algo salió mal</p>
             <p className="text-sm text-slate-400 max-w-sm">
               {this.state.message || 'Ocurrió un error inesperado al cargar esta sección.'}
             </p>
           </div>
           <button
             onClick={this.handleReset}
-            className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+            className="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-800 transition-colors"
           >
             <RefreshCw size={14} />
             Reintentar

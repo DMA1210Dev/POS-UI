@@ -37,10 +37,10 @@ function ConfirmModal({ tipo, venta, loading, onConfirm, onCancel }: ConfirmModa
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
         <div className={`flex items-center gap-3 px-6 pt-6 pb-4`}>
-          <div className={`p-2.5 rounded-full ${esAprobar ? 'bg-emerald-100' : 'bg-red-100'}`}>
+          <div className={`p-2.5 rounded-full ${esAprobar ? 'bg-success-100' : 'bg-danger-100'}`}>
             {esAprobar
-              ? <CheckCircle size={22} className="text-emerald-600" />
-              : <AlertTriangle size={22} className="text-red-600" />
+              ? <CheckCircle size={22} className="text-success-600" />
+              : <AlertTriangle size={22} className="text-danger-600" />
             }
           </div>
           <div>
@@ -54,10 +54,10 @@ function ConfirmModal({ tipo, venta, loading, onConfirm, onCancel }: ConfirmModa
         <div className="px-6 pb-2 space-y-2 text-sm text-slate-600">
           {esAprobar ? (
             <>
-              <p>¿Confirmas que deseas <span className="font-semibold text-emerald-700">aprobar y completar</span> esta venta?</p>
+              <p>¿Confirmas que deseas <span className="font-semibold text-success-700">aprobar y completar</span> esta venta?</p>
               <div className="bg-slate-50 rounded-xl p-3 space-y-1 text-xs">
                 <div className="flex justify-between"><span className="text-slate-500">Cliente</span><span className="font-medium">{venta.nombreCliente ?? '—'}</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">Total</span><span className="font-bold text-emerald-700">{new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP'}).format(venta.total)}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Total</span><span className="font-bold text-success-700">{new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP'}).format(venta.total)}</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">Tipo pago</span><span className="font-medium">{venta.tipoPago}</span></div>
                 {venta.codigoComprobante && (
                   <div className="flex justify-between">
@@ -76,12 +76,12 @@ function ConfirmModal({ tipo, venta, loading, onConfirm, onCancel }: ConfirmModa
             </>
           ) : (
             <>
-              <p>¿Confirmas que deseas <span className="font-semibold text-red-600">anular</span> esta venta?</p>
+              <p>¿Confirmas que deseas <span className="font-semibold text-danger-600">anular</span> esta venta?</p>
               <div className="bg-slate-50 rounded-xl p-3 space-y-1 text-xs">
                 <div className="flex justify-between"><span className="text-slate-500">Cliente</span><span className="font-medium">{venta.nombreCliente ?? '—'}</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">Total</span><span className="font-bold">{new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP'}).format(venta.total)}</span></div>
               </div>
-              <p className="text-xs text-red-500 font-medium">Esta acción no se puede deshacer. El stock será restaurado.</p>
+              <p className="text-xs text-danger-500 font-medium">Esta acción no se puede deshacer. El stock será restaurado.</p>
             </>
           )}
         </div>
@@ -98,7 +98,7 @@ function ConfirmModal({ tipo, venta, loading, onConfirm, onCancel }: ConfirmModa
             onClick={handleConfirm}
             disabled={loading || submitted}
             className={`flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
-              esAprobar ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'
+              esAprobar ? 'bg-success-600 hover:bg-success-700' : 'bg-danger-600 hover:bg-danger-700'
             }`}
           >
             {(loading || submitted) && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
@@ -140,8 +140,8 @@ function AsignarAprobadorModal({ venta, loading, onConfirm, onCancel }: AsignarA
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
         {/* Cabecera */}
         <div className="flex items-center gap-3 px-6 pt-6 pb-4">
-          <div className="p-2.5 rounded-full bg-blue-100">
-            <UserCheck size={22} className="text-blue-600" />
+          <div className="p-2.5 rounded-full bg-brand-100">
+            <UserCheck size={22} className="text-brand-600" />
           </div>
           <div>
             <h3 className="font-semibold text-slate-800 text-base">Asignar aprobador</h3>
@@ -160,7 +160,7 @@ function AsignarAprobadorModal({ venta, loading, onConfirm, onCancel }: AsignarA
             placeholder="Buscar usuario..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-400 transition-colors"
+            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand-400 transition-colors"
           />
 
           {/* Lista de usuarios */}
@@ -175,7 +175,7 @@ function AsignarAprobadorModal({ venta, loading, onConfirm, onCancel }: AsignarA
                 onClick={() => setSelectedId(u.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-colors border ${
                   selectedId === u.id
-                    ? 'bg-blue-50 border-blue-200'
+                    ? 'bg-brand-50 border-brand-200'
                     : 'border-transparent hover:bg-slate-50'
                 }`}
               >
@@ -186,7 +186,7 @@ function AsignarAprobadorModal({ venta, loading, onConfirm, onCancel }: AsignarA
                   <p className="text-sm font-medium text-slate-800 truncate">{u.nombre}</p>
                   <p className="text-xs text-slate-400 truncate">{u.email}</p>
                 </div>
-                {selectedId === u.id && <Check size={14} className="text-blue-600 shrink-0" />}
+                {selectedId === u.id && <Check size={14} className="text-brand-600 shrink-0" />}
               </button>
             ))}
           </div>
@@ -204,7 +204,7 @@ function AsignarAprobadorModal({ venta, loading, onConfirm, onCancel }: AsignarA
           <button
             onClick={() => selectedId && onConfirm(selectedId)}
             disabled={loading || !selectedId}
-            className="flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white bg-brand-600 hover:bg-brand-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
             Asignar
@@ -223,8 +223,8 @@ type FormatoImpresion = 'A4' | '80mm' | '58mm'
 const getFormato = (): FormatoImpresion =>
   (localStorage.getItem('pos_formato') as FormatoImpresion) ?? '80mm'
 
-const estadoColor: Record<string, 'green' | 'yellow' | 'red' | 'gray' | 'blue'> = {
-  Completada: 'green', Pendiente: 'yellow', Cancelada: 'red', Devuelta: 'gray', DevueltaParcial: 'blue',
+const estadoColor: Record<string, 'success' | 'warning' | 'danger' | 'gray' | 'brand'> = {
+  Completada: 'success', Pendiente: 'warning', Cancelada: 'danger', Devuelta: 'gray', DevueltaParcial: 'brand',
 }
 
 // ── Modal devolución (parcial o completa) ─────────────────────────────────────
@@ -274,8 +274,8 @@ function DevolucionModal({ venta, loading, onConfirm, onCancel }: {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center gap-3 px-6 pt-6 pb-4 border-b">
-          <div className="p-2.5 rounded-full bg-orange-100">
-            <RotateCcw size={22} className="text-orange-600" />
+          <div className="p-2.5 rounded-full bg-warning-100">
+            <RotateCcw size={22} className="text-warning-600" />
           </div>
           <div>
             <h3 className="font-semibold text-slate-800 text-base">Crear devolución</h3>
@@ -294,7 +294,7 @@ function DevolucionModal({ venta, loading, onConfirm, onCancel }: {
                   onClick={() => setTipo(t)}
                   className={`flex flex-col items-center gap-1 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
                     tipo === t
-                      ? 'border-orange-500 bg-orange-50 text-orange-700'
+                      ? 'border-warning-500 bg-warning-50 text-warning-700'
                       : 'border-slate-200 text-slate-500 hover:border-slate-300'
                   }`}
                 >
@@ -310,13 +310,13 @@ function DevolucionModal({ venta, loading, onConfirm, onCancel }: {
 
           {/* Aviso comprobante */}
           {esE ? (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
+            <div className="bg-warning-50 border border-warning-200 rounded-xl p-3 text-xs text-warning-800">
               <p className="font-semibold mb-0.5">Devolución e-CF (tipo E)</p>
               <p>La nota de crédito electrónica se gestionará cuando la API esté disponible.
               Quedará en estado <strong>Pendiente de comprobante electrónico</strong>.</p>
             </div>
           ) : venta.codigoComprobante?.startsWith('B') ? (
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-700">
+            <div className="bg-brand-50 border border-brand-100 rounded-xl p-3 text-xs text-brand-700">
               Se asignará automáticamente un NCF <strong>B04</strong> (Nota de Crédito) del pool.
             </div>
           ) : null}
@@ -342,7 +342,7 @@ function DevolucionModal({ venta, loading, onConfirm, onCancel }: {
                       const cantDev = parseFloat(cantidades[d.id] ?? '0') || 0
                       const valido  = cantDev > 0 && cantDev <= d.cantidad
                       return (
-                        <tr key={d.id} className={valido ? 'bg-orange-50/40' : ''}>
+                        <tr key={d.id} className={valido ? 'bg-warning-50/40' : ''}>
                           <td className="px-3 py-2 font-medium">{d.nombreProducto}</td>
                           <td className="px-3 py-2 text-right text-slate-500">
                             {d.cantidad} {d.unidadMedida}
@@ -357,8 +357,8 @@ function DevolucionModal({ venta, loading, onConfirm, onCancel }: {
                               onChange={e => setCantidades(prev => ({ ...prev, [d.id]: e.target.value }))}
                               className={`w-20 px-2 py-1 text-right rounded-lg border text-xs outline-none ${
                                 cantidades[d.id] && !valido && parseFloat(cantidades[d.id]) !== 0
-                                  ? 'border-red-400 bg-red-50'
-                                  : 'border-slate-300 focus:border-orange-500'
+                                  ? 'border-danger-400 bg-danger-50'
+                                  : 'border-slate-300 focus:border-warning-500'
                               }`}
                             />
                           </td>
@@ -372,32 +372,32 @@ function DevolucionModal({ venta, loading, onConfirm, onCancel }: {
                 </table>
               </div>
               {itemsValidos.length === 0 && (
-                <p className="text-xs text-red-500 mt-1">Ingresa al menos una cantidad válida mayor a 0.</p>
+                <p className="text-xs text-danger-500 mt-1">Ingresa al menos una cantidad válida mayor a 0.</p>
               )}
             </div>
           )}
 
           {/* Total a devolver */}
-          <div className="flex items-center justify-between bg-orange-50 border border-orange-100 rounded-xl px-4 py-3">
-            <span className="text-sm font-medium text-orange-700">Total a devolver</span>
-            <span className="text-lg font-bold text-orange-800 font-mono">{fmtN(totalDevuelto)}</span>
+          <div className="flex items-center justify-between bg-warning-50 border border-warning-100 rounded-xl px-4 py-3">
+            <span className="text-sm font-medium text-warning-700">Total a devolver</span>
+            <span className="text-lg font-bold text-warning-800 font-mono">{fmtN(totalDevuelto)}</span>
           </div>
 
           {/* Motivo */}
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-1">
-              Motivo <span className="text-red-500">*</span>
+              Motivo <span className="text-danger-500">*</span>
             </label>
             <textarea
               value={motivo}
               onChange={e => setMotivo(e.target.value)}
               placeholder="Describe el motivo de la devolución…"
               rows={2}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-orange-500 resize-none"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:border-warning-500 resize-none"
             />
           </div>
 
-          <p className="text-xs text-red-500 font-medium">
+          <p className="text-xs text-danger-500 font-medium">
             {tipo === 'Completa'
               ? 'El stock y crédito serán restaurados por completo.'
               : 'Se restaurará stock solo de los ítems seleccionados.'}
@@ -410,7 +410,7 @@ function DevolucionModal({ venta, loading, onConfirm, onCancel }: {
             Cancelar
           </button>
           <button onClick={handleConfirm} disabled={loading || !puedeConfirmar}
-            className="flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white bg-orange-600 hover:bg-orange-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+            className="flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white bg-warning-600 hover:bg-warning-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
             {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
             Confirmar devolución {tipo === 'Parcial' && itemsValidos.length > 0 ? `(${itemsValidos.length} ítems)` : ''}
           </button>
@@ -1432,9 +1432,9 @@ export default function VentasPage() {
     setFormato(f)
   }
 
-  const estadoCreditoColor: Record<string, 'green'|'yellow'|'red'|'gray'|'blue'> = {
-    Pendiente: 'yellow', PagadoParcial: 'blue', Saldado: 'green', Vencido: 'red', Cancelado: 'gray',
-  }
+const estadoCreditoColor: Record<string, 'success'|'warning'|'danger'|'gray'|'brand'> = {
+  Pendiente: 'warning', PagadoParcial: 'brand', Saldado: 'success', Vencido: 'danger', Cancelado: 'gray',
+}
 
   const pendientes = listaVentas.filter(v => v.estado === 'Pendiente')
 
@@ -1522,9 +1522,9 @@ export default function VentasPage() {
 
       {/* Banner de ventas pendientes de aprobación */}
       {puedeAprobarVentas && pendientes.length > 0 && (
-        <div className="flex items-center gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
-          <CheckCircle size={18} className="text-amber-500 shrink-0" />
-          <p className="text-amber-800">
+        <div className="flex items-center gap-3 px-4 py-3 bg-warning-50 border border-warning-200 rounded-xl text-sm">
+          <CheckCircle size={18} className="text-warning-500 shrink-0" />
+          <p className="text-warning-800">
             Tienes <span className="font-bold">{pendientes.length}</span> venta{pendientes.length > 1 ? 's' : ''} pendiente{pendientes.length > 1 ? 's' : ''} de aprobación.
             Revísalas y apruébalas para que queden registradas y puedan imprimirse.
           </p>
@@ -1558,7 +1558,7 @@ export default function VentasPage() {
           <FileX size={14} />
           Devoluciones
           {devoluciones.length > 0 && (
-            <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === 'devoluciones' ? 'bg-slate-100' : 'bg-orange-100 text-orange-700'}`}>
+            <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === 'devoluciones' ? 'bg-slate-100' : 'bg-warning-100 text-warning-700'}`}>
               {devoluciones.length}
             </span>
           )}
@@ -1574,7 +1574,7 @@ export default function VentasPage() {
           <FileText size={14} />
           Cotizaciones
           {cotizaciones.length > 0 && (
-            <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === 'cotizaciones' ? 'bg-slate-100' : 'bg-blue-100 text-blue-700'}`}>
+            <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === 'cotizaciones' ? 'bg-slate-100' : 'bg-brand-100 text-brand-700'}`}>
               {cotizaciones.length}
             </span>
           )}
@@ -1605,7 +1605,7 @@ export default function VentasPage() {
                   <td className="px-4 py-3">{v.nombreCliente ?? <span className="text-slate-300">—</span>}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-col gap-1">
-                      <Badge color={v.tipoPago === 'Contado' ? 'green' : 'blue'}>{v.tipoPago}</Badge>
+                      <Badge color={v.tipoPago === 'Contado' ? 'success' : 'brand'}>{v.tipoPago}</Badge>
                       {v.esMayorista && <Badge color="purple">Mayorista</Badge>}
                       {v.codigoComprobante && (
                         <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-indigo-700 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
@@ -1631,37 +1631,37 @@ export default function VentasPage() {
                       )}
                       {puedeEditarVentas && v.estado !== 'Cancelada' && (!isCajero || v.estado === 'Pendiente') && (
                         <Button variant="ghost" size="sm" icon={<Pencil size={14} />}
-                          className="text-blue-500 hover:bg-blue-50"
+                          className="text-brand-500 hover:bg-brand-50"
                           title="Editar venta"
                           onClick={() => navigate(`/ventas/${v.id}/editar`)} />
                       )}
                       {puedeAprobarVentas && v.estado === 'Pendiente' && (
                         <Button variant="ghost" size="sm" icon={<CheckCircle size={14} />}
-                          className="text-emerald-600 hover:bg-emerald-50"
+                          className="text-success-600 hover:bg-success-50"
                           title="Aprobar venta"
                           onClick={() => setConfirm({ tipo: 'aprobar', venta: v })} />
                       )}
                       {puedeAprobarVentas && v.estado === 'Pendiente' && (
                         <Button variant="ghost" size="sm" icon={<UserCheck size={14} />}
-                          className="text-blue-500 hover:bg-blue-50"
+                          className="text-brand-500 hover:bg-brand-50"
                           title="Asignar aprobador"
                           onClick={() => setAsignarAprobadorVenta(v)} />
                       )}
                       {puedeAnularVentas && v.estado === 'Pendiente' && (
                         <Button variant="ghost" size="sm" icon={<XCircle size={14} />}
-                          className="text-red-500 hover:bg-red-50"
+                          className="text-danger-500 hover:bg-danger-50"
                           title="Anular venta pendiente"
                           onClick={() => setConfirm({ tipo: 'anular', venta: v })} />
                       )}
                       {puedeAprobarVentas && v.estado === 'Completada' && (
                         <Button variant="ghost" size="sm" icon={<RotateCcw size={14} />}
-                          className="text-orange-500 hover:bg-orange-50"
+                          className="text-warning-500 hover:bg-warning-50"
                           title="Crear devolución"
                           onClick={() => setDevolver(v)} />
                       )}
                       {v.estado !== 'Cancelada' && v.detalles.length > 0 && (
                         <Button variant="ghost" size="sm" icon={<FileText size={14} />}
-                          className="text-blue-500 hover:bg-blue-50"
+                          className="text-brand-500 hover:bg-brand-50"
                           title="Generar cotización"
                           onClick={() => { setCotizarVenta(v); setValidezCot(15) }} />
                       )}
@@ -1714,23 +1714,23 @@ export default function VentasPage() {
                     <td className="px-4 py-3">
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                         dev.tipo === 'Parcial'
-                          ? 'bg-orange-100 text-orange-700'
+                          ? 'bg-warning-100 text-warning-700'
                           : 'bg-slate-100 text-slate-600'
                       }`}>
                         {dev.tipo}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-bold text-orange-700 font-mono">
+                    <td className="px-4 py-3 font-bold text-warning-700 font-mono">
                       {fmt(dev.totalDevuelto)}
                     </td>
                     <td className="px-4 py-3">
                       {dev.ncf
-                        ? <span className="font-mono text-xs bg-green-50 text-green-700 border border-green-100 px-2 py-0.5 rounded">{dev.ncf}</span>
+                        ? <span className="font-mono text-xs bg-success-50 text-success-700 border border-success-100 px-2 py-0.5 rounded">{dev.ncf}</span>
                         : <span className="text-xs text-slate-400 italic">Pendiente</span>
                       }
                     </td>
                     <td className="px-4 py-3">
-                      <Badge color={dev.estado === 'Completada' ? 'green' : 'yellow'}>
+                      <Badge color={dev.estado === 'Completada' ? 'success' : 'warning'}>
                         {dev.estado === 'PendienteComprobanteE' ? 'Pendiente e-CF' : dev.estado}
                       </Badge>
                     </td>
@@ -1745,7 +1745,7 @@ export default function VentasPage() {
                           <Button
                             variant="ghost" size="sm"
                             icon={<Printer size={14} />}
-                            className="text-orange-600 hover:bg-orange-50"
+                            className="text-warning-600 hover:bg-warning-50"
                             title="Imprimir nota de crédito"
                             onClick={() => imprimirDevolucion(
                               dev, ventaOrig ?? { ...dev, detalles: [], total: dev.totalDevuelto } as unknown as VentaResponse,
@@ -1802,29 +1802,29 @@ export default function VentasPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                        urgente ? 'bg-red-100 text-red-700' :
-                        proximo ? 'bg-amber-100 text-amber-700' :
-                        'bg-green-100 text-green-700'
+                        urgente ? 'bg-danger-100 text-danger-700' :
+                        proximo ? 'bg-warning-100 text-warning-700' :
+                        'bg-success-100 text-success-700'
                       }`}>
                         <Clock size={10} />
                         {cot.diasRestantes}d
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-bold text-blue-700 font-mono">{fmt(cot.total)}</td>
+                    <td className="px-4 py-3 font-bold text-brand-700 font-mono">{fmt(cot.total)}</td>
                     <td className="px-4 py-3 text-slate-500 text-xs">{cot.nombreUsuario}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1">
                         <Button variant="ghost" size="sm" icon={<Printer size={14} />}
                           title="Imprimir cotización"
-                          className="text-blue-500 hover:bg-blue-50"
+                          className="text-brand-500 hover:bg-brand-50"
                           onClick={() => generarPdfDesdeCotizacion(cot, comercio)} />
                         <Button variant="ghost" size="sm" icon={<ShoppingBag size={14} />}
                           title="Concretar — cargar en nueva venta"
-                          className="text-emerald-600 hover:bg-emerald-50"
+                          className="text-success-600 hover:bg-success-50"
                           onClick={() => concretarCot(cot)} />
                         <Button variant="ghost" size="sm" icon={<Ban size={14} />}
                           title="Cancelar cotización"
-                          className="text-red-400 hover:bg-red-50"
+                          className="text-danger-400 hover:bg-danger-50"
                           loading={cancelarCotMut.isPending}
                           onClick={() => cancelarCotMut.mutate(cot.id)} />
                       </div>
@@ -1885,8 +1885,8 @@ export default function VentasPage() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
             <div className="flex items-center gap-3 px-6 pt-6 pb-4">
-              <div className={`p-2.5 rounded-full ${devResult.estado === 'Completada' ? 'bg-green-100' : 'bg-amber-100'}`}>
-                <RotateCcw size={22} className={devResult.estado === 'Completada' ? 'text-green-600' : 'text-amber-600'} />
+              <div className={`p-2.5 rounded-full ${devResult.estado === 'Completada' ? 'bg-success-100' : 'bg-warning-100'}`}>
+                <RotateCcw size={22} className={devResult.estado === 'Completada' ? 'text-success-600' : 'text-warning-600'} />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-800 text-base">
@@ -1897,23 +1897,23 @@ export default function VentasPage() {
             </div>
             <div className="px-6 pb-4 space-y-3 text-sm">
               {devResult.estado === 'Completada' && devResult.ncf ? (
-                <div className="bg-green-50 border border-green-100 rounded-xl p-3 space-y-1">
+                <div className="bg-success-50 border border-success-100 rounded-xl p-3 space-y-1">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-green-700 font-medium">Nota de crédito emitida</p>
+                    <p className="text-xs text-success-700 font-medium">Nota de crédito emitida</p>
                     {devResult.tipo === 'Parcial' && (
-                      <span className="text-[10px] font-semibold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">Parcial</span>
+                      <span className="text-[10px] font-semibold bg-warning-100 text-warning-700 px-2 py-0.5 rounded-full">Parcial</span>
                     )}
                   </div>
-                  <p className="font-mono font-bold text-green-900 text-base">{devResult.ncf}</p>
+                  <p className="font-mono font-bold text-success-900 text-base">{devResult.ncf}</p>
                   <div className="flex justify-between items-center">
-                    <p className="text-xs text-green-600">Comprobante {devResult.codigoComprobante} del pool</p>
-                    <p className="text-sm font-bold text-orange-700">{fmt(devResult.totalDevuelto)}</p>
+                    <p className="text-xs text-success-600">Comprobante {devResult.codigoComprobante} del pool</p>
+                    <p className="text-sm font-bold text-warning-700">{fmt(devResult.totalDevuelto)}</p>
                   </div>
                 </div>
               ) : (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1">
-                  <p className="text-xs text-amber-700 font-medium">Pendiente de comprobante electrónico</p>
-                  <p className="text-xs text-amber-600">
+                <div className="bg-warning-50 border border-warning-200 rounded-xl p-3 space-y-1">
+                  <p className="text-xs text-warning-700 font-medium">Pendiente de comprobante electrónico</p>
+                  <p className="text-xs text-warning-600">
                     La devolución fue registrada. El NCF electrónico se gestionará
                     cuando la integración con la API esté disponible.
                   </p>
@@ -1926,7 +1926,7 @@ export default function VentasPage() {
                     comercio?.nombre, comercio?.slogan ?? undefined,
                     comercio?.telefono ?? undefined, comercio?.rnc ?? undefined,
                   )}
-                  className="w-full flex items-center justify-center gap-2 py-2 text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-xl transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-2 text-sm font-medium bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200 rounded-xl transition-colors"
                 >
                   <Printer size={14} /> Imprimir nota de crédito
                 </button>
@@ -1945,8 +1945,8 @@ export default function VentasPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
             <div className="flex items-center gap-3 px-6 pt-6 pb-4 border-b">
-              <div className="p-2.5 rounded-full bg-blue-100">
-                <FileText size={20} className="text-blue-600" />
+              <div className="p-2.5 rounded-full bg-brand-100">
+                <FileText size={20} className="text-brand-600" />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-800 text-base">Generar cotización</h3>
@@ -1969,13 +1969,13 @@ export default function VentasPage() {
                   </div>
                 ))}
                 {cotizarVenta.descuento > 0 && (
-                  <div className="flex justify-between text-xs border-t pt-1 text-green-600 font-medium">
+                  <div className="flex justify-between text-xs border-t pt-1 text-success-600 font-medium">
                     <span>Descuento</span><span>-{fmt(cotizarVenta.descuento)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-xs border-t pt-1 font-bold">
                   <span>TOTAL</span>
-                  <span className="text-blue-700">{fmt(cotizarVenta.total)}</span>
+                  <span className="text-brand-700">{fmt(cotizarVenta.total)}</span>
                 </div>
               </div>
 
@@ -1989,14 +1989,14 @@ export default function VentasPage() {
                     <button key={d} onClick={() => setValidezCot(d)}
                       className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                         validezCot === d
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'border-slate-300 text-slate-600 hover:border-blue-400'
+                          ? 'bg-brand-600 text-white border-brand-600'
+                          : 'border-slate-300 text-slate-600 hover:border-brand-400'
                       }`}
                     >{d} días</button>
                   ))}
                   <input type="number" min="1" max="365" value={validezCot}
                     onChange={e => setValidezCot(Math.max(1, parseInt(e.target.value) || 15))}
-                    className="w-20 px-2 py-1.5 text-xs border border-slate-300 rounded-lg text-center outline-none focus:border-blue-500"
+                    className="w-20 px-2 py-1.5 text-xs border border-slate-300 rounded-lg text-center outline-none focus:border-brand-500"
                   />
                 </div>
               </div>
@@ -2022,7 +2022,7 @@ export default function VentasPage() {
                   )
                   setCotizarVenta(null)
                 }}
-                className="flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white bg-brand-600 hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
               >
                 <FileText size={14} /> Imprimir
               </button>
@@ -2042,7 +2042,7 @@ export default function VentasPage() {
                 {detalle.estado !== 'Pendiente' && (
                   <button
                     onClick={() => handlePrint(detalle)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200 rounded-lg transition-colors"
                   >
                     <Printer size={13} />
                     {printing === detalle.id ? 'Generando…' : 'Imprimir'}
@@ -2051,7 +2051,7 @@ export default function VentasPage() {
                 {puedeAprobarVentas && detalle.estado === 'Pendiente' && (
                   <button
                     onClick={() => setAsignarAprobadorVenta(detalle)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200 rounded-lg transition-colors"
                   >
                     <UserCheck size={13} /> {detalle.aprobadorNombre ? 'Cambiar aprobador' : 'Asignar aprobador'}
                   </button>
@@ -2059,7 +2059,7 @@ export default function VentasPage() {
                 {puedeAprobarVentas && detalle.estado === 'Pendiente' && (
                   <button
                     onClick={() => setConfirm({ tipo: 'aprobar', venta: detalle })}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-success-50 text-success-700 hover:bg-success-100 border border-success-200 rounded-lg transition-colors"
                   >
                     <CheckCircle size={13} /> Aprobar
                   </button>
@@ -2067,7 +2067,7 @@ export default function VentasPage() {
                 {puedeAnularVentas && detalle.estado === 'Pendiente' && (
                   <button
                     onClick={() => setConfirm({ tipo: 'anular', venta: detalle })}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-danger-50 text-danger-700 hover:bg-danger-100 border border-danger-200 rounded-lg transition-colors"
                   >
                     <XCircle size={13} /> Anular
                   </button>
@@ -2075,7 +2075,7 @@ export default function VentasPage() {
                 {puedeAprobarVentas && detalle.estado === 'Completada' && (
                   <button
                     onClick={() => { setDetalle(null); setDevolver(detalle) }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-warning-50 text-warning-700 hover:bg-warning-100 border border-warning-200 rounded-lg transition-colors"
                   >
                     <RotateCcw size={13} /> Devolver
                   </button>
@@ -2083,7 +2083,7 @@ export default function VentasPage() {
                 {detalle.estado !== 'Cancelada' && (
                   <button
                     onClick={() => { setDetalle(null); setCotizarVenta(detalle); setValidezCot(15) }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200 rounded-lg transition-colors"
                   >
                     <FileText size={13} /> Cotizar
                   </button>
@@ -2101,14 +2101,14 @@ export default function VentasPage() {
                 <span className="text-slate-400">Cajero</span>
                 <span className="font-medium">{detalle.nombreUsuario}</span>
                 <span className="text-slate-400">Tipo pago</span>
-                <span><Badge color={detalle.tipoPago === 'Contado' ? 'green' : 'blue'}>{detalle.tipoPago}</Badge></span>
+                <span><Badge color={detalle.tipoPago === 'Contado' ? 'success' : 'brand'}>{detalle.tipoPago}</Badge></span>
                 <span className="text-slate-400">Estado</span>
                 <span><Badge color={estadoColor[detalle.estado]}>{detalle.estado}</Badge></span>
                 {detalle.aprobadorNombre && (
                   <>
                     <span className="text-slate-400">Aprobador</span>
-                    <span className="flex items-center gap-1 font-medium text-blue-700">
-                      <UserCheck size={12} className="text-blue-500" />
+                    <span className="flex items-center gap-1 font-medium text-brand-700">
+                      <UserCheck size={12} className="text-brand-500" />
                       {detalle.aprobadorNombre}
                     </span>
                   </>
@@ -2153,7 +2153,7 @@ export default function VentasPage() {
                         <span className="font-mono font-medium flex items-center gap-1">
                           {detalle.ncf}
                           {detalle.ncfValidado && (
-                            <span className="text-emerald-600 text-[10px] font-sans">✓</span>
+                            <span className="text-success-600 text-[10px] font-sans">✓</span>
                           )}
                         </span>
                       </>
@@ -2161,7 +2161,7 @@ export default function VentasPage() {
                     {!detalle.aplicaItbisComprobante && (
                       <>
                         <span className="text-slate-500">ITBIS</span>
-                        <span className="text-amber-600 font-medium">Exento</span>
+                        <span className="text-warning-600 font-medium">Exento</span>
                       </>
                     )}
                   </div>
@@ -2184,7 +2184,7 @@ export default function VentasPage() {
                         <td className="px-3 py-2 font-medium">{d.nombreProducto}</td>
                         <td className="px-3 py-2">{d.cantidad} {d.unidadMedida}</td>
                         <td className="px-3 py-2">{fmt(d.precioConImpuesto)}</td>
-                        <td className="px-3 py-2 text-blue-600">
+                        <td className="px-3 py-2 text-brand-600">
                           {d.aplicaImpuesto ? fmt(d.montoImpuesto * d.cantidad) : '—'}
                         </td>
                         <td className="px-3 py-2 font-semibold">{fmt(d.subtotalConImpuesto)}</td>
@@ -2197,9 +2197,9 @@ export default function VentasPage() {
               {/* Totales */}
               <div className="space-y-1.5 text-right border-t pt-3">
                 <p className="text-slate-500">Base (sin ITBIS): <span className="font-medium text-slate-700">{fmt(detalle.subtotalBase)}</span></p>
-                <p className="text-slate-500">ITBIS: <span className="font-medium text-blue-600">{fmt(detalle.totalImpuesto)}</span></p>
+                <p className="text-slate-500">ITBIS: <span className="font-medium text-brand-600">{fmt(detalle.totalImpuesto)}</span></p>
                 {detalle.descuento > 0 && (
-                  <p className="text-slate-500">Descuento: <span className="font-medium text-green-600">-{fmt(detalle.descuento)}</span></p>
+                  <p className="text-slate-500">Descuento: <span className="font-medium text-success-600">-{fmt(detalle.descuento)}</span></p>
                 )}
                 <p className="text-lg font-bold text-slate-800">Total: {fmt(detalle.total)}</p>
               </div>
@@ -2207,9 +2207,9 @@ export default function VentasPage() {
               {/* Datos del crédito */}
               {detalle.tipoPago === 'Credito' && creditoDetalle && (
                 <div className={`rounded-xl border p-4 space-y-2 text-sm ${
-                  creditoDetalle.estado === 'Saldado'  ? 'bg-green-50 border-green-200' :
-                  creditoDetalle.estado === 'Vencido'  ? 'bg-red-50   border-red-200'   :
-                  'bg-amber-50 border-amber-200'
+                  creditoDetalle.estado === 'Saldado'  ? 'bg-success-50 border-success-200' :
+                  creditoDetalle.estado === 'Vencido'  ? 'bg-danger-50   border-danger-200'   :
+                  'bg-warning-50 border-warning-200'
                 }`}>
                   <div className="flex items-center justify-between">
                     <p className="font-semibold text-slate-700">Información del crédito</p>
@@ -2219,22 +2219,22 @@ export default function VentasPage() {
                     <span className="text-slate-500">Monto total</span>
                     <span className="font-medium text-right">{fmt(creditoDetalle.montoTotal)}</span>
                     <span className="text-slate-500">Pagado</span>
-                    <span className="font-medium text-green-700 text-right">{fmt(creditoDetalle.montoPagado)}</span>
+                    <span className="font-medium text-success-700 text-right">{fmt(creditoDetalle.montoPagado)}</span>
                     <span className="text-slate-500 font-semibold">Saldo pendiente</span>
-                    <span className={`font-bold text-right ${creditoDetalle.saldo > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    <span className={`font-bold text-right ${creditoDetalle.saldo > 0 ? 'text-danger-600' : 'text-success-600'}`}>
                       {fmt(creditoDetalle.saldo)}
                     </span>
                     {creditoDetalle.fechaVencimiento && (
                       <>
                         <span className="text-slate-500">Fecha límite</span>
-                        <span className={`font-medium text-right ${creditoDetalle.estado === 'Vencido' ? 'text-red-600' : 'text-slate-700'}`}>
+                        <span className={`font-medium text-right ${creditoDetalle.estado === 'Vencido' ? 'text-danger-600' : 'text-slate-700'}`}>
                           {fmtDate(creditoDetalle.fechaVencimiento.slice(0, 10))}
                         </span>
                       </>
                     )}
                   </div>
                   {creditoDetalle.estado === 'Vencido' && (
-                    <p className="text-xs font-semibold text-red-600 border-t border-red-200 pt-2 mt-1">
+                    <p className="text-xs font-semibold text-danger-600 border-t border-danger-200 pt-2 mt-1">
                       Este crédito está vencido
                     </p>
                   )}

@@ -72,7 +72,7 @@ const isoInicioMes = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
 }
 
-const COLORES_TOP = ['#3b82f6','#6366f1','#8b5cf6','#ec4899','#f97316','#eab308','#22c55e','#14b8a6']
+const COLORES_TOP = ['var(--color-brand-500)','#6366f1','#8b5cf6','#ec4899','#f97316','#eab308','#22c55e','#14b8a6']
 
 // ── Sub-componentes ───────────────────────────────────────────────────────────
 
@@ -199,14 +199,14 @@ function VistaCajero({ ventas }: { ventas: VentaResponse[] }) {
         <StatCard
           label="Vendido hoy"
           value={fmt(totalHoy)}
-          icon={<ShoppingCart size={20} className="text-blue-600" />}
-          color="bg-blue-50"
+          icon={<ShoppingCart size={20} className="text-brand-600" />}
+          color="bg-brand-50"
         />
         <StatCard
           label="Esta semana"
           value={fmt(totalSem)}
-          icon={<TrendingUp size={20} className="text-green-600" />}
-          color="bg-green-50"
+          icon={<TrendingUp size={20} className="text-success-600" />}
+          color="bg-success-50"
         />
         <StatCard
           label="Este mes"
@@ -242,7 +242,7 @@ function VistaCajero({ ventas }: { ventas: VentaResponse[] }) {
                     width={48}
                   />
                   <Tooltip content={<TooltipMoneda />} />
-                  <Bar dataKey="total" name="Total" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                  <Bar dataKey="total" name="Total" fill="var(--color-brand-500)" radius={[4, 4, 0, 0]} maxBarSize={40} />
                 </BarChart>
               </ResponsiveContainer>
             </CardBody>
@@ -275,7 +275,7 @@ function VistaCajero({ ventas }: { ventas: VentaResponse[] }) {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 size={14} className="text-green-500 shrink-0" />
+                    <CheckCircle2 size={14} className="text-success-500 shrink-0" />
                     <span className="font-semibold text-slate-800">{fmt(v.total)}</span>
                   </div>
                 </div>
@@ -354,26 +354,26 @@ function VistaAdmin() {
         <StatCard
           label="Ventas del mes"
           value={rentabilidad?.totalVentas ?? '—'}
-          icon={<ShoppingCart size={20} className="text-blue-600" />}
-          color="bg-blue-50"
+          icon={<ShoppingCart size={20} className="text-brand-600" />}
+          color="bg-brand-50"
         />
         <StatCard
           label="Ingresos netos"
           value={rentabilidad ? fmt(rentabilidad.ingresoNeto) : '—'}
-          icon={<TrendingUp size={20} className="text-green-600" />}
-          color="bg-green-50"
+          icon={<TrendingUp size={20} className="text-success-600" />}
+          color="bg-success-50"
         />
         <StatCard
           label="Total en deudas"
           value={resumenCreditos ? fmt(resumenCreditos.totalDeuda) : '—'}
-          icon={<CreditCard size={20} className="text-orange-600" />}
-          color="bg-orange-50"
+          icon={<CreditCard size={20} className="text-warning-600" />}
+          color="bg-warning-50"
         />
         <StatCard
           label="Productos stock bajo"
           value={stockBajo.length}
-          icon={<AlertTriangle size={20} className="text-red-600" />}
-          color="bg-red-50"
+          icon={<AlertTriangle size={20} className="text-danger-600" />}
+          color="bg-danger-50"
         />
       </div>
 
@@ -391,7 +391,7 @@ function VistaAdmin() {
                 <XAxis dataKey="fecha" tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
                 <YAxis tickFormatter={fmtShort} tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} width={52} />
                 <Tooltip content={<TooltipMixto />} />
-                <Line type="monotone" dataKey="total" name="Total" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 5 }} />
+                <Line type="monotone" dataKey="total" name="Total" stroke="var(--color-brand-500)" strokeWidth={2.5} dot={{ r: 3, fill: 'var(--color-brand-500)', strokeWidth: 0 }} activeDot={{ r: 5 }} />
                 <Line type="monotone" dataKey="cantidad" name="Ventas" stroke="#a5f3fc" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
@@ -437,7 +437,7 @@ function VistaAdmin() {
                 <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} width={32} />
                 <Tooltip content={<TooltipMixto />} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar yAxisId="left"  dataKey="ingresos" name="Ingreso neto" fill="#3b82f6" radius={[4,4,0,0]} maxBarSize={36} />
+                <Bar yAxisId="left"  dataKey="ingresos" name="Ingreso neto" fill="var(--color-brand-500)" radius={[4,4,0,0]} maxBarSize={36} />
                 <Bar yAxisId="right" dataKey="ventas"   name="Nº ventas"    fill="#a5b4fc" radius={[4,4,0,0]} maxBarSize={36} />
               </BarChart>
             </ResponsiveContainer>
@@ -449,14 +449,14 @@ function VistaAdmin() {
       {stockBajo.length > 0 && (
         <Card>
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-            <AlertTriangle size={16} className="text-red-500" />
+            <AlertTriangle size={16} className="text-danger-500" />
             <h3 className="font-semibold text-slate-700">Productos con stock bajo</h3>
           </div>
           <div className="divide-y divide-slate-100">
             {stockBajo.slice(0, 5).map(p => (
               <div key={p.id} className="px-6 py-3 flex justify-between items-center text-sm">
                 <span className="font-medium text-slate-700">{p.nombre}</span>
-                <span className="text-red-600 font-semibold">{p.stock} / {p.stockMinimo} min</span>
+                <span className="text-danger-600 font-semibold">{p.stock} / {p.stockMinimo} min</span>
               </div>
             ))}
           </div>
@@ -497,16 +497,16 @@ function VistaAdmin() {
               <CardBody className="space-y-3 text-sm">
                 {([
                   ['Pendientes',     resumenCreditos.creditosPendientes,    'text-yellow-600'],
-                  ['Pagado parcial', resumenCreditos.creditosPagadoParcial, 'text-blue-600'],
-                  ['Vencidos',       resumenCreditos.creditosVencidos,      'text-red-600'],
-                  ['Saldados',       resumenCreditos.creditosSaldados,      'text-green-600'],
+                  ['Pagado parcial', resumenCreditos.creditosPagadoParcial, 'text-brand-600'],
+                  ['Vencidos',       resumenCreditos.creditosVencidos,      'text-danger-600'],
+                  ['Saldados',       resumenCreditos.creditosSaldados,      'text-success-600'],
                 ] as [string, number, string][]).map(([label, val, color]) => (
                   <div key={label} className="flex justify-between">
                     <span className="text-slate-500">{label}</span>
                     <span className={`font-semibold ${color}`}>{val}</span>
                   </div>
                 ))}
-                <div className="pt-2 border-t flex justify-between font-bold text-red-700">
+                <div className="pt-2 border-t flex justify-between font-bold text-danger-700">
                   <span>Total por cobrar</span>
                   <span>{fmt(resumenCreditos.totalDeuda)}</span>
                 </div>
@@ -545,7 +545,7 @@ function MenuSecciones() {
   const secciones: SeccionItem[] = [
     puedeCrearVentas && {
       to: '/ventas/nueva', label: 'Nueva Venta', desc: 'Registrar una venta',
-      icon: <ShoppingCart size={22} />, color: 'bg-blue-100 text-blue-600',
+      icon: <ShoppingCart size={22} />, color: 'bg-brand-100 text-brand-600',
     },
     (puedeVerTodasVentas || isCajero) && {
       to: '/ventas', label: 'Ventas', desc: 'Historial de ventas',
@@ -557,7 +557,7 @@ function MenuSecciones() {
     },
     puedeGestionarCreditos && {
       to: '/creditos', label: 'Créditos', desc: 'Cobros y deudas',
-      icon: <CreditCard size={22} />, color: 'bg-orange-100 text-orange-600',
+      icon: <CreditCard size={22} />, color: 'bg-warning-100 text-warning-600',
     },
     verCaja && {
       to: '/caja', label: 'Caja', desc: 'Control de caja chica',
@@ -569,7 +569,7 @@ function MenuSecciones() {
     },
     puedeVerStockBajo && {
       to: '/stock-bajo', label: 'Stock Bajo', desc: 'Productos bajo mínimo',
-      icon: <Warehouse size={22} />, color: 'bg-red-100 text-red-500',
+      icon: <Warehouse size={22} />, color: 'bg-danger-100 text-danger-500',
     },
     puedeVerReportes && {
       to: '/reportes', label: 'Reportes', desc: 'Análisis y estadísticas',

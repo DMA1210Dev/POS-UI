@@ -155,7 +155,7 @@ export default function BarcodeInput({ label, placeholder, value, onChange, cama
           placeholder={placeholder}
           value={value ?? ''}
           onChange={e => onChange?.(e.target.value)}
-          className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
         />
         {camaraHabilitada && (
           <button
@@ -164,8 +164,8 @@ export default function BarcodeInput({ label, placeholder, value, onChange, cama
             title={scanning ? 'Cerrar cámara' : 'Escanear con cámara'}
             className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors flex items-center gap-1.5 flex-shrink-0 ${
               scanning
-                ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100'
-                : 'border-slate-300 text-slate-600 hover:border-blue-400 hover:text-blue-600'
+                ? 'bg-danger-50 border-danger-300 text-danger-600 hover:bg-danger-100'
+                : 'border-slate-300 text-slate-600 hover:border-brand-400 hover:text-brand-600'
             }`}
           >
             {scanning ? <X size={15} /> : <ScanLine size={15} />}
@@ -180,13 +180,13 @@ export default function BarcodeInput({ label, placeholder, value, onChange, cama
           <video ref={videoRef} playsInline muted autoPlay className="w-full h-48 object-cover" />
           {iniciando && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 gap-2">
-              <div className="w-7 h-7 border-4 border-blue-400 border-t-transparent rounded-full animate-spin" />
+              <div className="w-7 h-7 border-4 border-brand-400 border-t-transparent rounded-full animate-spin" />
               <p className="text-xs text-white">Iniciando cámara…</p>
             </div>
           )}
           {!iniciando && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-56 h-20 border-2 border-blue-400 rounded-lg opacity-80" />
+              <div className="w-56 h-20 border-2 border-brand-400 rounded-lg opacity-80" />
             </div>
           )}
           <p className="absolute bottom-2 left-0 right-0 text-center text-xs text-white bg-black/50 py-1">

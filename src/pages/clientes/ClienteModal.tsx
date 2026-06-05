@@ -77,7 +77,7 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
             {cliente && !editando && (
               <button
                 onClick={() => setEditando(true)}
-                className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors"
               >
                 <Pencil size={12} /> Editar
               </button>
@@ -105,8 +105,8 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
             } />
             <Campo label="Límite crédito" valor={cliente.limiteCredito != null ? fmt(cliente.limiteCredito) : null} />
             <Campo label="Plazo crédito"  valor={cliente.diasCredito > 0 ? `${cliente.diasCredito} días` : null} />
-            <Campo label="Deuda"     valor={cliente.totalDeuda > 0 ? <span className="text-red-600">{fmt(cliente.totalDeuda)}</span> : null} />
-            <Campo label="Créditos"  valor={cliente.creditosActivos > 0 ? <span className="text-orange-600">{cliente.creditosActivos} activos</span> : null} />
+            <Campo label="Deuda"     valor={cliente.totalDeuda > 0 ? <span className="text-danger-600">{fmt(cliente.totalDeuda)}</span> : null} />
+            <Campo label="Créditos"  valor={cliente.creditosActivos > 0 ? <span className="text-warning-600">{cliente.creditosActivos} activos</span> : null} />
             <Campo label="Estado"    valor={<Badge color={cliente.activo ? 'green' : 'red'}>{cliente.activo ? 'Activo' : 'Inactivo'}</Badge>} />
             <div className="flex justify-end pt-3">
               <Button variant="secondary" onClick={onClose}>Cerrar</Button>
@@ -126,7 +126,7 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
               <div className="relative">
                 <input
                   type="number" step="0.5" min="0" max="100" placeholder="0"
-                  className="w-full px-3 py-2 pr-8 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full px-3 py-2 pr-8 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   {...register('porcentajeDescuento', { min: 0, max: 100, valueAsNumber: true })}
                 />
                 <span className="absolute right-3 top-2.5 text-slate-400 text-sm font-medium">%</span>
@@ -137,13 +137,13 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
             {/* Comprobante fiscal — obligatorio */}
             <div>
               <label className="text-sm font-medium text-slate-700 block mb-1">
-                Comprobante fiscal <span className="text-red-500">*</span>
+                Comprobante fiscal <span className="text-danger-500">*</span>
               </label>
               <select
                 className={`w-full px-3 py-2 text-sm border rounded-lg outline-none focus:ring-2 bg-white transition-colors ${
                   errors.tipoComprobanteId
-                    ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
-                    : 'border-slate-300 focus:border-blue-500 focus:ring-blue-100'
+                    ? 'border-danger-400 focus:border-danger-400 focus:ring-danger-100'
+                    : 'border-slate-300 focus:border-brand-500 focus:ring-brand-100'
                 }`}
                 {...register('tipoComprobanteId', {
                   required: 'El comprobante fiscal es requerido',
@@ -157,7 +157,7 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
                 ))}
               </select>
               {errors.tipoComprobanteId
-                ? <p className="text-xs text-red-600 mt-1">{errors.tipoComprobanteId.message}</p>
+                ? <p className="text-xs text-danger-600 mt-1">{errors.tipoComprobanteId.message}</p>
                 : <p className="text-xs text-slate-400 mt-1">Se cargará automáticamente al seleccionar este cliente en una venta</p>
               }
             </div>
@@ -171,7 +171,7 @@ export default function ClienteModal({ cliente, onClose, onSuccess, modoEdicion 
                 <label className="text-sm font-medium text-slate-700 block mb-1">Límite de crédito (RD$)</label>
                 <input
                   type="number" step="0.01" min="0" placeholder="Sin límite"
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   {...register('limiteCredito', {
                     setValueAs: v => (v === '' || v === null || v === undefined) ? undefined : Number(v),
                   })}

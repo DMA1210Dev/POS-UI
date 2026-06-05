@@ -37,13 +37,13 @@ const fmtDuracion = (desde: string, hasta?: string) => {
 function ValidacionBadge({ valor }: { valor?: boolean | null }) {
   if (valor === true)
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-success-100 text-success-700">
         <ShieldCheck size={11} /> Validación activa
       </span>
     )
   if (valor === false)
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-danger-100 text-danger-700">
         <ShieldOff size={11} /> Validación desactivada
       </span>
     )
@@ -93,8 +93,8 @@ function ValidarModal({
         <div className="flex justify-between items-center px-6 py-4 border-b">
           <div className="flex items-center gap-2">
             {activarAhora
-              ? <ShieldCheck size={18} className="text-emerald-600" />
-              : <ShieldOff   size={18} className="text-red-500" />}
+              ? <ShieldCheck size={18} className="text-success-600" />
+              : <ShieldOff   size={18} className="text-danger-500" />}
             <h3 className="font-semibold text-slate-800">
               {activarAhora ? 'Activar' : 'Desactivar'} validación de facturas
             </h3>
@@ -122,7 +122,7 @@ function ValidarModal({
 
           {/* Si ya había alguien que la configuró */}
           {sesion.nombreValidadoPor && sesion.fechaValidacion && (
-            <p className="text-xs text-slate-400 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+            <p className="text-xs text-slate-400 bg-warning-50 border border-warning-100 rounded-lg px-3 py-2">
               Última modificación por <span className="font-medium text-slate-600">{sesion.nombreValidadoPor}</span>{' '}
               el {fmtFecha(sesion.fechaValidacion)}
               {sesion.observacionValidacion && (
@@ -142,7 +142,7 @@ function ValidarModal({
               placeholder={activarAhora
                 ? 'Ej: Se activa para turno de tarde'
                 : 'Ej: No se requiere validación este turno'}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 resize-none"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 resize-none"
             />
           </div>
 
@@ -153,8 +153,8 @@ function ValidarModal({
             <Button
               className={`flex-1 justify-center ${
                 activarAhora
-                  ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600'
-                  : 'bg-red-600 hover:bg-red-700 border-red-600'
+                  ? 'bg-success-600 hover:bg-success-700 border-success-600'
+                  : 'bg-danger-600 hover:bg-danger-700 border-danger-600'
               }`}
               loading={validar.isPending}
               onClick={() => validar.mutate()}
@@ -188,7 +188,7 @@ function AbrirCajaModal({ onClose, onSaved }: { onClose: () => void; onSaved: ()
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
         <div className="flex justify-between items-center px-6 py-4 border-b">
           <div className="flex items-center gap-2">
-            <Unlock size={18} className="text-emerald-600" />
+            <Unlock size={18} className="text-success-600" />
             <h3 className="font-semibold text-slate-800">Abrir caja</h3>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-lg">✕</button>
@@ -196,14 +196,14 @@ function AbrirCajaModal({ onClose, onSaved }: { onClose: () => void; onSaved: ()
         <div className="px-6 py-5 space-y-4">
           <div>
             <label className="text-sm font-medium text-slate-700 block mb-1">
-              Fondo inicial (RD$) <span className="text-red-500">*</span>
+              Fondo inicial (RD$) <span className="text-danger-500">*</span>
             </label>
             <input
               type="number" min="0" step="0.01"
               value={monto}
               onChange={e => setMonto(e.target.value)}
               placeholder="0.00"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-emerald-500 text-right font-mono text-lg"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-success-500 text-right font-mono text-lg"
               autoFocus
             />
             <p className="text-xs text-slate-400 mt-1">
@@ -215,13 +215,13 @@ function AbrirCajaModal({ onClose, onSaved }: { onClose: () => void; onSaved: ()
             <textarea
               rows={2} value={obs} onChange={e => setObs(e.target.value)}
               placeholder="Ej: Turno de la mañana"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-emerald-500 resize-none"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-success-500 resize-none"
             />
           </div>
           <div className="flex gap-2 pt-1">
             <Button variant="secondary" className="flex-1 justify-center" onClick={onClose}>Cancelar</Button>
             <Button
-              className="flex-1 justify-center bg-emerald-600 hover:bg-emerald-700 border-emerald-600"
+              className="flex-1 justify-center bg-success-600 hover:bg-success-700 border-success-600"
               loading={abrir.isPending}
               disabled={!monto || parseFloat(monto) < 0}
               onClick={() => abrir.mutate()}
@@ -259,7 +259,7 @@ function CerrarCajaModal({
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="flex justify-between items-center px-6 py-4 border-b">
           <div className="flex items-center gap-2">
-            <Lock size={18} className="text-red-500" />
+            <Lock size={18} className="text-danger-500" />
             <h3 className="font-semibold text-slate-800">Cerrar caja</h3>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-lg">✕</button>
@@ -284,14 +284,14 @@ function CerrarCajaModal({
 
           <div>
             <label className="text-sm font-medium text-slate-700 block mb-1">
-              Efectivo contado en caja (RD$) <span className="text-red-500">*</span>
+              Efectivo contado en caja (RD$) <span className="text-danger-500">*</span>
             </label>
             <input
               type="number" min="0" step="0.01"
               value={monto}
               onChange={e => setMonto(e.target.value)}
               placeholder="0.00"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 text-right font-mono text-lg"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 text-right font-mono text-lg"
               autoFocus
             />
           </div>
@@ -301,7 +301,7 @@ function CerrarCajaModal({
             <textarea
               rows={2} value={obs} onChange={e => setObs(e.target.value)}
               placeholder="Ej: Se encontró billete falso, etc."
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 resize-none"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 resize-none"
             />
           </div>
 
@@ -312,7 +312,7 @@ function CerrarCajaModal({
           <div className="flex gap-2 pt-1">
             <Button variant="secondary" className="flex-1 justify-center" onClick={onClose}>Cancelar</Button>
             <Button
-              className="flex-1 justify-center bg-red-600 hover:bg-red-700 border-red-600"
+              className="flex-1 justify-center bg-danger-600 hover:bg-danger-700 border-danger-600"
               loading={cerrar.isPending}
               disabled={!monto}
               onClick={() => cerrar.mutate()}
@@ -339,12 +339,12 @@ function TarjetaSesion({ sesion }: { sesion: CajaSessionResponse }) {
         onClick={() => setExpandida(v => !v)}
       >
         <div className="flex items-center gap-3">
-          <div className={`w-2 h-2 rounded-full ${sesion.estado === 'Abierta' ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+          <div className={`w-2 h-2 rounded-full ${sesion.estado === 'Abierta' ? 'bg-success-500' : 'bg-slate-400'}`} />
           <div>
             <p className="text-sm font-medium text-slate-800">{sesion.nombreUsuario}</p>
             <p className="text-xs text-slate-400">{fmtFecha(sesion.fechaApertura)}</p>
           </div>
-          <Badge color={sesion.estado === 'Abierta' ? 'green' : 'gray'}>{sesion.estado}</Badge>
+          <Badge color={sesion.estado === 'Abierta' ? 'success' : 'gray'}>{sesion.estado}</Badge>
           {sesion.validacionAdmin != null && (
             <ValidacionBadge valor={sesion.validacionAdmin} />
           )}
@@ -356,8 +356,8 @@ function TarjetaSesion({ sesion }: { sesion: CajaSessionResponse }) {
           </div>
           {sesion.estado === 'Cerrada' && (
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-              ok ? 'bg-emerald-100 text-emerald-700' :
-              diferencia > 0 ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
+              ok ? 'bg-success-100 text-success-700' :
+              diferencia > 0 ? 'bg-brand-100 text-brand-700' : 'bg-danger-100 text-danger-700'
             }`}>
               {ok ? '✓ Cuadrado' : diferencia > 0 ? `+${fmt(diferencia)}` : fmt(diferencia)}
             </span>
@@ -392,7 +392,7 @@ function TarjetaSesion({ sesion }: { sesion: CajaSessionResponse }) {
               </div>
               <div>
                 <p className="text-xs text-slate-400">Diferencia</p>
-                <p className={`font-mono font-bold ${ok ? 'text-emerald-600' : diferencia > 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                <p className={`font-mono font-bold ${ok ? 'text-success-600' : diferencia > 0 ? 'text-brand-600' : 'text-danger-600'}`}>
                   {ok ? '—' : fmt(diferencia)}
                 </p>
               </div>
@@ -466,10 +466,10 @@ function SesionActivaPanel({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-success-500 animate-pulse" />
             <h3 className="font-semibold text-slate-700">Sesión en curso</h3>
           </div>
-          <Badge color="green">Abierta</Badge>
+          <Badge color="success">Abierta</Badge>
         </div>
       </CardHeader>
       <CardBody className="space-y-4">
@@ -486,7 +486,7 @@ function SesionActivaPanel({
         </div>
 
         {sesion.observacionesApertura && (
-          <p className="text-xs text-slate-500 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+          <p className="text-xs text-slate-500 bg-warning-50 border border-warning-100 rounded-lg px-3 py-2">
             {sesion.observacionesApertura}
           </p>
         )}
@@ -516,8 +516,8 @@ function SesionActivaPanel({
             <Button
               variant="secondary"
               icon={sesion.validacionAdmin === true
-                ? <ShieldOff size={14} className="text-red-500" />
-                : <ShieldCheck size={14} className="text-emerald-600" />}
+                ? <ShieldOff size={14} className="text-danger-500" />
+                : <ShieldCheck size={14} className="text-success-600" />}
               onClick={onValidar}
             >
               {sesion.validacionAdmin === true ? 'Desactivar' : 'Activar'}
@@ -528,7 +528,7 @@ function SesionActivaPanel({
         <div className="flex justify-end pt-1">
           <Button
             icon={<Lock size={15} />}
-            className="bg-red-600 hover:bg-red-700 border-red-600"
+            className="bg-danger-600 hover:bg-danger-700 border-danger-600"
             onClick={onCerrar}
           >
             Cerrar caja
@@ -557,21 +557,21 @@ function ResumenCierre({ sesion }: { sesion: CajaSessionResponse }) {
       <CardBody className="space-y-4">
         {/* Resultado principal */}
         <div className={`rounded-xl p-4 flex items-center gap-4 ${
-          ok ? 'bg-emerald-50 border border-emerald-200' :
-          sobrante ? 'bg-blue-50 border border-blue-200' :
-          'bg-red-50 border border-red-200'
+          ok ? 'bg-success-50 border border-success-200' :
+          sobrante ? 'bg-brand-50 border border-brand-200' :
+          'bg-danger-50 border border-danger-200'
         }`}>
           {ok
-            ? <CheckCircle2 size={32} className="text-emerald-500 shrink-0" />
+            ? <CheckCircle2 size={32} className="text-success-500 shrink-0" />
             : faltante
-              ? <TrendingDown size={32} className="text-red-500 shrink-0" />
-              : <TrendingUp   size={32} className="text-blue-500 shrink-0" />
+              ? <TrendingDown size={32} className="text-danger-500 shrink-0" />
+              : <TrendingUp   size={32} className="text-brand-500 shrink-0" />
           }
           <div>
-            <p className={`text-lg font-bold ${ok ? 'text-emerald-700' : faltante ? 'text-red-700' : 'text-blue-700'}`}>
+            <p className={`text-lg font-bold ${ok ? 'text-success-700' : faltante ? 'text-danger-700' : 'text-brand-700'}`}>
               {ok ? 'Cuadre exacto' : faltante ? `Faltante: ${fmt(Math.abs(diferencia))}` : `Sobrante: ${fmt(diferencia)}`}
             </p>
-            <p className={`text-sm ${ok ? 'text-emerald-600' : faltante ? 'text-red-600' : 'text-blue-600'}`}>
+            <p className={`text-sm ${ok ? 'text-success-600' : faltante ? 'text-danger-600' : 'text-brand-600'}`}>
               {ok
                 ? 'El cajero entregó exactamente lo esperado.'
                 : faltante
@@ -585,8 +585,8 @@ function ResumenCierre({ sesion }: { sesion: CajaSessionResponse }) {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
           {[
             { label: 'Fondo inicial',     val: fmt(sesion.montoApertura),          color: 'text-slate-700' },
-            { label: 'Ventas efectivo',   val: fmt(sesion.totalVentasContado ?? 0), color: 'text-emerald-700' },
-            { label: 'Ventas crédito',    val: fmt(sesion.totalVentasCredito ?? 0), color: 'text-blue-700' },
+            { label: 'Ventas efectivo',   val: fmt(sesion.totalVentasContado ?? 0), color: 'text-success-700' },
+            { label: 'Ventas crédito',    val: fmt(sesion.totalVentasCredito ?? 0), color: 'text-brand-700' },
             { label: 'Total ventas',      val: fmt(sesion.totalGeneral ?? 0),        color: 'text-slate-700' },
             { label: 'Monto esperado',    val: fmt(sesion.montoEsperado ?? 0),       color: 'text-slate-700' },
             { label: 'Contado por cajero', val: fmt(sesion.montoContado ?? 0),      color: 'text-slate-700' },
@@ -665,9 +665,9 @@ function CajerosActivosPanel({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-success-500 animate-pulse" />
             <h3 className="font-semibold text-slate-700">Cajeros activos</h3>
-            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs bg-success-100 text-success-700 px-2 py-0.5 rounded-full font-medium">
               {activas.length} en turno
             </span>
           </div>
@@ -680,8 +680,8 @@ function CajerosActivosPanel({
             <div key={s.id} className="px-5 py-4 flex flex-wrap items-center gap-x-6 gap-y-2">
               {/* Cajero + turno */}
               <div className="flex items-center gap-2 min-w-[140px]">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                  <User size={14} className="text-emerald-700" />
+                <div className="w-8 h-8 rounded-full bg-success-100 flex items-center justify-center shrink-0">
+                  <User size={14} className="text-success-700" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-800">{s.nombreUsuario}</p>
@@ -693,11 +693,11 @@ function CajerosActivosPanel({
               <div className="flex gap-4 flex-1 flex-wrap">
                 <div>
                   <p className="text-[10px] text-slate-400 uppercase tracking-wide">Ventas efectivo</p>
-                  <p className="text-sm font-bold text-emerald-700 font-mono">{fmt(s.totalVentasContado ?? 0)}</p>
+                  <p className="text-sm font-bold text-success-700 font-mono">{fmt(s.totalVentasContado ?? 0)}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-400 uppercase tracking-wide">Ventas crédito</p>
-                  <p className="text-sm font-bold text-blue-700 font-mono">{fmt(s.totalVentasCredito ?? 0)}</p>
+                  <p className="text-sm font-bold text-brand-700 font-mono">{fmt(s.totalVentasCredito ?? 0)}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-400 uppercase tracking-wide">Total vendido</p>
@@ -721,8 +721,8 @@ function CajerosActivosPanel({
                   title={s.validacionAdmin === true ? 'Desactivar validación' : 'Activar validación'}
                   className={`p-1.5 rounded-lg border transition-colors text-xs ${
                     s.validacionAdmin === true
-                      ? 'border-red-200 text-red-500 hover:bg-red-50'
-                      : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'
+                      ? 'border-danger-200 text-danger-500 hover:bg-danger-50'
+                      : 'border-success-200 text-success-600 hover:bg-success-50'
                   }`}
                 >
                   {s.validacionAdmin === true
@@ -731,7 +731,7 @@ function CajerosActivosPanel({
                 </button>
               </div>
 
-              <Badge color="green">Abierta</Badge>
+              <Badge color="success">Abierta</Badge>
             </div>
           ))}
         </div>
@@ -740,10 +740,10 @@ function CajerosActivosPanel({
         {activas.length > 1 && (
           <div className="border-t border-slate-200 bg-slate-50 px-5 py-3 flex flex-wrap gap-6 text-sm">
             <span className="text-slate-500 font-medium">Total combinado:</span>
-            <span className="font-bold text-emerald-700 font-mono">
+            <span className="font-bold text-success-700 font-mono">
               Efectivo {fmt(activas.reduce((s, c) => s + (c.totalVentasContado ?? 0), 0))}
             </span>
-            <span className="font-bold text-blue-700 font-mono">
+            <span className="font-bold text-brand-700 font-mono">
               Crédito {fmt(activas.reduce((s, c) => s + (c.totalVentasCredito ?? 0), 0))}
             </span>
             <span className="font-bold text-slate-800 font-mono">
@@ -815,8 +815,8 @@ export default function CajaPage() {
         <Card>
           <CardBody>
             <div className="flex flex-col items-center justify-center py-14 gap-3 text-center">
-              <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center">
-                <Lock size={28} className="text-amber-500" />
+              <div className="w-14 h-14 rounded-full bg-warning-100 flex items-center justify-center">
+                <Lock size={28} className="text-warning-500" />
               </div>
               <p className="text-slate-700 font-semibold text-lg">Caja chica desactivada</p>
               <p className="text-sm text-slate-400 max-w-sm">
@@ -843,7 +843,7 @@ export default function CajaPage() {
         {!sesionActiva && !loadingSesion && (
           <Button
             icon={<Unlock size={16} />}
-            className="bg-emerald-600 hover:bg-emerald-700 border-emerald-600"
+            className="bg-success-600 hover:bg-success-700 border-success-600"
             onClick={() => setModalAbrir(true)}
           >
             Abrir caja
@@ -874,7 +874,7 @@ export default function CajaPage() {
               </p>
               <Button
                 icon={<Unlock size={16} />}
-                className="bg-emerald-600 hover:bg-emerald-700 border-emerald-600 mt-2"
+                className="bg-success-600 hover:bg-success-700 border-success-600 mt-2"
                 onClick={() => setModalAbrir(true)}
               >
                 Abrir caja ahora
@@ -917,13 +917,13 @@ export default function CajaPage() {
             <input
               type="date" value={filtroDesde}
               onChange={e => setFiltroDesde(e.target.value)}
-              className="text-xs px-2 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-blue-500"
+              className="text-xs px-2 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-brand-500"
             />
             <span className="text-slate-400 text-xs">→</span>
             <input
               type="date" value={filtroHasta}
               onChange={e => setFiltroHasta(e.target.value)}
-              className="text-xs px-2 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-blue-500"
+              className="text-xs px-2 py-1.5 border border-slate-300 rounded-lg outline-none focus:border-brand-500"
             />
           </div>
         </div>

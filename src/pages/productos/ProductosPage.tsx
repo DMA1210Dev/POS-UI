@@ -85,7 +85,7 @@ export default function ProductosPage() {
           <div className="relative max-w-xs">
             <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
             <input placeholder="Buscar por nombre o código..." value={search} onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100" />
           </div>
         </CardHeader>
         <div className="overflow-x-auto">
@@ -115,7 +115,7 @@ export default function ProductosPage() {
                   <td className="px-4 py-3 font-semibold">{fmt(p.precio)}</td>
                   <td className="px-4 py-3">
                     {p.tipo === 'Fisico'
-                      ? <span className={p.stock <= p.stockMinimo ? 'text-red-600 font-bold' : ''}>{p.stock}</span>
+                      ? <span className={p.stock <= p.stockMinimo ? 'text-danger-600 font-bold' : ''}>{p.stock}</span>
                       : <span className="text-slate-400">—</span>}
                   </td>
                   <td className="px-4 py-3 text-slate-600">{p.nombreCategoria}</td>
@@ -125,7 +125,7 @@ export default function ProductosPage() {
                       {isInventario ? (
                         p.tipo === 'Fisico' && (
                           <Button variant="ghost" size="sm" icon={<Layers size={14} />}
-                            className="text-orange-600 hover:bg-orange-50"
+                            className="text-warning-600 hover:bg-warning-50"
                             onClick={() => handleEditarProducto(p)}>
                             Ajustar stock
                           </Button>
@@ -135,7 +135,7 @@ export default function ProductosPage() {
                           <Button variant="ghost" size="sm" icon={<Pencil size={14} />}
                             onClick={() => handleEditarProducto(p)} />
                           <Button variant="ghost" size="sm" icon={<Trash2 size={14} />}
-                            className="text-red-500 hover:bg-red-50"
+                            className="text-danger-500 hover:bg-danger-50"
                             onClick={() => eliminar.mutate(p.id)} />
                         </>
                       )}
@@ -182,7 +182,7 @@ export default function ProductosPage() {
                   min="0"
                   value={nuevoStock}
                   onChange={e => setNuevoStock(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
               <div className="flex justify-end gap-3 pt-1">

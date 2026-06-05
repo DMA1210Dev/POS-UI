@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   DollarSign, RefreshCw, History, Eye, Printer,
   CreditCard, CheckCircle, AlertTriangle, Clock, User, FileText,
+  Receipt,
 } from 'lucide-react'
 import jsPDF from 'jspdf'
 import { creditosApi } from '../../api'
@@ -13,18 +14,148 @@ import EmptyState from '../../components/ui/EmptyState'
 import { useToast, errMsg } from '../../context/ToastContext'
 import { useAuth } from '../../context/AuthContext'
 import { useComercio } from '../../context/ComercioContext'
-import type { CreditoResponse, PagoCreditoResponse } from '../../types'
+import type { CreditoResponse, PagoCreditoResponse, MetodoPago } from '../../types'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const fmt       = (n: number) => new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(n)
 const fmtFecha  = (d: string) => new Date(d + (d.includes('T') ? '' : 'T00:00:00')).toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' })
 const fmtDetalle = (d: string) => new Date(d).toLocaleString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 
-const estadoColor: Record<string, 'yellow' | 'blue' | 'green' | 'red' | 'gray'> = {
-  Pendiente: 'yellow', PagadoParcial: 'blue', Saldado: 'green', Vencido: 'red', Cancelado: 'gray',
+const estadoColor: Record<string, 'warning' | 'brand' | 'success' | 'danger' | 'gray'> = {
+  Pendiente: 'warning', PagadoParcial: 'brand', Saldado: 'success', Vencido: 'danger', Cancelado: 'gray',
 }
 
-// ── Impresión recibo de abono ─────────────────────────────────────────────────
+// ── Labels de método de pago ──────────────────────────────────────────────────
+const metodoPagoLabel: Record<MetodoPago, string> = {
+  Efectivo:      'Efectivo',
+  Tarjeta:       'Tarjeta de crédito/débito',
+  Transferencia: 'Transferencia bancaria',
+  Cheque:        'Cheque',
+  Otro:          'Otro',
+}
+
+// ── Recibo completo del cliente ───────────────────────────────────────────────
+// Muestra todos sus créditos activos/vencidos + detalle del último pago
+function imprimirReciboCliente(
+  creditos: CreditoResponse[],
+  clienteNombre: string,
+  ultimoPago: { monto: number; metodoPago: MetodoPago; observacion?: string; nombreUsuario: string; fechaPago: string } | null,
+  comercioNombre: string,
+) {
+  const doc = new jsPDF({ unit: 'mm', format: [80, 200] })
+  const W = 80; const ML = 4; const MR = 4
+  let y = 5
+
+  const center = (txt: string, yy: number, sz = 9) => {
+    doc.setFontSize(sz); doc.text(txt, W / 2, yy, { align: 'center' }); return yy + sz * 0.45
+  }
+  const hline = (yy: number) => {
+    doc.setDrawColor(180); doc.line(ML, yy, W - MR, yy); return yy + 3
+  }
+  const row = (lbl: string, val: string, yy: number, boldVal = false, sz = 8) => {
+    doc.setFontSize(sz); doc.setFont('helvetica', 'normal'); doc.text(lbl, ML, yy)
+    doc.setFont('helvetica', boldVal ? 'bold' : 'normal'); doc.text(val, W - MR, yy, { align: 'right' })
+    return yy + 4
+  }
+
+  // ── Cabecera ──────────────────────────────────────────────────────────────
+  doc.setFont('helvetica', 'bold')
+  y = center(comercioNombre, y, 11) + 2
+  doc.setFont('helvetica', 'normal')
+  y = center('RECIBO DE COBRO', y, 9) + 1
+  y = center(new Date().toLocaleString('es-DO', { dateStyle: 'short', timeStyle: 'short' }), y, 7.5) + 1
+  y = hline(y)
+
+  // ── Cliente ───────────────────────────────────────────────────────────────
+  doc.setFontSize(8); doc.setFont('helvetica', 'bold')
+  doc.text('CLIENTE:', ML, y); y += 4
+  doc.setFont('helvetica', 'normal')
+  doc.text(clienteNombre, ML, y); y += 5
+  y = hline(y)
+
+  // ── Detalle de facturas ───────────────────────────────────────────────────
+  doc.setFontSize(7.5); doc.setFont('helvetica', 'bold')
+  doc.text('DETALLE DE FACTURAS', ML, y); y += 4
+  doc.setFont('helvetica', 'normal')
+
+  const activos = creditos.filter(c => c.estado !== 'Saldado' && c.estado !== 'Cancelado')
+
+  if (activos.length === 0) {
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'italic')
+    doc.text('Sin facturas pendientes', ML, y); y += 4
+  } else {
+    for (const c of activos) {
+      // Referencia
+      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold')
+      doc.text(`Factura #${c.ventaId}`, ML, y)
+      // Estado badge
+      const estadoX = W - MR - doc.getTextWidth(c.estado)
+      doc.setFont('helvetica', 'normal'); doc.text(c.estado, estadoX, y); y += 3.5
+
+      // Fecha de crédito y vencimiento
+      doc.setFontSize(7)
+      const fechaCred = `Créd: ${fmtFecha(c.fechaCreacion)}`
+      const fechaVenc = c.fechaVencimiento ? `  Vence: ${fmtFecha(c.fechaVencimiento)}` : ''
+      doc.text(fechaCred + fechaVenc, ML, y); y += 3.5
+
+      // Montos
+      doc.setFontSize(7.5)
+      y = row('  Total:', fmt(c.montoTotal), y)
+      y = row('  Pagado:', fmt(c.montoPagado), y)
+      doc.setFont('helvetica', 'bold')
+      y = row('  Saldo:', fmt(c.saldo), y, true)
+      doc.setFont('helvetica', 'normal')
+
+      // Días de crédito (extraído de fechas)
+      if (c.fechaVencimiento) {
+        const dias = Math.round(
+          (new Date(c.fechaVencimiento).getTime() - new Date(c.fechaCreacion).getTime()) / 86400000
+        )
+        y = row('  Plazo:', `${dias} días`, y)
+      }
+
+      doc.setDrawColor(220); doc.line(ML + 2, y, W - MR - 2, y); y += 2.5
+    }
+  }
+
+  y = hline(y)
+
+  // ── Totales del cliente ────────────────────────────────────────────────────
+  const totalDeuda   = activos.reduce((s, c) => s + c.saldo, 0)
+  const totalMonto   = activos.reduce((s, c) => s + c.montoTotal, 0)
+  doc.setFontSize(8)
+  y = row('Total adeudado:', fmt(totalDeuda), y, true)
+  y = row('Nro. facturas:', String(activos.length), y)
+  y = hline(y)
+
+  // ── Información del pago ──────────────────────────────────────────────────
+  if (ultimoPago) {
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'bold')
+    doc.text('PAGO RECIBIDO', ML, y); y += 4
+
+    doc.setFont('helvetica', 'normal')
+    y = row('Monto:', fmt(ultimoPago.monto), y, true)
+    y = row('Método:', metodoPagoLabel[ultimoPago.metodoPago], y)
+    y = row('Fecha:', fmtDetalle(ultimoPago.fechaPago), y)
+    y = row('Recibido por:', ultimoPago.nombreUsuario, y)
+    if (ultimoPago.observacion) {
+      doc.setFontSize(7); doc.setFont('helvetica', 'italic')
+      const lines = doc.splitTextToSize(`"${ultimoPago.observacion}"`, W - ML - MR)
+      doc.text(lines, ML, y); y += lines.length * 3.5
+    }
+    y = hline(y)
+  }
+
+  // ── Pie ────────────────────────────────────────────────────────────────────
+  doc.setFontSize(7.5); doc.setFont('helvetica', 'normal')
+  doc.text('¡Gracias por su pago!', W / 2, y, { align: 'center' }); y += 3.5
+  doc.text('Conserve este recibo como comprobante.', W / 2, y, { align: 'center' })
+
+  doc.autoPrint()
+  window.open(URL.createObjectURL(doc.output('blob')), '_blank')
+}
+
+// ── Impresión recibo de abono individual ──────────────────────────────────────
 function imprimirReciboAbono(
   pago: PagoCreditoResponse,
   credito: CreditoResponse,
@@ -129,8 +260,8 @@ function CreditoDetalleModal({
         {/* Cabecera */}
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-blue-50">
-              <CreditCard size={18} className="text-blue-600" />
+            <div className="p-2 rounded-xl bg-brand-50">
+              <CreditCard size={18} className="text-brand-600" />
             </div>
             <div>
               <h3 className="font-semibold text-slate-800">Crédito #{credito.id}</h3>
@@ -158,13 +289,13 @@ function CreditoDetalleModal({
               <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-1">Total</p>
               <p className="font-bold text-slate-800 text-sm">{fmt(credito.montoTotal)}</p>
             </div>
-            <div className="bg-emerald-50 rounded-xl p-3 text-center">
-              <p className="text-[10px] text-emerald-600 uppercase tracking-wide mb-1">Pagado</p>
-              <p className="font-bold text-emerald-700 text-sm">{fmt(credito.montoPagado)}</p>
+            <div className="bg-success-50 rounded-xl p-3 text-center">
+              <p className="text-[10px] text-success-600 uppercase tracking-wide mb-1">Pagado</p>
+              <p className="font-bold text-success-700 text-sm">{fmt(credito.montoPagado)}</p>
             </div>
-            <div className={`rounded-xl p-3 text-center ${credito.saldo > 0 ? 'bg-red-50' : 'bg-green-50'}`}>
-              <p className={`text-[10px] uppercase tracking-wide mb-1 ${credito.saldo > 0 ? 'text-red-500' : 'text-green-500'}`}>Saldo</p>
-              <p className={`font-bold text-sm ${credito.saldo > 0 ? 'text-red-700' : 'text-green-700'}`}>{fmt(credito.saldo)}</p>
+            <div className={`rounded-xl p-3 text-center ${credito.saldo > 0 ? 'bg-danger-50' : 'bg-success-50'}`}>
+              <p className={`text-[10px] uppercase tracking-wide mb-1 ${credito.saldo > 0 ? 'text-danger-500' : 'text-success-500'}`}>Saldo</p>
+              <p className={`font-bold text-sm ${credito.saldo > 0 ? 'text-danger-700' : 'text-success-700'}`}>{fmt(credito.saldo)}</p>
             </div>
           </div>
 
@@ -176,7 +307,7 @@ function CreditoDetalleModal({
             </div>
             <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
               <div
-                className={`h-2.5 rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-emerald-500' : pct > 50 ? 'bg-blue-500' : 'bg-amber-400'}`}
+                className={`h-2.5 rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-success-500' : pct > 50 ? 'bg-brand-500' : 'bg-warning-400'}`}
                 style={{ width: `${pct}%` }}
               />
             </div>
@@ -189,7 +320,7 @@ function CreditoDetalleModal({
               <span>Creado: <strong>{fmtFecha(credito.fechaCreacion)}</strong></span>
             </div>
             {credito.fechaVencimiento && (
-              <div className={`flex items-center gap-1.5 ${vencido ? 'text-red-500' : 'text-slate-500'}`}>
+              <div className={`flex items-center gap-1.5 ${vencido ? 'text-danger-500' : 'text-slate-500'}`}>
                 {vencido ? <AlertTriangle size={13} /> : <Clock size={13} />}
                 <span>Vence: <strong>{fmtFecha(credito.fechaVencimiento)}</strong></span>
               </div>
@@ -215,11 +346,11 @@ function CreditoDetalleModal({
                     <div key={pago.id} className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                            <CheckCircle size={14} className="text-emerald-600" />
+                          <div className="w-7 h-7 rounded-full bg-success-100 flex items-center justify-center shrink-0">
+                            <CheckCircle size={14} className="text-success-600" />
                           </div>
                           <div>
-                            <p className="font-bold text-emerald-700 text-sm">{fmt(pago.monto)}</p>
+                            <p className="font-bold text-success-700 text-sm">{fmt(pago.monto)}</p>
                             {pago.observacion && (
                               <p className="text-xs text-slate-400 italic mt-0.5">"{pago.observacion}"</p>
                             )}
@@ -229,14 +360,14 @@ function CreditoDetalleModal({
                         <button
                           onClick={() => imprimirReciboAbono(pago, credito, comercioNombre, saldoPrev)}
                           title="Imprimir recibo de este pago"
-                          className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors shrink-0"
+                          className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-colors shrink-0"
                         >
                           <Printer size={11} /> Recibo
                         </button>
                       </div>
                       <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs text-slate-400">
                         <span>{fmtDetalle(pago.fechaPago)} · {pago.nombreUsuario}</span>
-                        <span>Saldo: <span className={saldoDespues > 0 ? 'text-red-500 font-medium' : 'text-emerald-600 font-medium'}>{fmt(saldoDespues)}</span></span>
+                        <span>Saldo: <span className={saldoDespues > 0 ? 'text-danger-500 font-medium' : 'text-success-600 font-medium'}>{fmt(saldoDespues)}</span></span>
                       </div>
                     </div>
                   )
@@ -338,10 +469,10 @@ export default function CreditosPage() {
       {resumen && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: 'Total por cobrar',   val: fmt(resumen.totalDeuda),    color: 'text-red-600'    },
-            { label: 'Total cobrado',      val: fmt(resumen.totalCobrado),  color: 'text-green-600'  },
-            { label: 'Créditos vencidos',  val: resumen.creditosVencidos,   color: 'text-orange-600' },
-            { label: 'Clientes con deuda', val: resumen.cantidadClientes,   color: 'text-blue-600'   },
+            { label: 'Total por cobrar',   val: fmt(resumen.totalDeuda),    color: 'text-danger-600'    },
+            { label: 'Total cobrado',      val: fmt(resumen.totalCobrado),  color: 'text-success-600'  },
+            { label: 'Créditos vencidos',  val: resumen.creditosVencidos,   color: 'text-warning-600' },
+            { label: 'Clientes con deuda', val: resumen.cantidadClientes,   color: 'text-brand-600'   },
           ].map(s => (
             <Card key={s.label}>
               <CardBody>
@@ -403,9 +534,9 @@ export default function CreditosPage() {
                       <p className="text-[11px] text-slate-400">Fac. #{c.ventaId}</p>
                     </td>
                     <td className="px-4 py-3 font-mono text-sm">{fmt(c.montoTotal)}</td>
-                    <td className="px-4 py-3 font-mono text-sm text-emerald-600">{fmt(c.montoPagado)}</td>
-                    <td className="px-4 py-3 font-mono font-bold text-sm text-red-600">{fmt(c.saldo)}</td>
-                    <td className={`px-4 py-3 text-sm ${vencido ? 'text-red-500 font-medium' : 'text-slate-500'}`}>
+                    <td className="px-4 py-3 font-mono text-sm text-success-600">{fmt(c.montoPagado)}</td>
+                    <td className="px-4 py-3 font-mono font-bold text-sm text-danger-600">{fmt(c.saldo)}</td>
+                    <td className={`px-4 py-3 text-sm ${vencido ? 'text-danger-500 font-medium' : 'text-slate-500'}`}>
                       {c.fechaVencimiento ? fmtFecha(c.fechaVencimiento) : '—'}
                     </td>
                     <td className="px-4 py-3">
@@ -423,7 +554,7 @@ export default function CreditosPage() {
                           <Button
                             variant="ghost" size="sm"
                             icon={<DollarSign size={14} />}
-                            className="text-emerald-600 hover:bg-emerald-50"
+                            className="text-success-600 hover:bg-success-50"
                             title="Registrar abono"
                             onClick={() => abrirAbonar(c)}
                           />
@@ -474,24 +605,24 @@ export default function CreditosPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Ya pagado</span>
-                  <span className="font-mono text-emerald-600">{fmt(pagoModal.montoPagado)}</span>
+                  <span className="font-mono text-success-600">{fmt(pagoModal.montoPagado)}</span>
                 </div>
                 <div className="flex justify-between border-t border-slate-200 pt-2">
                   <span className="font-semibold text-slate-700">Saldo pendiente</span>
-                  <span className="font-mono font-bold text-red-600">{fmt(pagoModal.saldo)}</span>
+                  <span className="font-mono font-bold text-danger-600">{fmt(pagoModal.saldo)}</span>
                 </div>
               </div>
 
               {/* Monto */}
               <div>
                 <label className="text-sm font-medium text-slate-700 block mb-1">
-                  Monto a abonar (RD$) <span className="text-red-500">*</span>
+                  Monto a abonar (RD$) <span className="text-danger-500">*</span>
                 </label>
                 <input
                   type="number" step="0.01" min="0.01"
                   value={montoPago}
                   onChange={e => setMontoPago(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 text-right font-mono text-lg"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 text-right font-mono text-lg"
                   autoFocus
                 />
               </div>
@@ -505,7 +636,7 @@ export default function CreditosPage() {
                   value={obsv}
                   onChange={e => setObsv(e.target.value)}
                   placeholder="Ej: Pago en efectivo"
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500"
                 />
               </div>
 

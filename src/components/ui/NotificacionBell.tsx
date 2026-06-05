@@ -13,13 +13,13 @@ function TipoIcon({ tipo }: { tipo: TipoNotificacion }) {
   switch (tipo) {
     case 'AprobacionPendiente':
     case 'AprobadorAsignado':
-      return <Clock size={13} className="text-amber-500 shrink-0 mt-0.5" />
+      return <Clock size={13} className="text-warning-500 shrink-0 mt-0.5" />
     case 'VentaAprobada':
-      return <CheckCircle size={13} className="text-emerald-500 shrink-0 mt-0.5" />
+      return <CheckCircle size={13} className="text-success-500 shrink-0 mt-0.5" />
     case 'VentaAnulada':
-      return <XCircle size={13} className="text-red-500 shrink-0 mt-0.5" />
+      return <XCircle size={13} className="text-danger-500 shrink-0 mt-0.5" />
     default:
-      return <Info size={13} className="text-blue-500 shrink-0 mt-0.5" />
+      return <Info size={13} className="text-brand-500 shrink-0 mt-0.5" />
   }
 }
 
@@ -91,7 +91,7 @@ export default function NotificacionBell() {
           <Bell size={14} className="text-slate-500" />
           <h4 className="font-semibold text-slate-700 text-sm">Notificaciones</h4>
           {noLeidas > 0 && (
-            <span className="px-1.5 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded-full">
+            <span className="px-1.5 py-0.5 bg-danger-100 text-danger-600 text-[10px] font-bold rounded-full">
               {noLeidas} nueva{noLeidas !== 1 ? 's' : ''}
             </span>
           )}
@@ -100,7 +100,7 @@ export default function NotificacionBell() {
           <button
             onClick={() => marcarTodas.mutate()}
             disabled={marcarTodas.isPending}
-            className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-800 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1 text-[11px] text-brand-600 hover:text-brand-800 disabled:opacity-50 transition-colors"
           >
             <CheckCheck size={11} /> Marcar leídas
           </button>
@@ -120,7 +120,7 @@ export default function NotificacionBell() {
               key={n.id}
               onClick={() => handleNotifClick(n)}
               className={`w-full text-left px-4 py-2.5 hover:bg-slate-50 transition-colors flex gap-2.5 ${
-                !n.leida ? 'bg-blue-50/70' : ''
+                !n.leida ? 'bg-brand-50/70' : ''
               }`}
             >
               <TipoIcon tipo={n.tipo} />
@@ -130,7 +130,7 @@ export default function NotificacionBell() {
                 </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">{fmtFecha(n.fechaCreacion)}</p>
               </div>
-              {!n.leida && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1" />}
+              {!n.leida && <span className="w-2 h-2 rounded-full bg-brand-500 shrink-0 mt-1" />}
             </button>
           ))
         )}
@@ -149,7 +149,7 @@ export default function NotificacionBell() {
       >
         <Bell size={15} />
         {noLeidas > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] bg-danger-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
             {noLeidas > 9 ? '9+' : noLeidas}
           </span>
         )}

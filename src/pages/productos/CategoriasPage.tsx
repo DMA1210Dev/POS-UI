@@ -86,7 +86,7 @@ export default function CategoriasPage() {
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" size="sm" icon={<Pencil size={14} />} onClick={() => { setEditando(cat); setNombre(cat.nombre) }}>Editar</Button>
-                <Button variant="ghost" size="sm" icon={<Trash2 size={14} />} className="text-red-500 hover:bg-red-50" onClick={() => eliminar.mutate(cat.id)}>Eliminar</Button>
+                <Button variant="ghost" size="sm" icon={<Trash2 size={14} />} className="text-danger-500 hover:bg-danger-50" onClick={() => eliminar.mutate(cat.id)}>Eliminar</Button>
               </div>
             </div>
           ))}

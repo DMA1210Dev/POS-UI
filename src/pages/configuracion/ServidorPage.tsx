@@ -54,15 +54,15 @@ interface ServidorStatus {
 // ── helpers ────────────────────────────────────────────────────────────────
 
 function colorBarra(pct: number) {
-  if (pct >= 90) return 'bg-red-500'
-  if (pct >= 75) return 'bg-amber-500'
-  return 'bg-blue-500'
+  if (pct >= 90) return 'bg-danger-500'
+  if (pct >= 75) return 'bg-warning-500'
+  return 'bg-brand-500'
 }
 
 function colorTexto(pct: number) {
-  if (pct >= 90) return 'text-red-600'
-  if (pct >= 75) return 'text-amber-600'
-  return 'text-blue-600'
+  if (pct >= 90) return 'text-danger-600'
+  if (pct >= 75) return 'text-warning-600'
+  return 'text-brand-600'
 }
 
 function Barra({ pct }: { pct: number }) {
@@ -112,7 +112,7 @@ export default function ServidorPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Server size={20} className="text-blue-600" />
+            <Server size={20} className="text-brand-600" />
             Estado del servidor
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -127,7 +127,7 @@ export default function ServidorPage() {
         <button
           onClick={cargar}
           disabled={loading}
-          className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600 border border-gray-200 hover:border-blue-300 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+          className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-brand-600 border border-gray-200 hover:border-brand-300 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
         >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           Actualizar
@@ -136,7 +136,7 @@ export default function ServidorPage() {
 
       {/* URL de la API */}
       <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm">
-        <Link size={16} className="text-blue-500 shrink-0" />
+        <Link size={16} className="text-brand-500 shrink-0" />
         <div className="min-w-0">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">URL de la API</p>
           <p className="text-sm font-mono text-gray-800 truncate">{API_URL}</p>
@@ -145,7 +145,7 @@ export default function ServidorPage() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+        <div className="flex items-center gap-2 bg-danger-50 border border-danger-200 text-danger-700 text-sm rounded-xl px-4 py-3">
           <AlertTriangle size={15} />
           {error}
         </div>
@@ -154,7 +154,7 @@ export default function ServidorPage() {
       {/* Spinner primera carga */}
       {loading && !data && (
         <div className="flex justify-center py-16">
-          <Loader2 size={28} className="animate-spin text-blue-600" />
+          <Loader2 size={28} className="animate-spin text-brand-600" />
         </div>
       )}
 
@@ -165,13 +165,13 @@ export default function ServidorPage() {
             <StatCard
               label="Estado"
               value={data.estado === 'ok' ? 'Operativo' : data.estado}
-              icon={<CheckCircle size={18} className="text-green-500" />}
+              icon={<CheckCircle size={18} className="text-success-500" />}
               sub={data.entorno}
             />
             <StatCard
               label="Versión"
               value={`v${data.version}`}
-              icon={<Activity size={18} className="text-blue-500" />}
+              icon={<Activity size={18} className="text-brand-500" />}
               sub="API POS"
             />
             <StatCard
@@ -183,7 +183,7 @@ export default function ServidorPage() {
             <StatCard
               label="CPU"
               value={`${data.cpu.nucleos} núcleo${data.cpu.nucleos !== 1 ? 's' : ''}`}
-              icon={<Cpu size={18} className="text-orange-500" />}
+              icon={<Cpu size={18} className="text-warning-500" />}
               sub="lógicos"
             />
           </div>
@@ -191,7 +191,7 @@ export default function ServidorPage() {
           {/* CPU */}
           <MetricCard
             titulo="CPU del proceso"
-            icon={<Cpu size={16} className="text-orange-500" />}
+            icon={<Cpu size={16} className="text-warning-500" />}
           >
             <div className="space-y-2">
               <div className="flex items-end justify-between">
@@ -211,7 +211,7 @@ export default function ServidorPage() {
           {/* Memoria */}
           <MetricCard
             titulo="Memoria"
-            icon={<MemoryStick size={16} className="text-blue-500" />}
+            icon={<MemoryStick size={16} className="text-brand-500" />}
           >
             <div className="grid sm:grid-cols-2 gap-6">
               {/* Proceso */}
@@ -324,9 +324,9 @@ function MetricCard({ titulo, icon, children }: {
 
 function DbCard({ db }: { db: DbDto }) {
   const cfg = {
-    saludable:     { bar: 'bg-green-500',  text: 'text-green-600',  badge: 'bg-green-50 text-green-700 border-green-200',  label: 'Saludable'     },
-    degradado:     { bar: 'bg-amber-500',  text: 'text-amber-600',  badge: 'bg-amber-50 text-amber-700 border-amber-200',  label: 'Degradado'     },
-    no_disponible: { bar: 'bg-red-500',    text: 'text-red-600',    badge: 'bg-red-50 text-red-700 border-red-200',        label: 'No disponible' },
+    saludable:     { bar: 'bg-success-500',  text: 'text-success-600',  badge: 'bg-success-50 text-success-700 border-success-200',  label: 'Saludable'     },
+    degradado:     { bar: 'bg-warning-500',  text: 'text-warning-600',  badge: 'bg-warning-50 text-warning-700 border-warning-200',  label: 'Degradado'     },
+    no_disponible: { bar: 'bg-danger-500',   text: 'text-danger-600',   badge: 'bg-danger-50 text-danger-700 border-danger-200',     label: 'No disponible' },
   }[db.estado] ?? { bar: 'bg-gray-400', text: 'text-gray-500', badge: 'bg-gray-50 text-gray-600 border-gray-200', label: db.estado }
 
   // Barra proporcional: 0 ms → 0 %, 500 ms → 100 %
@@ -351,7 +351,7 @@ function DbCard({ db }: { db: DbDto }) {
                 </p>
               )
             })() : (
-              <p className="text-3xl font-bold text-red-500">—</p>
+              <p className="text-3xl font-bold text-danger-500">—</p>
             )}
             <p className="text-xs text-gray-400 mt-0.5">Latencia · SELECT 1</p>
           </div>
@@ -379,7 +379,7 @@ function DbCard({ db }: { db: DbDto }) {
 
         {/* Error si hay */}
         {db.error && (
-          <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-3 py-2 mt-1">
+          <div className="flex items-start gap-2 bg-danger-50 border border-danger-200 text-danger-700 text-xs rounded-lg px-3 py-2 mt-1">
             <AlertTriangle size={13} className="mt-0.5 shrink-0" />
             <span className="break-all">{db.error}</span>
           </div>

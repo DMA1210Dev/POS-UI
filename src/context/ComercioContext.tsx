@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { comercioApi, type ComercioResponse } from '../api'
+import { parseColoresJson, aplicarColores } from '../lib/colores'
 
 interface ComercioContextValue {
   comercio: ComercioResponse | null
@@ -51,11 +52,13 @@ export function ComercioProvider({ children }: { children: ReactNode }) {
 
   // Aplica los colores como variables CSS globales
   useEffect(() => {
-    document.documentElement.style.setProperty('--color-menu',       comercio?.colorMenu      ?? '#1e293b')
-    document.documentElement.style.setProperty('--color-menu-fin',   comercio?.colorMenuFin   ?? '#1e293b')
-    document.documentElement.style.setProperty('--color-login',      comercio?.colorLogin     ?? '#0f172a')
-    document.documentElement.style.setProperty('--color-login-fin',  comercio?.colorLoginFin  ?? '#1e3a8a')
-  }, [comercio?.colorMenu, comercio?.colorMenuFin, comercio?.colorLogin, comercio?.colorLoginFin])
+    document.documentElement.style.setProperty('--color-menu',      comercio?.colorMenu     ?? '#1e293b')
+    document.documentElement.style.setProperty('--color-menu-fin',  comercio?.colorMenuFin  ?? '#1e293b')
+    document.documentElement.style.setProperty('--color-login',     comercio?.colorLogin    ?? '#0f172a')
+    document.documentElement.style.setProperty('--color-login-fin', comercio?.colorLoginFin ?? '#1e3a8a')
+    if (comercio?.coloresJson)
+      aplicarColores(parseColoresJson(comercio.coloresJson))
+  }, [comercio?.colorMenu, comercio?.colorMenuFin, comercio?.colorLogin, comercio?.colorLoginFin, comercio?.coloresJson])
 
   return (
     <ComercioContext.Provider value={{

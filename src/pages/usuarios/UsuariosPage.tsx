@@ -11,7 +11,7 @@ import { useRoles } from '../../context/RolesContext'
 import type { UsuarioResponse, RegisterUsuarioDto } from '../../types'
 
 const fmtFecha = (d: string) => new Date(d).toLocaleDateString('es-DO')
-const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+const inputClass = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
 
 // Tailwind color → Badge color name (aproximado)
 function badgeColorForRol(color: string): 'red' | 'orange' | 'green' | 'blue' | 'purple' | 'yellow' {
@@ -198,7 +198,7 @@ export default function UsuariosPage() {
                     <span className="flex items-center gap-2">
                       {u.nombre}
                       {u.tieneResetPendiente && (
-                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" title="Reset de contraseña pendiente" />
+                        <span className="w-2 h-2 rounded-full bg-warning-500 shrink-0" title="Reset de contraseña pendiente" />
                       )}
                     </span>
                   </td>
@@ -219,17 +219,17 @@ export default function UsuariosPage() {
                       <Button variant="ghost" size="sm" icon={<Key size={14} />}
                         onClick={() => { setPwdModal(u); setNewPwd(''); setConfirmPwd('') }} />
                       <Button variant="ghost" size="sm" icon={<ShieldOff size={14} />}
-                        className="text-amber-500 hover:bg-amber-50"
+                        className="text-warning-500 hover:bg-warning-50"
                         title="Restablecer acceso"
                         onClick={() => abrirRestablecer(u)} />
                       {u.tieneResetPendiente && (
                         <Button variant="ghost" size="sm" icon={<KeyRound size={14} />}
-                          className="text-amber-600 hover:bg-amber-50"
+                          className="text-warning-600 hover:bg-warning-50"
                           title="Ver código de recuperación"
                           onClick={() => verCodigoReset(u)} />
                       )}
                       <Button variant="ghost" size="sm" icon={<Trash2 size={14} />}
-                        className="text-red-500 hover:bg-red-50"
+                        className="text-danger-500 hover:bg-danger-50"
                         onClick={() => eliminar.mutate(u.id)} />
                     </div>
                   </td>
@@ -295,7 +295,7 @@ export default function UsuariosPage() {
               <div className="flex items-center gap-2">
                 {editModo === 'ver' && (
                   <button onClick={() => setEditModo('editar')}
-                    className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
+                    className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition-colors">
                     <Pencil size={12} /> Editar
                   </button>
                 )}
@@ -348,13 +348,13 @@ export default function UsuariosPage() {
       {restablecerModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-            <div className="bg-amber-50 px-6 py-4 flex items-center gap-3 border-b border-amber-100">
-              <div className="p-2 rounded-full bg-amber-100">
-                <ShieldOff size={18} className="text-amber-600" />
+            <div className="bg-warning-50 px-6 py-4 flex items-center gap-3 border-b border-warning-100">
+              <div className="p-2 rounded-full bg-warning-100">
+                <ShieldOff size={18} className="text-warning-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-amber-800">Restablecer acceso</h3>
-                <p className="text-xs text-amber-600">{restablecerModal.nombre}</p>
+                <h3 className="font-semibold text-warning-800">Restablecer acceso</h3>
+                <p className="text-xs text-warning-600">{restablecerModal.nombre}</p>
               </div>
             </div>
 
@@ -377,7 +377,7 @@ export default function UsuariosPage() {
                     title="Copiar"
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
                       copiado
-                        ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                        ? 'border-success-300 bg-success-50 text-success-700'
                         : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                     }`}
                   >
@@ -396,16 +396,16 @@ export default function UsuariosPage() {
 
               {/* Reactivar cuenta (solo si está inactivo) */}
               {!restablecerModal.activo && (
-                <label className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg border border-amber-200 bg-amber-50 cursor-pointer">
+                <label className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg border border-warning-200 bg-warning-50 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={reactivar}
                     onChange={e => setReactivar(e.target.checked)}
-                    className="mt-0.5 accent-amber-500"
+                    className="mt-0.5 accent-warning-500"
                   />
                   <div>
-                    <p className="text-sm font-medium text-amber-800">Reactivar cuenta</p>
-                    <p className="text-xs text-amber-600">La cuenta está inactiva. Actívala para que el usuario pueda ingresar.</p>
+                    <p className="text-sm font-medium text-warning-800">Reactivar cuenta</p>
+                    <p className="text-xs text-warning-600">La cuenta está inactiva. Actívala para que el usuario pueda ingresar.</p>
                   </div>
                 </label>
               )}
@@ -416,7 +416,7 @@ export default function UsuariosPage() {
                 </Button>
                 <Button
                   loading={restablecerAcceso.isPending}
-                  className="bg-amber-500 hover:bg-amber-600 border-amber-500"
+                  className="bg-warning-500 hover:bg-warning-600 border-warning-500"
                   onClick={() => restablecerAcceso.mutate()}
                 >
                   Restablecer acceso
@@ -431,20 +431,20 @@ export default function UsuariosPage() {
       {codigoResetModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-            <div className="bg-amber-50 px-6 py-4 flex items-center gap-3 border-b border-amber-100">
-              <div className="p-2 rounded-full bg-amber-100">
-                <KeyRound size={18} className="text-amber-600" />
+            <div className="bg-warning-50 px-6 py-4 flex items-center gap-3 border-b border-warning-100">
+              <div className="p-2 rounded-full bg-warning-100">
+                <KeyRound size={18} className="text-warning-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-amber-800">Código de recuperación</h3>
-                <p className="text-xs text-amber-600">{codigoResetModal.usuario.nombre}</p>
+                <h3 className="font-semibold text-warning-800">Código de recuperación</h3>
+                <p className="text-xs text-warning-600">{codigoResetModal.usuario.nombre}</p>
               </div>
-              <button onClick={() => setCodigoResetModal(null)} className="ml-auto text-amber-400 hover:text-amber-600">✕</button>
+              <button onClick={() => setCodigoResetModal(null)} className="ml-auto text-warning-400 hover:text-warning-600">✕</button>
             </div>
             <div className="px-6 py-5 space-y-4">
               {codigoResetModal.loading ? (
                 <div className="flex justify-center py-4">
-                  <div className="w-6 h-6 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-4 border-warning-400 border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : (
                 <>
@@ -452,7 +452,7 @@ export default function UsuariosPage() {
                     Comparte este código con <strong>{codigoResetModal.usuario.nombre}</strong> para que pueda restablecer su contraseña. Expira en 30 minutos.
                   </p>
                   <div className="flex gap-2 items-center">
-                    <div className="flex-1 flex items-center justify-center px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl font-mono text-2xl font-bold text-amber-800 tracking-[0.3em] select-all">
+                    <div className="flex-1 flex items-center justify-center px-4 py-3 bg-warning-50 border border-warning-200 rounded-xl font-mono text-2xl font-bold text-warning-800 tracking-[0.3em] select-all">
                       {codigoResetModal.codigo}
                     </div>
                     <button
@@ -460,7 +460,7 @@ export default function UsuariosPage() {
                       title="Copiar"
                       className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
                         codigoCopied
-                          ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                          ? 'border-success-300 bg-success-50 text-success-700'
                           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                       }`}
                     >
@@ -511,7 +511,7 @@ export default function UsuariosPage() {
                 <input type="password" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} className={inputClass} />
               </div>
               {newPwd && confirmPwd && newPwd !== confirmPwd && (
-                <p className="text-amber-600 text-sm">Los passwords no coinciden</p>
+                <p className="text-warning-600 text-sm">Los passwords no coinciden</p>
               )}
               <div className="flex justify-end gap-3 pt-1">
                 <Button variant="secondary" onClick={() => setPwdModal(null)}>Cancelar</Button>

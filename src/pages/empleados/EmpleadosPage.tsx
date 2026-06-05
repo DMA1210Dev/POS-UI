@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import {
   Plus, Search, X, Edit2, Trash2, User, Building2,
   Briefcase, DollarSign, CalendarDays, MapPin, Umbrella,
-  ChevronDown, ChevronUp, UserCheck, UserX, Loader2,
+  ChevronDown, ChevronUp, UserCheck, UserX, Loader2, CreditCard,
 } from 'lucide-react'
 import api from '../../lib/axios'
 import EmptyState from '../../components/ui/EmptyState'
@@ -45,11 +45,22 @@ interface FormState {
   fechaCumpleanos: string
   usuarioId:       string
   activo:          boolean
+  cuentaBanco:     string
+  cedula:          string
 }
 
 const FORM_VACIO: FormState = {
   nombre: '', posicion: '', departamento: '', salario: '',
   direccion: '', vacacionesDias: '', fechaCumpleanos: '', usuarioId: '', activo: true,
+  cuentaBanco: '', cedula: '',
+}
+
+// ── formato cédula ───────────────────────────────────────────────────────────
+function formatearCedula(raw: string) {
+  const nums = raw.replace(/\D/g, '').slice(0, 11)
+  if (nums.length <= 3) return nums
+  if (nums.length <= 10) return `${nums.slice(0, 3)}-${nums.slice(3)}`
+  return `${nums.slice(0, 3)}-${nums.slice(3, 10)}-${nums.slice(10)}`
 }
 
 // ── componente principal ──────────────────────────────────────────────────
@@ -153,6 +164,8 @@ export default function EmpleadosPage() {
       fechaCumpleanos: detalle.fechaCumpleanos ?? '',
       usuarioId:       detalle.usuarioId != null ? String(detalle.usuarioId) : '',
       activo:          detalle.activo,
+      cuentaBanco:     detalle.cuentaBanco ?? '',
+      cedula:          detalle.cedula ?? '',
     })
     setFormError('')
     setEditando(true)
@@ -173,6 +186,8 @@ export default function EmpleadosPage() {
       fechaCumpleanos: form.fechaCumpleanos || null,
       usuarioId:       form.usuarioId !== '' ? Number(form.usuarioId) : null,
       activo:          form.activo,
+      cuentaBanco:     form.cuentaBanco?.trim() || undefined,
+      cedula:          form.cedula?.trim() || undefined,
     }
     try {
       if (modal === 'nuevo') {
@@ -226,7 +241,7 @@ export default function EmpleadosPage() {
         </div>
         <button
           onClick={abrirNuevo}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
         >
           <Plus size={16} />
           Nuevo empleado
@@ -241,7 +256,7 @@ export default function EmpleadosPage() {
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
             placeholder="Buscar por nombre, posición, departamento…"
-            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
         </div>
         <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
@@ -249,7 +264,7 @@ export default function EmpleadosPage() {
             type="checkbox"
             checked={soloActivos}
             onChange={e => setSoloActivos(e.target.checked)}
-            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
           />
           Solo activos
         </label>
@@ -262,7 +277,7 @@ export default function EmpleadosPage() {
       {/* Tabla */}
       {loading ? (
         <div className="flex justify-center py-16">
-          <Loader2 size={28} className="animate-spin text-blue-600" />
+          <Loader2 size={28} className="animate-spin text-brand-600" />
         </div>
       ) : filtrados.length === 0 ? (
         <EmptyState title="No hay empleados" description="No se encontraron empleados con los filtros seleccionados." />
@@ -309,7 +324,7 @@ export default function EmpleadosPage() {
                   return (
                     <tr
                       key={emp.id}
-                      className="hover:bg-blue-50/40 transition-colors cursor-pointer"
+                      className="hover:bg-brand-50/40 transition-colors cursor-pointer"
                       onClick={() => abrirDetalle(emp.id)}
                     >
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{emp.nombre}</td>
@@ -325,13 +340,13 @@ export default function EmpleadosPage() {
                         {emp.fechaCumpleanos ? (
                           <span className="text-gray-600">
                             {fmtFecha(emp.fechaCumpleanos)}
-                            {cumple && <span className="ml-1 text-orange-500 text-xs font-medium">{cumple}</span>}
+                            {cumple && <span className="ml-1 text-warning-500 text-xs font-medium">{cumple}</span>}
                           </span>
                         ) : '—'}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {emp.nombreUsuario ? (
-                          <span className="inline-flex items-center gap-1 text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full text-xs font-medium">
+                          <span className="inline-flex items-center gap-1 text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full text-xs font-medium">
                             <User size={11} />
                             {emp.nombreUsuario}
                           </span>
@@ -341,7 +356,7 @@ export default function EmpleadosPage() {
                       </td>
                       <td className="px-4 py-3 text-center whitespace-nowrap">
                         {emp.activo ? (
-                          <span className="inline-flex items-center gap-1 text-green-700 bg-green-50 px-2 py-0.5 rounded-full text-xs font-medium">
+                          <span className="inline-flex items-center gap-1 text-success-700 bg-success-50 px-2 py-0.5 rounded-full text-xs font-medium">
                             <UserCheck size={11} />Activo
                           </span>
                         ) : (
@@ -356,7 +371,7 @@ export default function EmpleadosPage() {
                       >
                         <button
                           onClick={() => abrirDetalle(emp.id)}
-                          className="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                          className="text-brand-600 hover:text-brand-800 p-1 rounded transition-colors"
                           title="Ver detalle"
                         >
                           <Edit2 size={14} />
@@ -404,16 +419,22 @@ export default function EmpleadosPage() {
                     <InfoField icon={<DollarSign size={14} />} label="Salario"      value={fmtSalario(detalle.salario)} />
                     <InfoField icon={<Umbrella size={14} />}   label="Vacaciones"   value={detalle.vacacionesDias != null ? `${detalle.vacacionesDias} días/año` : undefined} />
                     <InfoField icon={<CalendarDays size={14} />} label="Cumpleaños" value={fmtFecha(detalle.fechaCumpleanos)} />
+                    {detalle.cedula && (
+                      <InfoField icon={<CreditCard size={14} />} label="Cédula" value={detalle.cedula} />
+                    )}
                   </div>
                   {detalle.direccion && (
                     <InfoField icon={<MapPin size={14} />} label="Dirección" value={detalle.direccion} full />
                   )}
+                  {detalle.cuentaBanco && (
+                    <InfoField icon={<Building2 size={14} />} label="Cuenta bancaria" value={detalle.cuentaBanco} full />
+                  )}
                   {detalle.nombreUsuario ? (
-                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                      <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Usuario del sistema</p>
-                      <p className="text-sm font-medium text-blue-900">{detalle.nombreUsuario}</p>
+                    <div className="bg-brand-50 border border-brand-100 rounded-xl p-4">
+                      <p className="text-xs font-semibold text-brand-600 uppercase tracking-wide mb-1">Usuario del sistema</p>
+                      <p className="text-sm font-medium text-brand-900">{detalle.nombreUsuario}</p>
                       {detalle.emailUsuario && (
-                        <p className="text-xs text-blue-600 mt-0.5">{detalle.emailUsuario}</p>
+                        <p className="text-xs text-brand-600 mt-0.5">{detalle.emailUsuario}</p>
                       )}
                     </div>
                   ) : (
@@ -424,7 +445,7 @@ export default function EmpleadosPage() {
                       Creado: {new Date(detalle.fechaCreacion).toLocaleDateString('es-DO')}
                     </span>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                      detalle.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                      detalle.activo ? 'bg-success-100 text-success-700' : 'bg-gray-100 text-gray-500'
                     }`}>
                       {detalle.activo ? <UserCheck size={11} /> : <UserX size={11} />}
                       {detalle.activo ? 'Activo' : 'Inactivo'}
@@ -436,7 +457,7 @@ export default function EmpleadosPage() {
               {/* Spinner mientras carga detalle */}
               {!editando && detalleCargando && (
                 <div className="flex justify-center py-8">
-                  <Loader2 size={24} className="animate-spin text-blue-600" />
+                  <Loader2 size={24} className="animate-spin text-brand-600" />
                 </div>
               )}
 
@@ -448,8 +469,18 @@ export default function EmpleadosPage() {
                       <input
                         value={form.nombre}
                         onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
-                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         placeholder="Juan Pérez"
+                      />
+                    </FormField>
+
+                    <FormField label="Cédula">
+                      <input
+                        value={form.cedula}
+                        onChange={e => setForm(f => ({ ...f, cedula: formatearCedula(e.target.value) }))}
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                        placeholder="000-0000000-0"
+                        maxLength={13}
                       />
                     </FormField>
 
@@ -457,7 +488,7 @@ export default function EmpleadosPage() {
                       <input
                         value={form.posicion}
                         onChange={e => setForm(f => ({ ...f, posicion: e.target.value }))}
-                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         placeholder="Vendedor"
                       />
                     </FormField>
@@ -466,7 +497,7 @@ export default function EmpleadosPage() {
                       <input
                         value={form.departamento}
                         onChange={e => setForm(f => ({ ...f, departamento: e.target.value }))}
-                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         placeholder="Ventas"
                       />
                     </FormField>
@@ -477,7 +508,7 @@ export default function EmpleadosPage() {
                         min="0"
                         value={form.salario}
                         onChange={e => setForm(f => ({ ...f, salario: e.target.value }))}
-                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         placeholder="25000"
                       />
                     </FormField>
@@ -488,7 +519,7 @@ export default function EmpleadosPage() {
                         min="0"
                         value={form.vacacionesDias}
                         onChange={e => setForm(f => ({ ...f, vacacionesDias: e.target.value }))}
-                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         placeholder="14"
                       />
                     </FormField>
@@ -498,7 +529,16 @@ export default function EmpleadosPage() {
                         type="date"
                         value={form.fechaCumpleanos}
                         onChange={e => setForm(f => ({ ...f, fechaCumpleanos: e.target.value }))}
-                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      />
+                    </FormField>
+
+                    <FormField label="Cuenta bancaria">
+                      <input
+                        value={form.cuentaBanco}
+                        onChange={e => setForm(f => ({ ...f, cuentaBanco: e.target.value }))}
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                        placeholder="00-00000000-0"
                       />
                     </FormField>
                   </div>
@@ -507,7 +547,7 @@ export default function EmpleadosPage() {
                     <input
                       value={form.direccion}
                       onChange={e => setForm(f => ({ ...f, direccion: e.target.value }))}
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                       placeholder="Calle 5, Sto. Dgo."
                     />
                   </FormField>
@@ -516,7 +556,7 @@ export default function EmpleadosPage() {
                     <select
                       value={form.usuarioId}
                       onChange={e => setForm(f => ({ ...f, usuarioId: e.target.value }))}
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     >
                       <option value="">— Sin usuario —</option>
                       {usuarios.map(u => (
@@ -530,7 +570,7 @@ export default function EmpleadosPage() {
                       type="checkbox"
                       checked={form.activo}
                       onChange={e => setForm(f => ({ ...f, activo: e.target.checked }))}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
                     />
                     Empleado activo
                   </label>
@@ -539,7 +579,7 @@ export default function EmpleadosPage() {
 
               {/* Error de formulario */}
               {formError && (
-                <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{formError}</p>
+                <p className="text-xs text-danger-600 bg-danger-50 border border-danger-200 rounded-lg px-3 py-2">{formError}</p>
               )}
             </div>
 
@@ -550,7 +590,7 @@ export default function EmpleadosPage() {
                 {!editando && detalle?.activo && (
                   <button
                     onClick={() => desactivar(detalle.id)}
-                    className="flex items-center gap-1.5 text-sm text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 text-sm text-danger-500 hover:text-danger-700 hover:bg-danger-50 px-3 py-1.5 rounded-lg transition-colors"
                   >
                     <Trash2 size={14} />
                     Desactivar
@@ -569,7 +609,7 @@ export default function EmpleadosPage() {
                     </button>
                     <button
                       onClick={activarEdicion}
-                      className="flex items-center gap-1.5 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition-colors"
                     >
                       <Edit2 size={13} />
                       Editar
@@ -588,7 +628,7 @@ export default function EmpleadosPage() {
                     <button
                       onClick={guardar}
                       disabled={saving}
-                      className="flex items-center gap-1.5 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                      className="flex items-center gap-1.5 px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition-colors disabled:opacity-50"
                     >
                       {saving && <Loader2 size={13} className="animate-spin" />}
                       {saving ? 'Guardando…' : 'Guardar'}

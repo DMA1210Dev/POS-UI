@@ -36,13 +36,13 @@ function CajaPromptModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
         {/* Header */}
-        <div className="bg-emerald-50 px-6 py-4 flex items-center gap-3 border-b border-emerald-100">
-          <div className="p-2 rounded-full bg-emerald-100">
-            <Vault size={20} className="text-emerald-600" />
+        <div className="bg-success-50 px-6 py-4 flex items-center gap-3 border-b border-success-100">
+          <div className="p-2 rounded-full bg-success-100">
+            <Vault size={20} className="text-success-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-emerald-800">Abrir caja</h3>
-            <p className="text-xs text-emerald-600">No tienes una sesión de caja activa</p>
+            <h3 className="font-semibold text-success-800">Abrir caja</h3>
+            <p className="text-xs text-success-600">No tienes una sesión de caja activa</p>
           </div>
         </div>
 
@@ -53,14 +53,14 @@ function CajaPromptModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
 
           <div>
             <label className="text-sm font-medium text-slate-700 block mb-1">
-              Fondo inicial (RD$) <span className="text-red-500">*</span>
+              Fondo inicial (RD$) <span className="text-danger-500">*</span>
             </label>
             <input
               type="number" min="0" step="0.01"
               value={monto}
               onChange={e => setMonto(e.target.value)}
               placeholder="0.00"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-emerald-500 text-right font-mono text-lg"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-success-500 text-right font-mono text-lg"
               autoFocus
             />
           </div>
@@ -72,7 +72,7 @@ function CajaPromptModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
             <textarea
               rows={2} value={obs} onChange={e => setObs(e.target.value)}
               placeholder="Ej: Turno de la mañana"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-emerald-500 resize-none"
+              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-success-500 resize-none"
             />
           </div>
 
@@ -85,7 +85,7 @@ function CajaPromptModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
               Continuar sin abrir
             </Button>
             <Button
-              className="flex-1 justify-center bg-emerald-600 hover:bg-emerald-700 border-emerald-600"
+              className="flex-1 justify-center bg-success-600 hover:bg-success-700 border-success-600"
               loading={abrir.isPending}
               disabled={!monto || parseFloat(monto) < 0}
               onClick={() => abrir.mutate()}
@@ -241,9 +241,9 @@ export default function AppLayout() {
       {sessionPopup && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-            <div className="bg-amber-50 px-6 py-4 flex items-center gap-3 border-b border-amber-100">
-              <ShieldAlert className="text-amber-500 shrink-0" size={22} />
-              <h3 className="font-semibold text-amber-700">Sesión expirada</h3>
+            <div className="bg-warning-50 px-6 py-4 flex items-center gap-3 border-b border-warning-100">
+              <ShieldAlert className="text-warning-500 shrink-0" size={22} />
+              <h3 className="font-semibold text-warning-700">Sesión expirada</h3>
             </div>
             <div className="px-6 py-5 space-y-4">
               <p className="text-slate-700 text-sm">
@@ -252,7 +252,7 @@ export default function AppLayout() {
               {/* Barra de progreso */}
               <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                 <div
-                  className="bg-amber-400 h-1.5 rounded-full transition-all duration-1000"
+                  className="bg-warning-400 h-1.5 rounded-full transition-all duration-1000"
                   style={{ width: `${(seconds / COUNTDOWN) * 100}%` }}
                 />
               </div>
@@ -262,7 +262,7 @@ export default function AppLayout() {
                 </span>
                 <button
                   onClick={goToLogin}
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors"
+                  className="px-4 py-2 bg-warning-500 hover:bg-warning-600 text-white text-sm font-medium rounded-lg transition-colors"
                 >
                   Ir al login
                 </button>

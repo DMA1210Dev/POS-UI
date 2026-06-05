@@ -28,7 +28,7 @@ const COLORES = [
   { value: 'bg-teal-600',    label: 'Teal' },
   { value: 'bg-cyan-600',    label: 'Cian' },
   { value: 'bg-sky-600',     label: 'Azul cielo' },
-  { value: 'bg-blue-600',    label: 'Azul' },
+  { value: 'bg-brand-600',   label: 'Azul' },
   { value: 'bg-indigo-600',  label: 'Índigo' },
   { value: 'bg-violet-600',  label: 'Violeta' },
   { value: 'bg-purple-600',  label: 'Morado' },
@@ -38,7 +38,7 @@ const COLORES = [
   { value: 'bg-slate-500',   label: 'Gris' },
 ]
 
-const inputCls = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+const inputCls = "w-full px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
 
 // ── Burbuja de color ──────────────────────────────────────────────────────
 function ColorPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -142,8 +142,8 @@ export default function RolesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 rounded-xl">
-            <ShieldCheck size={22} className="text-blue-600" />
+          <div className="p-2 bg-brand-100 rounded-xl">
+            <ShieldCheck size={22} className="text-brand-600" />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-slate-800">Gestión de roles</h2>
@@ -228,7 +228,7 @@ export default function RolesPage() {
                   </button>
                   <button
                     onClick={() => setConfirmarEliminar(rol)}
-                    className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition"
+                    className="p-1.5 rounded-lg hover:bg-danger-50 text-slate-400 hover:text-danger-500 transition"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -333,8 +333,8 @@ export default function RolesPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
             <div className="p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-red-100 rounded-xl">
-                  <Trash2 size={18} className="text-red-600" />
+                <div className="p-2 bg-danger-100 rounded-xl">
+                  <Trash2 size={18} className="text-danger-600" />
                 </div>
                 <h3 className="font-semibold text-slate-800">Eliminar rol</h3>
               </div>
@@ -348,7 +348,7 @@ export default function RolesPage() {
               <Button
                 loading={eliminar.isPending}
                 onClick={() => eliminar.mutate(confirmarEliminar.nombre)}
-                className="bg-red-600 hover:bg-red-700 text-white"
+                className="bg-danger-600 hover:bg-danger-700 text-white"
               >
                 Eliminar
               </Button>

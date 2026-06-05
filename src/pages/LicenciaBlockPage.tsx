@@ -22,28 +22,28 @@ const ESTADOS: Record<LicenciaCodigo, {
 }> = {
   mantenimiento: {
     icon:      <Wrench size={36} />,
-    color:     'text-amber-600',
-    bg:        'bg-amber-50',
-    border:    'border-amber-200',
-    ring:      'ring-amber-100',
+    color:     'text-warning-600',
+    bg:        'bg-warning-50',
+    border:    'border-warning-200',
+    ring:      'ring-warning-100',
     titulo:    'Sistema en mantenimiento',
     subtitulo: 'Estamos realizando mejoras. Vuelve en unos momentos.',
   },
   bloqueado_pago: {
     icon:      <CreditCard size={36} />,
-    color:     'text-orange-600',
-    bg:        'bg-orange-50',
-    border:    'border-orange-200',
-    ring:      'ring-orange-100',
+    color:     'text-warning-600',
+    bg:        'bg-warning-50',
+    border:    'border-warning-200',
+    ring:      'ring-warning-100',
     titulo:    'Servicio suspendido',
     subtitulo: 'El acceso ha sido suspendido por falta de pago. Contacta al administrador.',
   },
   bloqueado: {
     icon:      <Lock size={36} />,
-    color:     'text-red-600',
-    bg:        'bg-red-50',
-    border:    'border-red-200',
-    ring:      'ring-red-100',
+    color:     'text-danger-600',
+    bg:        'bg-danger-50',
+    border:    'border-danger-200',
+    ring:      'ring-danger-100',
     titulo:    'Acceso bloqueado',
     subtitulo: 'El acceso a este sistema ha sido revocado. Contacta al administrador.',
   },
@@ -122,9 +122,9 @@ export default function LicenciaBlockPage({ codigo, mensaje, fechaVencimiento, o
 
         {/* Franja de color superior */}
         <div className={`h-1.5 w-full ${
-          codigo === 'mantenimiento'  ? 'bg-amber-400'  :
-          codigo === 'bloqueado_pago' ? 'bg-orange-400' :
-          'bg-red-500'
+          codigo === 'mantenimiento'  ? 'bg-warning-400'  :
+          codigo === 'bloqueado_pago' ? 'bg-warning-400' :
+          'bg-danger-500'
         }`} />
 
         <div className="px-8 py-8 text-center space-y-5">
@@ -140,7 +140,7 @@ export default function LicenciaBlockPage({ codigo, mensaje, fechaVencimiento, o
               {mensaje ?? estado.subtitulo}
             </p>
             {vencimiento && codigo === 'bloqueado_pago' && (
-              <p className="text-xs text-orange-600 font-medium mt-1">
+              <p className="text-xs text-warning-600 font-medium mt-1">
                 Vencimiento: {vencimiento}
               </p>
             )}
