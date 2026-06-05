@@ -68,8 +68,8 @@ export default function NotificacionBell() {
   const toggleOpen = () => {
     if (!open && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect()
-      // Panel aparece debajo del botón, alineado a la izquierda del botón
-      setPanelPos({ top: rect.bottom + 8, left: rect.left })
+      // Abre justo a la derecha del sidebar (240px) y alineado verticalmente con el botón
+      setPanelPos({ top: rect.top, left: 248 })
     }
     setOpen(o => !o)
   }
