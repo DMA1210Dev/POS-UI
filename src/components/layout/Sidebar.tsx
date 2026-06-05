@@ -16,6 +16,7 @@ interface NavItem {
   to: string
   label: string
   icon: React.ReactNode
+  children?: NavItem[]
 }
 
 interface SectionDef {
@@ -79,13 +80,17 @@ export default function Sidebar() {
       label: 'Contabilidad',
       icon: <BookOpen size={16} />,
       items: [
-        puedeVerReportes         && { to: '/reportes',      label: 'Reportes',      icon: <BarChart2 size={16} /> },
+        {
+          to: '/reportes', label: 'Reportes', icon: <BarChart2 size={16} />,
+          children: [
+            { to: '/contabilidad/mayor-general', label: 'Mayor General', icon: <BarChart2 size={16} /> },
+            { to: '/contabilidad/balance-general', label: 'Balance General', icon: <BarChart2 size={16} /> },
+            { to: '/contabilidad/estado-saldos', label: 'Estado de Saldos', icon: <BarChart2 size={16} /> },
+          ],
+        },
         puedeGestionarProductos  && { to: '/comprobantes',  label: 'Comprobantes',  icon: <Receipt size={16} /> },
         puedeGestionarUsuarios   && { to: '/contabilidad/cuentas', label: 'Catálogo de Cuentas', icon: <BookOpen size={16} /> },
         puedeVerReportes         && { to: '/contabilidad/asientos', label: 'Asientos', icon: <FileText size={16} /> },
-        puedeVerReportes         && { to: '/contabilidad/mayor-general', label: 'Mayor General', icon: <BarChart2 size={16} /> },
-        puedeVerReportes         && { to: '/contabilidad/balance-general', label: 'Balance General', icon: <BarChart2 size={16} /> },
-        puedeVerReportes         && { to: '/contabilidad/estado-saldos', label: 'Estado de Saldos', icon: <BarChart2 size={16} /> },
       ].filter(Boolean) as NavItem[],
     },
     {
@@ -134,7 +139,10 @@ export default function Sidebar() {
   const getDefaultOpen = () => {
     const open: Record<string, boolean> = {}
     sections.forEach(s => {
-      if (s.items.some(item => location.pathname.startsWith(item.to))) {
+      if (s.items.some(item => {
+        if (item.children) return item.children.some(c => location.pathname.startsWith(c.to))
+        return location.pathname.startsWith(item.to)
+      })) {
         open[s.key] = true
       }
     })
@@ -208,7 +216,10 @@ export default function Sidebar() {
 
         {/* Secciones colapsables */}
         {sections.filter(s => s.items.length > 0).map(section => {
-          const isAnyActive = section.items.some(item => location.pathname.startsWith(item.to))
+          const isAnyActive = section.items.some(item => {
+            if (item.children) return item.children.some(c => location.pathname.startsWith(c.to))
+            return location.pathname.startsWith(item.to)
+          })
           const isOpen = !!openSections[section.key]
 
           return (
@@ -233,12 +244,35 @@ export default function Sidebar() {
 
               {isOpen && (
                 <div className="mt-0.5 mb-1 space-y-0.5">
-                  {section.items.map(item => (
-                    <NavLink key={item.to} to={item.to} className={navLinkClass}>
-                      {item.icon}
-                      {item.label}
-                    </NavLink>
-                  ))}
+                  {section.items.map(item => {
+                    if (item.children && item.children.length > 0) {
+                      const isChildActive = item.children.some(c => location.pathname.startsWith(c.to))
+                      return (
+                        <div key={item.to}>
+                          <NavLink to={item.to} end className={navLinkClass}>
+                            {item.icon}
+                            {item.label}
+                          </NavLink>
+                          {(isChildActive) && (
+                            <div className="ml-1 mt-0.5 space-y-0.5">
+                              {item.children.map(child => (
+                                <NavLink key={child.to} to={child.to} className={navLinkClass}>
+                                  <span className="w-1 h-1 rounded-full bg-white/40" />
+                                  {child.label}
+                                </NavLink>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    }
+                    return (
+                      <NavLink key={item.to} to={item.to} className={navLinkClass}>
+                        {item.icon}
+                        {item.label}
+                      </NavLink>
+                    )
+                  })}
                 </div>
               )}
             </div>
