@@ -423,6 +423,9 @@ export default function NuevaVentaPage() {
   // Modal de asignación de aprobador post-creación (solo ventas a crédito)
   const [ventaCreada, setVentaCreada] = useState<{ id: number } | null>(null)
 
+  // Modal de error de límite de crédito
+  const [errorCredito, setErrorCredito] = useState<string | null>(null)
+
   // Cerrar popup de categorías al hacer click afuera
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -736,7 +739,15 @@ export default function NuevaVentaPage() {
         navigate('/ventas')
       }
     },
-    onError: (e) => error(errMsg(e)),
+    onError: (e) => {
+      const msg = errMsg(e)
+      // Error de límite de crédito → popup con detalles
+      if (msg.toLowerCase().includes('límite de crédito') || msg.toLowerCase().includes('limite de credito')) {
+        setErrorCredito(msg)
+      } else {
+        error(msg)
+      }
+    },
   })
 
   // ── Asignar aprobador post-creación ───────────────────────────────────────
@@ -1212,6 +1223,82 @@ export default function NuevaVentaPage() {
               <Button className="flex-1 justify-center bg-red-600 hover:bg-red-700 border-red-600" onClick={ejecutarCancelacion}>
                 Sí, cancelar
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal error de límite de crédito ─────────────────────────── */}
+      {errorCredito && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            {/* Franja roja superior */}
+            <div className="h-1.5 bg-red-500 w-full" />
+
+            <div className="px-6 pt-5 pb-4 flex items-start gap-3">
+              <div className="p-2.5 rounded-full bg-red-100 shrink-0">
+                <AlertTriangle size={22} className="text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-800 text-base">Límite de crédito excedido</h3>
+                <p className="text-xs text-slate-400 mt-0.5">No se puede registrar la venta</p>
+              </div>
+            </div>
+
+            {/* Desglose de montos */}
+            <div className="mx-6 mb-4 rounded-xl bg-red-50 border border-red-100 p-4 space-y-2 text-sm">
+              {/* Parsea el mensaje para mostrar las cifras en filas */}
+              {(() => {
+                const limiteMatch   = errorCredito.match(/Límite:\s*(RD\$[\d,\.]+)/i)
+                const deudaMatch    = errorCredito.match(/Deuda actual:\s*(RD\$[\d,\.]+)/i)
+                const dispMatch     = errorCredito.match(/Disponible:\s*(RD\$[\d,\.]+)/i)
+                const ventaMatch    = errorCredito.match(/Esta venta \((RD\$[\d,\.]+)\)/i)
+                return (
+                  <div className="space-y-1.5">
+                    {ventaMatch && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Esta venta</span>
+                        <span className="font-bold text-red-700">{ventaMatch[1]}</span>
+                      </div>
+                    )}
+                    {deudaMatch && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Deuda actual</span>
+                        <span className="font-medium text-slate-700">{deudaMatch[1]}</span>
+                      </div>
+                    )}
+                    {limiteMatch && (
+                      <div className="flex justify-between border-t border-red-200 pt-1.5 mt-1">
+                        <span className="text-slate-500">Límite del cliente</span>
+                        <span className="font-semibold text-slate-800">{limiteMatch[1]}</span>
+                      </div>
+                    )}
+                    {dispMatch && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Disponible</span>
+                        <span className={`font-semibold ${
+                          parseFloat(dispMatch[1].replace(/[^0-9.]/g,'')) <= 0
+                            ? 'text-red-600'
+                            : 'text-emerald-600'
+                        }`}>{dispMatch[1]}</span>
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
+            </div>
+
+            <p className="px-6 pb-4 text-xs text-slate-500">
+              Para proceder, ajusta el monto de la venta o actualiza el límite de crédito del cliente.
+            </p>
+
+            <div className="px-6 pb-5">
+              <button
+                onClick={() => setErrorCredito(null)}
+                className="w-full py-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors"
+              >
+                Entendido
+              </button>
             </div>
           </div>
         </div>
