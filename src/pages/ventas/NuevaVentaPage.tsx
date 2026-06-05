@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Minus, Trash2, ShoppingCart, XCircle, AlertTriangle, FileText, Tag, ChevronDown } from 'lucide-react'
+import { Plus, Minus, Trash2, ShoppingCart, XCircle, AlertTriangle, FileText, Tag, ChevronDown, UserCheck, Check, CreditCard, SkipForward } from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import { productosApi, clientesApi, ventasApi, comprobantesApi, cotizacionesApi, categoriasApi } from '../../api'
+import { productosApi, clientesApi, ventasApi, comprobantesApi, cotizacionesApi, categoriasApi, usuariosApi } from '../../api'
 import { Card, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -13,7 +13,8 @@ import Badge from '../../components/ui/Badge'
 import { ComprobanteSelector } from '../../components/ventas/ComprobanteSelector'
 import { useToast, errMsg } from '../../context/ToastContext'
 import { useComercio } from '../../context/ComercioContext'
-import type { ProductoResponse, CreateDetalleDto, ClienteResponse } from '../../types'
+import { useAuth } from '../../context/AuthContext'
+import type { ProductoResponse, CreateDetalleDto, ClienteResponse, UsuarioResponse } from '../../types'
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(n)
@@ -277,11 +278,127 @@ function imprimirCotizacion(d: CotizacionData) {
   return imprimirCotizacion80mm(d)
 }
 
+// ── Modal: asignar aprobador después de crear venta a crédito ─────────────────
+interface AsignarAprobadorPostCreacionProps {
+  ventaId: number
+  loading: boolean
+  onAsignar: (aprobadorId: number) => void
+  onOmitir: () => void
+}
+
+function AsignarAprobadorPostCreacion({
+  ventaId, loading, onAsignar, onOmitir,
+}: AsignarAprobadorPostCreacionProps) {
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [search,     setSearch]     = useState('')
+
+  const { data: usuarios = [] } = useQuery<UsuarioResponse[]>({
+    queryKey: ['usuarios'],
+    queryFn:  usuariosApi.getAll,
+  })
+
+  const filtered = usuarios
+    .filter(u => u.activo)
+    .filter(u =>
+      u.nombre.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
+    )
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+
+        {/* Cabecera */}
+        <div className="bg-emerald-50 px-6 pt-5 pb-4 flex items-start gap-3 border-b border-emerald-100">
+          <div className="p-2.5 rounded-full bg-emerald-100 shrink-0">
+            <CreditCard size={20} className="text-emerald-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-emerald-800 text-base">
+              Factura #{ventaId} registrada
+            </h3>
+            <p className="text-xs text-emerald-600 mt-0.5">
+              ¿Quién debe aprobar esta venta a crédito?
+            </p>
+          </div>
+        </div>
+
+        <div className="px-6 py-4 space-y-3">
+          <p className="text-sm text-slate-600">
+            Asigna un aprobador para que reciba una notificación y pueda completarla.
+          </p>
+
+          {/* Buscador */}
+          <input
+            type="text"
+            placeholder="Buscar usuario..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-400 transition-colors"
+            autoFocus
+          />
+
+          {/* Lista */}
+          <div className="space-y-1 max-h-48 overflow-y-auto">
+            {filtered.length === 0 && (
+              <p className="text-center text-xs text-slate-400 py-4">No se encontraron usuarios</p>
+            )}
+            {filtered.map(u => (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => setSelectedId(u.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-colors border ${
+                  selectedId === u.id
+                    ? 'bg-blue-50 border-blue-200'
+                    : 'border-transparent hover:bg-slate-50'
+                }`}
+              >
+                <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600 shrink-0 uppercase">
+                  {u.nombre[0]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-800 truncate">{u.nombre}</p>
+                  <p className="text-xs text-slate-400 truncate">{u.email}</p>
+                </div>
+                {selectedId === u.id && <Check size={14} className="text-blue-600 shrink-0" />}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Acciones */}
+        <div className="flex gap-2 px-6 py-4 border-t bg-slate-50">
+          <button
+            onClick={onOmitir}
+            disabled={loading}
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-slate-200 text-slate-500 hover:bg-white rounded-xl transition-colors disabled:opacity-50"
+          >
+            <SkipForward size={13} /> Omitir
+          </button>
+          <button
+            onClick={() => selectedId && onAsignar(selectedId)}
+            disabled={loading || !selectedId}
+            className="flex-1 px-4 py-2 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading
+              ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              : <UserCheck size={14} />
+            }
+            Asignar aprobador
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Componente ────────────────────────────────────────────────────────────────
 export default function NuevaVentaPage() {
   const navigate = useNavigate()
   const { success, error } = useToast()
   const { comercio, camaraHabilitada } = useComercio()
+  const { puedeAprobarVentas } = useAuth()
   const searchRef = useRef<HTMLInputElement>(null)
 
   // Estado inicial desde localStorage (solo la primera vez)
@@ -304,6 +421,9 @@ export default function NuevaVentaPage() {
   const [categoriaId,    setCategoriaId]    = useState<number | undefined>()
   const [categoriasOpen, setCategoriasOpen] = useState(false)
   const categoriasRef = useRef<HTMLDivElement>(null)
+
+  // Modal de asignación de aprobador post-creación (solo ventas a crédito)
+  const [ventaCreada, setVentaCreada] = useState<{ id: number } | null>(null)
 
   // Cerrar popup de categorías al hacer click afuera
   useEffect(() => {
@@ -584,14 +704,37 @@ export default function NuevaVentaPage() {
       esMayorista,
       fechaVencimientoCredito: tipoPago === 'Credito' && fechaVenc ? fechaVenc : undefined,
       tipoComprobanteId,
-      ncfSecuenciaId: ncfReservadoId,   // pasa el NCF pre-reservado al backend
+      ncfSecuenciaId: ncfReservadoId,
     }),
-    onSuccess: () => {
-      localStorage.removeItem(CART_KEY) // carrito cumplió su ciclo
-      success('Venta registrada correctamente')
-      navigate('/ventas')
+    onSuccess: (data) => {
+      localStorage.removeItem(CART_KEY)
+      // Si es crédito y el usuario puede asignar aprobadores, mostrar el modal
+      if (tipoPago === 'Credito' && puedeAprobarVentas) {
+        success('Venta a crédito registrada — asigna un aprobador')
+        setVentaCreada({ id: data.id })
+      } else {
+        success('Venta registrada correctamente')
+        navigate('/ventas')
+      }
     },
     onError: (e) => error(errMsg(e)),
+  })
+
+  // ── Asignar aprobador post-creación ───────────────────────────────────────
+  const asignarAprobadorMut = useMutation({
+    mutationFn: (aprobadorId: number) =>
+      ventasApi.asignarAprobador(ventaCreada!.id, aprobadorId),
+    onSuccess: (data) => {
+      success(`Aprobador asignado: ${data.aprobadorNombre ?? ''}`)
+      setVentaCreada(null)
+      navigate('/ventas')
+    },
+    onError: (e) => {
+      error(errMsg(e))
+      // Si falla la asignación, igual navegamos — la venta ya fue creada
+      setVentaCreada(null)
+      navigate('/ventas')
+    },
   })
 
   const actualizarCantidad = (id: number, val: string) => {
@@ -1002,6 +1145,16 @@ export default function NuevaVentaPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Modal asignar aprobador post-creación de crédito ───────────── */}
+      {ventaCreada && (
+        <AsignarAprobadorPostCreacion
+          ventaId={ventaCreada.id}
+          loading={asignarAprobadorMut.isPending}
+          onAsignar={(aprobadorId) => asignarAprobadorMut.mutate(aprobadorId)}
+          onOmitir={() => { setVentaCreada(null); navigate('/ventas') }}
+        />
       )}
     </div>
   )
