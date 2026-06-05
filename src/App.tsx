@@ -29,6 +29,10 @@ const TITULOS: Record<string, string> = {
   '/configuracion/roles':    'Gestión de Roles',
   '/configuracion/servidor': 'Estado del Servidor',
   '/contabilidad/cuentas':   'Catálogo de Cuentas',
+  '/contabilidad/asientos':  'Asientos Contables',
+  '/contabilidad/mayor-general': 'Mayor General',
+  '/contabilidad/balance-general': 'Balance General',
+  '/contabilidad/estado-saldos': 'Estado de Saldos',
 }
 
 function PageTitle() {
@@ -81,6 +85,10 @@ const RolesPage         = lazy(() => import('./pages/configuracion/RolesPage'))
 const ServidorPage      = lazy(() => import('./pages/configuracion/ServidorPage'))
 const CajaPage          = lazy(() => import('./pages/caja/CajaPage'))
 const CatalogoCuentasPage = lazy(() => import('./pages/contabilidad/CatalogoCuentasPage'))
+const AsientosPage = lazy(() => import('./pages/contabilidad/AsientosPage'))
+const MayorGeneralPage = lazy(() => import('./pages/contabilidad/MayorGeneralPage'))
+const BalanceGeneralPage = lazy(() => import('./pages/contabilidad/BalanceGeneralPage'))
+const EstadoSaldosPage = lazy(() => import('./pages/contabilidad/EstadoSaldosPage'))
 const ProximamentePage  = lazy(() => import('./pages/ProximamentePage'))
 const RecuperarPage     = lazy(() => import('./pages/auth/RecuperarPage'))
 
@@ -233,6 +241,26 @@ function AppRoutes() {
         <Route path="contabilidad/cuentas" element={
           <RoleRoute allowed={puedeGestionarUsuarios}>
             <S><CatalogoCuentasPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/asientos" element={
+          <RoleRoute allowed={puedeVerReportes}>
+            <S><AsientosPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/mayor-general" element={
+          <RoleRoute allowed={puedeVerReportes}>
+            <S><MayorGeneralPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/balance-general" element={
+          <RoleRoute allowed={puedeVerReportes}>
+            <S><BalanceGeneralPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/estado-saldos" element={
+          <RoleRoute allowed={puedeVerReportes}>
+            <S><EstadoSaldosPage /></S>
           </RoleRoute>
         } />
         <Route path="proyectos" element={<S><ProximamentePage /></S>} />

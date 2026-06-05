@@ -18,6 +18,8 @@ import type {
   NotificacionResponse,
   ClienteDeudaDto, FacturaCreditoDto, PagarFacturasDto, PagarFacturasResponseDto,
   CuentaContableResponse, CuentaContableTree, CreateCuentaContableDto, UpdateCuentaContableDto,
+  AsientoContableListDto, AsientoContableDetailDto, CreateAsientoContableDto,
+  MayorGeneralResponseDto, BalanceGeneralResponseDto, EstadoSaldosResponseDto,
 } from '../types'
 import { extractItems } from '../types'
 
@@ -458,4 +460,26 @@ export const cuentasContablesApi = {
     api.delete(`/cuentas-contables/${id}`),
   inicializar: () =>
     api.post<{ mensaje: string }>('/cuentas-contables/inicializar').then(r => r.data),
+}
+
+// ── Asientos Contables ─────────────────────────────────────────────────────────
+export const asientosApi = {
+  getAll: (params?: { desde?: string; hasta?: string; referenciaTipo?: string; referenciaId?: number }) =>
+    api.get<AsientoContableListDto[]>('/asientos-contables', { params }).then(r => r.data),
+  getById: (id: number) =>
+    api.get<AsientoContableDetailDto>(`/asientos-contables/${id}`).then(r => r.data),
+  create: (dto: CreateAsientoContableDto) =>
+    api.post<AsientoContableDetailDto>('/asientos-contables', dto).then(r => r.data),
+  delete: (id: number) =>
+    api.delete(`/asientos-contables/${id}`),
+}
+
+// ── Reportes Contables ──────────────────────────────────────────────────────────
+export const reportesContablesApi = {
+  mayorGeneral: (params?: { desde?: string; hasta?: string; cuentaId?: number }) =>
+    api.get<MayorGeneralResponseDto>('/reportes/contables/mayor-general', { params }).then(r => r.data),
+  balanceGeneral: (params?: { fechaCorte?: string }) =>
+    api.get<BalanceGeneralResponseDto>('/reportes/contables/balance-general', { params }).then(r => r.data),
+  estadoSaldos: (params?: { fechaCorte?: string }) =>
+    api.get<EstadoSaldosResponseDto>('/reportes/contables/estado-saldos', { params }).then(r => r.data),
 }

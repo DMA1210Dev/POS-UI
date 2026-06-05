@@ -884,3 +884,101 @@ export interface UpdateCuentaContableDto {
   tipo: TipoCuenta
   activo: boolean
 }
+
+// ── Asientos Contables ─────────────────────────────────────────────────────
+export interface DetalleAsientoDto {
+  id: number
+  cuentaContableId: number
+  codigoCuenta: string
+  nombreCuenta: string
+  debe: number
+  haber: number
+}
+
+export interface AsientoContableListDto {
+  id: number
+  fecha: string
+  concepto: string
+  referenciaTipo?: string | null
+  referenciaId?: number | null
+  usuarioNombre: string
+  totalDetalles: number
+  totalDebe: number
+  totalHaber: number
+}
+
+export interface AsientoContableDetailDto {
+  id: number
+  fecha: string
+  concepto: string
+  usuarioId: number
+  usuarioNombre: string
+  referenciaTipo?: string | null
+  referenciaId?: number | null
+  activo: boolean
+  detalles: DetalleAsientoDto[]
+}
+
+export interface CreateAsientoContableDto {
+  fecha: string
+  concepto: string
+  detalles: { cuentaContableId: number; debe: number; haber: number }[]
+}
+
+// ── Reportes Contables ─────────────────────────────────────────────────────
+export interface MayorGeneralItemDto {
+  cuentaContableId: number
+  codigo: string
+  nombre: string
+  nivel: number
+  totalDebe: number
+  totalHaber: number
+  saldoDeudor: number
+  saldoAcreedor: number
+}
+
+export interface MayorGeneralResponseDto {
+  fechaDesde: string
+  fechaHasta: string
+  totalDebe: number
+  totalHaber: number
+  cuentas: MayorGeneralItemDto[]
+}
+
+export interface BalanceGeneralItemDto {
+  cuentaContableId: number
+  codigo: string
+  nombre: string
+  nivel: number
+  saldo: number
+}
+
+export interface BalanceGeneralResponseDto {
+  fechaCorte: string
+  totalActivo: number
+  totalPasivo: number
+  totalPatrimonio: number
+  cuadra: boolean
+  activos: BalanceGeneralItemDto[]
+  pasivos: BalanceGeneralItemDto[]
+  patrimonios: BalanceGeneralItemDto[]
+}
+
+export interface EstadoSaldosItemDto {
+  cuentaContableId: number
+  codigo: string
+  nombre: string
+  nivel: number
+  tipo: TipoCuenta
+  totalDebe: number
+  totalHaber: number
+  saldoDeudor: number
+  saldoAcreedor: number
+}
+
+export interface EstadoSaldosResponseDto {
+  fechaCorte: string
+  totalDebe: number
+  totalHaber: number
+  cuentas: EstadoSaldosItemDto[]
+}
