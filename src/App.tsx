@@ -15,6 +15,9 @@ const TITULOS: Record<string, string> = {
   '/ventas':       'Ventas',
   '/productos':    'Productos',
   '/stock-bajo':   'Stock Bajo',
+  '/almacen/entradas': 'Entradas de Mercancía',
+  '/almacen/salidas':  'Salidas de Mercancía',
+  '/almacen/reportes': 'Reportes de Almacén',
   '/clientes':     'Clientes',
   '/cobros':       'Cobros',
   '/creditos':     'Créditos',
@@ -35,6 +38,14 @@ const TITULOS: Record<string, string> = {
   '/contabilidad/estado-saldos': 'Estado de Saldos',
   '/contabilidad/estado-resultados': 'Estado de Resultados',
   '/contabilidad/libro-diario': 'Libro Diario',
+  '/contabilidad/cierre-contable': 'Cierre Contable',
+  '/contabilidad/bancos': 'Auxiliar de Bancos',
+  '/contabilidad/conciliaciones': 'Conciliaciones Bancarias',
+  '/contabilidad/tasas': 'Tasas de Cambio',
+  '/contabilidad/activos': 'Activos Fijos',
+  '/contabilidad/dgii': 'Reportes DGII',
+  '/contabilidad/proveedores': 'Proveedores',
+  '/contabilidad/cxp': 'Cuentas por Pagar',
 }
 
 function PageTitle() {
@@ -93,8 +104,19 @@ const BalanceGeneralPage = lazy(() => import('./pages/contabilidad/BalanceGenera
 const EstadoSaldosPage = lazy(() => import('./pages/contabilidad/EstadoSaldosPage'))
 const EstadoResultadosPage = lazy(() => import('./pages/contabilidad/EstadoResultadosPage'))
 const LibroDiarioPage = lazy(() => import('./pages/contabilidad/LibroDiarioPage'))
+const CierreContablePage = lazy(() => import('./pages/contabilidad/CierreContablePage'))
+const TasasCambioPage = lazy(() => import('./pages/contabilidad/bancos/TasasCambioPage'))
+const CuentasBancoPage = lazy(() => import('./pages/contabilidad/bancos/CuentasBancoPage'))
+const ConciliacionBancariaPage = lazy(() => import('./pages/contabilidad/bancos/ConciliacionBancariaPage'))
+const ActivosFijosPage = lazy(() => import('./pages/contabilidad/activos/ActivosFijosPage'))
+const DgiiPage = lazy(() => import('./pages/contabilidad/reportes/DgiiPage'))
+const ProveedoresPage = lazy(() => import('./pages/contabilidad/cxp/ProveedoresPage'))
+const CuentasPagarPage = lazy(() => import('./pages/contabilidad/cxp/CuentasPagarPage'))
 const ProximamentePage  = lazy(() => import('./pages/ProximamentePage'))
 const RecuperarPage     = lazy(() => import('./pages/auth/RecuperarPage'))
+const EntradasAlmacenPage = lazy(() => import('./pages/almacen/EntradasPage'))
+const SalidasAlmacenPage  = lazy(() => import('./pages/almacen/SalidasPage'))
+const ReportesAlmacenPage = lazy(() => import('./pages/almacen/ReportesAlmacenPage'))
 
 function PageLoader() {
   return (
@@ -163,6 +185,21 @@ function AppRoutes() {
         <Route path="stock-bajo" element={
           <RoleRoute allowed={puedeVerStockBajo}>
             <S><StockBajoPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="almacen/entradas" element={
+          <RoleRoute allowed={tieneAccesoProductos}>
+            <S><EntradasAlmacenPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="almacen/salidas" element={
+          <RoleRoute allowed={tieneAccesoProductos}>
+            <S><SalidasAlmacenPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="almacen/reportes" element={
+          <RoleRoute allowed={puedeVerReportes}>
+            <S><ReportesAlmacenPage /></S>
           </RoleRoute>
         } />
         <Route path="clientes" element={
@@ -275,6 +312,46 @@ function AppRoutes() {
         <Route path="contabilidad/libro-diario" element={
           <RoleRoute allowed={puedeVerReportes}>
             <S><LibroDiarioPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/cierre-contable" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><CierreContablePage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/tasas" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><TasasCambioPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/activos" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><ActivosFijosPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/dgii" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><DgiiPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/bancos" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><CuentasBancoPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/conciliaciones" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><ConciliacionBancariaPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/proveedores" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><ProveedoresPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/cxp" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><CuentasPagarPage /></S>
           </RoleRoute>
         } />
         <Route path="proyectos" element={<S><ProximamentePage /></S>} />

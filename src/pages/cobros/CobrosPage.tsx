@@ -5,7 +5,7 @@ import {
   Phone, CreditCard, CheckCircle, Clock, Printer, Receipt,
   ChevronRight, Circle, CircleCheckBig, Banknote,
 } from 'lucide-react'
-import { cobrosApi } from '../../api'
+import { cobrosApi, bancosApi } from '../../api'
 import { Card, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
@@ -119,6 +119,7 @@ export default function CobrosPage() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [montos, setMontos] = useState<Record<number, string>>({})
   const [metodoPago, setMetodoPago] = useState<MetodoPago>('Efectivo')
+  const [cuentaBancoId, setCuentaBancoId] = useState<number | ''>('')
   const [observacion, setObservacion] = useState('')
   const [facturaDetalle, setFacturaDetalle] = useState<FacturaCreditoDto | null>(null)
   const [reciboData, setReciboData] = useState<{
@@ -143,6 +144,11 @@ export default function CobrosPage() {
   })
   const facturas = Array.isArray(_facturas) ? _facturas : []
 
+  const { data: cuentasBanco = [] } = useQuery({
+    queryKey: ['cuentas-banco'],
+    queryFn: bancosApi.cuentas.getAll,
+  })
+
   const pagarMutation = useMutation({
     mutationFn: () => {
       const pagos = Array.from(selectedIds).map(id => ({
@@ -153,6 +159,7 @@ export default function CobrosPage() {
         clienteId: clienteSel!.id,
         pagos,
         metodoPago,
+        cuentaBancoId: cuentaBancoId || null,
         observacion: observacion || undefined,
       })
     },
@@ -364,6 +371,20 @@ export default function CobrosPage() {
                           ))}
                         </select>
                       </div>
+                      {(metodoPago === 'Transferencia' || metodoPago === 'Cheque') && (
+                        <div className="flex items-center gap-1.5 bg-slate-100 rounded-lg px-3 py-2">
+                          <select
+                            value={cuentaBancoId}
+                            onChange={e => setCuentaBancoId(e.target.value ? parseInt(e.target.value) : '')}
+                            className="text-sm bg-transparent outline-none font-medium text-slate-700"
+                          >
+                            <option value="">Seleccionar cuenta bancaria...</option>
+                            {cuentasBanco.map(c => (
+                              <option key={c.id} value={c.id}>{c.nombre} ({c.monedaCodigo})</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                       <input
                         value={observacion}
                         onChange={e => setObservacion(e.target.value)}

@@ -5,7 +5,8 @@ import {
   BarChart2, UserCog, LogOut, AlertTriangle, UserCircle, Store, Palette, Receipt, Vault,
   ChevronDown, Clock,
   BookOpen, Warehouse, ClipboardList, TrendingUp, DollarSign, Briefcase, FolderKanban,
-  Settings, ShieldCheck, Shield, Server, FileSpreadsheet, FileText,
+  Settings, ShieldCheck, Shield, Server, FileSpreadsheet, FileText, Building2,
+  ArrowDown, ArrowUp,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useComercio } from '../../context/ComercioContext'
@@ -64,6 +65,9 @@ export default function Sidebar() {
       items: [
         tieneAccesoProductos     && { to: '/productos',   label: 'Productos',   icon: <Package size={16} /> },
         puedeVerStockBajo        && { to: '/stock-bajo',  label: 'Stock Bajo',  icon: <AlertTriangle size={16} /> },
+        tieneAccesoProductos     && { to: '/almacen/entradas', label: 'Entradas', icon: <ArrowDown size={16} /> },
+        tieneAccesoProductos     && { to: '/almacen/salidas',  label: 'Salidas',  icon: <ArrowUp size={16} /> },
+        puedeVerReportes         && { to: '/almacen/reportes', label: 'Reportes', icon: <BarChart2 size={16} /> },
       ].filter(Boolean) as NavItem[],
     },
     {
@@ -89,11 +93,29 @@ export default function Sidebar() {
             { to: '/contabilidad/estado-saldos', label: 'Estado de Saldos', icon: <BarChart2 size={16} /> },
             { to: '/contabilidad/estado-resultados', label: 'Estado Resultados', icon: <BarChart2 size={16} /> },
             { to: '/contabilidad/libro-diario', label: 'Libro Diario', icon: <BarChart2 size={16} /> },
+            { to: '/contabilidad/cierre-contable', label: 'Cierre Contable', icon: <BarChart2 size={16} /> },
+            { to: '/contabilidad/dgii', label: 'DGII (606/607/608/609)', icon: <FileText size={16} /> },
           ],
         },
         puedeGestionarProductos  && { to: '/comprobantes',  label: 'Comprobantes',  icon: <Receipt size={16} /> },
         puedeGestionarUsuarios   && { to: '/contabilidad/cuentas', label: 'Catálogo de Cuentas', icon: <BookOpen size={16} /> },
         puedeVerReportes         && { to: '/contabilidad/asientos', label: 'Asientos', icon: <FileText size={16} /> },
+        {
+          to: '/contabilidad/bancos', label: 'Bancos', icon: <Building2 size={16} />,
+          children: [
+            { to: '/contabilidad/bancos', label: 'Auxiliar de Bancos', icon: <Building2 size={16} /> },
+            { to: '/contabilidad/conciliaciones', label: 'Conciliaciones', icon: <FileText size={16} /> },
+          ],
+        },
+        {
+          to: '/contabilidad/proveedores', label: 'Cuentas por Pagar', icon: <DollarSign size={16} />,
+          children: [
+            { to: '/contabilidad/proveedores', label: 'Proveedores', icon: <Users size={16} /> },
+            { to: '/contabilidad/cxp', label: 'Facturas', icon: <FileText size={16} /> },
+          ],
+        },
+        puedeGestionarUsuarios && { to: '/contabilidad/tasas', label: 'Tasas de Cambio', icon: <DollarSign size={16} /> },
+        puedeGestionarUsuarios && { to: '/contabilidad/activos', label: 'Activos Fijos', icon: <Package size={16} /> },
       ].filter(Boolean) as NavItem[],
     },
     {
@@ -158,10 +180,10 @@ export default function Sidebar() {
     setOpenSections(prev => ({ ...prev, [key]: !prev[key] }))
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors ml-3 ${
+    `flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors ml-4 border-l-2 ${
       isActive
-        ? 'bg-white/20 text-white'
-        : 'text-white/60 hover:bg-white/10 hover:text-white'
+        ? 'bg-white/20 text-white border-white/60'
+        : 'text-white/60 hover:bg-white/10 hover:text-white border-transparent'
     }`
 
   return (
@@ -195,7 +217,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
+      <nav className="flex-1 px-2 py-3 overflow-y-auto space-y-0.5 scrollbar-none">
 
         {/* Dashboard — enlace directo */}
         {puedeVerDashboard && (
@@ -256,16 +278,20 @@ export default function Sidebar() {
                             {item.icon}
                             {item.label}
                           </NavLink>
-                          {(isChildActive) && (
-                            <div className="ml-1 mt-0.5 space-y-0.5">
-                              {item.children.map(child => (
-                                <NavLink key={child.to} to={child.to} className={navLinkClass}>
-                                  <span className="w-1 h-1 rounded-full bg-white/40" />
-                                  {child.label}
-                                </NavLink>
-                              ))}
-                            </div>
-                          )}
+                          <div className="ml-8 mt-0.5 space-y-0.5 border-l border-white/15 pl-3">
+                            {item.children.map(child => (
+                              <NavLink key={child.to} to={child.to}
+                                className={({ isActive }) =>
+                                  `flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                                    isActive
+                                      ? 'bg-white/20 text-white'
+                                      : 'text-white/50 hover:bg-white/10 hover:text-white'
+                                  }`
+                                }>
+                                {child.label}
+                              </NavLink>
+                            ))}
+                          </div>
                         </div>
                       )
                     }

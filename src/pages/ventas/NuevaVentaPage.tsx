@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Minus, Trash2, ShoppingCart, XCircle, AlertTriangle, FileText, Tag, ChevronDown, UserCheck, Check, CreditCard, SkipForward } from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import { productosApi, clientesApi, ventasApi, comprobantesApi, cotizacionesApi, categoriasApi, usuariosApi } from '../../api'
+import { productosApi, clientesApi, ventasApi, comprobantesApi, cotizacionesApi, categoriasApi, usuariosApi, bancosApi } from '../../api'
 import { Card, CardHeader } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import BarcodeInput from '../../components/ui/BarcodeInput'
@@ -13,7 +13,7 @@ import { ComprobanteSelector } from '../../components/ventas/ComprobanteSelector
 import { useToast, errMsg } from '../../context/ToastContext'
 import { useComercio } from '../../context/ComercioContext'
 import { useAuth } from '../../context/AuthContext'
-import type { ProductoResponse, CreateDetalleDto, ClienteResponse, UsuarioResponse } from '../../types'
+import type { ProductoResponse, CreateDetalleDto, ClienteResponse, UsuarioResponse, MetodoPago, ResumenCuentaBancoDto } from '../../types'
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(n)
@@ -33,7 +33,7 @@ interface ItemCarrito extends CreateDetalleDto {
 }
 
 interface CartGuardado {
-  carrito: ItemCarrito[]
+  carrito:   ItemCarrito[]
   descuento: number
   tipoPago: 'Contado' | 'Credito'
   clienteId?: number
@@ -41,6 +41,8 @@ interface CartGuardado {
   tipoComprobanteId?: number
   ncfReservadoId?: number
   ncfReservado?: string
+  metodoPago?: MetodoPago
+  cuentaBancoId?: number
 }
 
 function leerCartGuardado(): CartGuardado | null {
@@ -412,6 +414,9 @@ export default function NuevaVentaPage() {
   const [ncfReservadoId,    setNcfReservadoId]    = useState<number | undefined>(cartInicial?.ncfReservadoId)
   const [ncfReservado,      setNcfReservado]      = useState<string | undefined>(cartInicial?.ncfReservado)
 
+  const [metodoPago,  setMetodoPago]  = useState<MetodoPago>('Efectivo')
+  const [cuentaBancoId, setCuentaBancoId] = useState<number | undefined>()
+
   // Ref para acceder al ncfReservadoId actual sin closure stale
   const ncfReservadoIdRef = useRef(ncfReservadoId)
   ncfReservadoIdRef.current = ncfReservadoId
@@ -463,6 +468,11 @@ export default function NuevaVentaPage() {
     staleTime: 5 * 60 * 1000,
   })
 
+  const { data: cuentasBanco = [] } = useQuery({
+    queryKey: ['cuentas-banco'],
+    queryFn:  () => bancosApi.cuentas.getAll(),
+  })
+
   const clienteSeleccionado: ClienteResponse | undefined =
     clientes.find(c => c.id === clienteId)
 
@@ -473,6 +483,7 @@ export default function NuevaVentaPage() {
     const estado: CartGuardado = {
       carrito, descuento, tipoPago, clienteId,
       fechaVenc, tipoComprobanteId, ncfReservadoId, ncfReservado,
+      metodoPago, cuentaBancoId,
     }
     const vacio = carrito.length === 0 && !tipoComprobanteId && !clienteId
     if (vacio) {
@@ -480,7 +491,7 @@ export default function NuevaVentaPage() {
     } else {
       localStorage.setItem(CART_KEY, JSON.stringify(estado))
     }
-  }, [carrito, descuento, tipoPago, clienteId, fechaVenc, tipoComprobanteId, ncfReservadoId, ncfReservado])
+  }, [carrito, descuento, tipoPago, clienteId, fechaVenc, tipoComprobanteId, ncfReservadoId, ncfReservado, metodoPago, cuentaBancoId])
 
   // ── Precio mayorista se activa automáticamente según el cliente ───────────
   const prevEsMayoristaRef = useRef(false)
@@ -727,6 +738,8 @@ export default function NuevaVentaPage() {
       fechaVencimientoCredito: tipoPago === 'Credito' && fechaVenc ? fechaVenc : undefined,
       tipoComprobanteId,
       ncfSecuenciaId: ncfReservadoId,
+      metodoPago: tipoPago === 'Contado' ? metodoPago : undefined,
+      cuentaBancoId: metodoPago === 'Transferencia' || metodoPago === 'Cheque' ? cuentaBancoId : undefined,
     }),
     onSuccess: (data) => {
       localStorage.removeItem(CART_KEY)
@@ -877,6 +890,39 @@ export default function NuevaVentaPage() {
                     }`}>{t}
                   </button>
                 ))}
+              </div>
+            )}
+
+            {/* Método de pago (solo Contado) */}
+            {modoCarrito === 'venta' && tipoPago === 'Contado' && (
+              <div>
+                <label className="text-xs font-medium text-slate-600 block mb-1">Método de pago</label>
+                <div className="flex gap-1 flex-wrap">
+                  {(['Efectivo', 'Tarjeta', 'Transferencia', 'Cheque'] as MetodoPago[]).map(m => (
+                    <button key={m} onClick={() => { setMetodoPago(m); if (m !== 'Transferencia' && m !== 'Cheque') setCuentaBancoId(undefined) }}
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+                        metodoPago === m
+                          ? 'bg-brand-600 text-white border-brand-600'
+                          : 'border-slate-300 text-slate-600 hover:border-brand-400'
+                      }`}>{m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Cuenta bancaria (solo Transferencia / Cheque) */}
+            {modoCarrito === 'venta' && tipoPago === 'Contado' && (metodoPago === 'Transferencia' || metodoPago === 'Cheque') && (
+              <div>
+                <label className="text-xs font-medium text-slate-600 block mb-1">Cuenta bancaria <span className="text-danger-500">*</span></label>
+                <select value={cuentaBancoId ?? ''}
+                  onChange={e => setCuentaBancoId(Number(e.target.value) || undefined)}
+                  className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500">
+                  <option value="">Seleccionar cuenta…</option>
+                  {cuentasBanco.map(c => (
+                    <option key={c.id} value={c.id}>{c.nombre} ({c.monedaCodigo})</option>
+                  ))}
+                </select>
               </div>
             )}
 

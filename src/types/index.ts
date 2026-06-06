@@ -244,6 +244,8 @@ export interface CreateVentaDto {
   ncf?: string
   /** NCF pre-reservado desde el carrito (tipo B). Evita doble reserva concurrente. */
   ncfSecuenciaId?: number
+  metodoPago?: MetodoPago
+  cuentaBancoId?: number
 }
 
 // ── NCF Pool + Devoluciones ──────────────────────────────────────────────────
@@ -727,6 +729,7 @@ export interface PagarFacturasDto {
   clienteId: number
   pagos: PagoFacturaItemDto[]
   metodoPago: MetodoPago
+  cuentaBancoId?: number | null
   observacion?: string
 }
 
@@ -1024,4 +1027,288 @@ export interface LibroDiarioResponseDto {
   totalHaber: number
   saldoFinal: number
   lineas: LibroDiarioLineaDto[]
+}
+
+// ── Monedas ─────────────────────────────────────────────────────────────────
+export interface MonedaDto {
+  id: number
+  codigo: string
+  nombre: string
+  simbolo: string
+  activo: boolean
+}
+
+export interface TasaCambioDto {
+  id: number
+  monedaId: number
+  monedaCodigo: string
+  monedaNombre: string
+  tasa: number
+  fecha: string
+  usuarioId: number
+}
+
+export interface TasaCambioCreateDto {
+  monedaId: number
+  tasa: number
+  fecha: string
+}
+
+// ── Bancos ──────────────────────────────────────────────────────────────────
+export interface CuentaBancoDto {
+  id: number
+  nombre: string
+  numeroCuenta: string | null
+  monedaId: number
+  monedaCodigo: string
+  monedaNombre: string
+  monedaSimbolo: string
+  saldoInicial: number
+  saldoActual: number
+  fechaApertura: string | null
+  activo: boolean
+}
+
+export interface CuentaBancoCreateDto {
+  nombre: string
+  numeroCuenta: string | null
+  monedaId: number
+  saldoInicial: number
+  fechaApertura: string | null
+}
+
+export interface ResumenCuentaBancoDto {
+  id: number
+  nombre: string
+  numeroCuenta: string | null
+  monedaCodigo: string
+  monedaSimbolo: string
+  saldoActual: number
+  cantidadMovimientos: number
+}
+
+export interface MovimientoBancoDto {
+  id: number
+  cuentaBancoId: number
+  fecha: string
+  tipo: string
+  monto: number
+  saldoDespues: number
+  concepto: string
+  referencia: string | null
+  usuarioId: number
+  usuarioNombre: string
+}
+
+export interface MovimientoGeneralDto extends MovimientoBancoDto {
+  cuentaBancoNombre: string
+  monedaCodigo: string
+  monedaSimbolo: string
+}
+
+export interface MovimientoBancoCreateDto {
+  monto: number
+  tipo: string
+  concepto: string
+  referencia: string | null
+}
+
+export interface ConciliacionBancariaDto {
+  id: number
+  cuentaBancoId: number
+  cuentaBancoNombre: string
+  periodo: string
+  fechaInicio: string
+  fechaFin: string
+  saldoInicialLibros: number
+  saldoFinalLibros: number
+  saldoInicialBanco: number
+  saldoFinalBanco: number
+  diferencia: number
+  estado: string
+  fechaConciliacion: string | null
+}
+
+export interface ConciliacionBancariaCreateDto {
+  cuentaBancoId: number
+  periodo: string
+  fechaInicio: string
+  fechaFin: string
+  saldoInicialBanco: number
+  saldoFinalBanco: number
+}
+
+export interface PartidaConciliacionDto {
+  id: number
+  conciliacionId: number
+  movimientoBancoId: number | null
+  tipo: string
+  monto: number
+  concepto: string
+  concilia: boolean
+}
+
+export interface ConciliacionDetalleDto extends ConciliacionBancariaDto {
+  partidas: PartidaConciliacionDto[]
+}
+
+// ── CxP ─────────────────────────────────────────────────────────────────────
+export interface ProveedorDto {
+  id: number
+  nombre: string
+  rnc: string | null
+  telefono: string | null
+  email: string | null
+  direccion: string | null
+  activo: boolean
+}
+
+export interface ProveedorCreateDto {
+  nombre: string
+  rnc: string | null
+  telefono: string | null
+  email: string | null
+  direccion: string | null
+}
+
+export interface CuentaPagarDto {
+  id: number
+  proveedorId: number
+  proveedorNombre: string
+  facturaNumero: string | null
+  ncf: string | null
+  fechaEmision: string
+  fechaVencimiento: string | null
+  montoTotal: number
+  montoPagado: number
+  saldo: number
+  estado: string
+  concepto: string | null
+}
+
+export interface CuentaPagarCreateDto {
+  proveedorId: number
+  facturaNumero: string | null
+  ncf: string | null
+  fechaEmision: string
+  fechaVencimiento: string | null
+  montoTotal: number
+  concepto: string | null
+}
+
+export interface PagoProveedorDto {
+  id: number
+  cuentaPagarId: number
+  monto: number
+  fechaPago: string
+  metodoPago: string
+  referencia: string | null
+  cuentaBancoId: number | null
+  cuentaBancoNombre: string | null
+  observacion: string | null
+  usuarioId: number
+  usuarioNombre: string
+}
+
+export interface PagoProveedorCreateDto {
+  monto: number
+  metodoPago: string
+  referencia: string | null
+  cuentaBancoId: number | null
+  observacion: string | null
+}
+
+export interface ResumenCxPDto {
+  totalPendiente: number
+  totalVencido: number
+  cantidadFacturas: number
+  cantidadProveedores: number
+}
+
+export interface DgiiResponseDto {
+  periodo: string
+  formato606: string
+  formato607: string
+  formato608: string
+  formato609: string
+  errores: string[]
+}
+
+// ── Activos Fijos ─────────────────────────────────────────────────────────
+export interface ActivoFijoDto {
+  id: number; nombre: string; codigo: string | null; descripcion: string | null;
+  cuentaContableId: number | null; cuentaContableCodigo: string | null; cuentaContableNombre: string | null;
+  ubicacion: string | null; fechaAdquisicion: string; numeroFactura: string | null;
+  costoAdquisicion: number; tasaDepreciacion: number; depreciacionAcumulada: number;
+  valorResidual: number | null; valorLibro: number;
+  proveedorId: number | null; proveedorNombre: string | null;
+  usuarioId: number; usuarioNombre: string; activo: boolean; creadoEn: string;
+}
+
+export interface ActivoFijoCreateDto {
+  nombre: string; codigo?: string; descripcion?: string;
+  cuentaContableId?: number; ubicacion?: string;
+  fechaAdquisicion: string; numeroFactura?: string;
+  costoAdquisicion: number; tasaDepreciacion: number;
+  valorResidual?: number; proveedorId?: number;
+}
+
+// ── Almacén / Inventario ────────────────────────────────────────────────────
+export interface MovimientoInventarioDto {
+  id: number
+  productoId: number
+  nombreProducto: string
+  codigoBarra: string | null
+  tipo: 'Entrada' | 'Salida'
+  cantidad: number
+  fecha: string
+  concepto: string
+  referencia: string | null
+  costoUnitario: number | null
+  usuarioId: number
+  nombreUsuario: string
+  creadoEn: string
+}
+
+export interface CreateMovimientoInventarioDto {
+  productoId: number
+  concepto: string
+  referencia?: string
+  cantidad: number
+  costoUnitario?: number
+  fecha?: string
+}
+
+export interface MovimientoInventarioItemDto {
+  productoId: number
+  cantidad: number
+  costoUnitario?: number
+}
+
+export interface CreateMovimientoInventarioBatchDto {
+  concepto: string
+  referencia?: string
+  fecha?: string
+  items: MovimientoInventarioItemDto[]
+}
+
+export interface KardexItemDto {
+  fecha: string
+  tipo: string
+  concepto: string
+  referencia: string | null
+  entrada: number
+  salida: number
+  saldo: number
+}
+
+export interface ReporteAlmacenDto {
+  totalMovimientos: number
+  totalEntradas: number
+  totalSalidas: number
+  totalUnidadesEntrada: number
+  totalUnidadesSalida: number
+  valorTotalInventario: number
+  productosConStockBajo: number
+  ultimosMovimientos: MovimientoInventarioDto[]
 }

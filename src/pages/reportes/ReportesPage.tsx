@@ -130,12 +130,10 @@ export default function ReportesPage() {
         <CardBody>
           <div className="flex flex-wrap gap-4 items-end">
             <div>
-              <label className="text-sm font-medium text-slate-700 block mb-1">Desde</label>
               <input type="date" value={desde} onChange={e => setDesde(e.target.value)}
                 className="px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500" />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 block mb-1">Hasta</label>
               <input type="date" value={hasta} onChange={e => setHasta(e.target.value)}
                 className="px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500" />
             </div>

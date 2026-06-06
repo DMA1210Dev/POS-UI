@@ -20,7 +20,13 @@ import type {
   CuentaContableResponse, CuentaContableTree, CreateCuentaContableDto, UpdateCuentaContableDto,
   AsientoContableListDto, AsientoContableDetailDto, CreateAsientoContableDto,
   MayorGeneralResponseDto, BalanceGeneralResponseDto, EstadoSaldosResponseDto,
-  EstadoResultadosResponseDto, LibroDiarioResponseDto,
+  EstadoResultadosResponseDto, LibroDiarioResponseDto, DgiiResponseDto,
+  ActivoFijoDto, ActivoFijoCreateDto,
+} from '../types'
+import type {
+  MovimientoInventarioDto, CreateMovimientoInventarioDto,
+  CreateMovimientoInventarioBatchDto, MovimientoInventarioItemDto,
+  KardexItemDto, ReporteAlmacenDto,
 } from '../types'
 import { extractItems } from '../types'
 
@@ -489,4 +495,110 @@ export const reportesContablesApi = {
     api.get<LibroDiarioResponseDto>('/reportes/contables/libro-diario', { params }).then(r => r.data),
   cierreContable: (params?: { anio?: number; mes?: number }) =>
     api.post<{ mensaje: string; asientoCierreId: number; utilidadNeta: number; cuentasCerradas: number }>('/reportes/contables/cierre', null, { params }).then(r => r.data),
+}
+
+// ── Bancos / Monedas / Tasas ─────────────────────────────────────────────────
+export const bancosApi = {
+  monedas: {
+    getAll: () => api.get<MonedaDto[]>('/bancos/monedas').then(r => r.data),
+    create: (dto: { codigo: string; nombre: string; simbolo: string }) =>
+      api.post<MonedaDto>('/bancos/monedas', dto).then(r => r.data),
+    delete: (id: number) => api.delete(`/bancos/monedas/${id}`),
+  },
+  tasas: {
+    getAll: (monedaId?: number) =>
+      api.get<TasaCambioDto[]>('/bancos/tasas', { params: { monedaId } }).then(r => r.data),
+    getDelDia: (monedaId: number) =>
+      api.get<TasaCambioDto>(`/bancos/tasas/dia/${monedaId}`).then(r => r.data),
+    create: (dto: TasaCambioCreateDto) =>
+      api.post<TasaCambioDto>('/bancos/tasas', dto).then(r => r.data),
+  },
+  cuentas: {
+    getAll: () => api.get<ResumenCuentaBancoDto[]>('/bancos/cuentas').then(r => r.data),
+    getById: (id: number) => api.get<CuentaBancoDto>(`/bancos/cuentas/${id}`).then(r => r.data),
+    create: (dto: CuentaBancoCreateDto) =>
+      api.post<CuentaBancoDto>('/bancos/cuentas', dto).then(r => r.data),
+    delete: (id: number) => api.delete(`/bancos/cuentas/${id}`),
+  },
+  movimientos: {
+    getAll: (cuentaBancoId: number) =>
+      api.get<MovimientoBancoDto[]>(`/bancos/cuentas/${cuentaBancoId}/movimientos`).then(r => r.data),
+    getAllGenerales: (desde?: string, hasta?: string) =>
+      api.get<MovimientoGeneralDto[]>('/bancos/movimientos', { params: { desde, hasta } }).then(r => r.data),
+    create: (cuentaBancoId: number, dto: MovimientoBancoCreateDto) =>
+      api.post<MovimientoBancoDto>(`/bancos/cuentas/${cuentaBancoId}/movimientos`, dto).then(r => r.data),
+  },
+  conciliaciones: {
+    getAll: (cuentaBancoId: number) =>
+      api.get<ConciliacionBancariaDto[]>(`/bancos/cuentas/${cuentaBancoId}/conciliaciones`).then(r => r.data),
+    getById: (id: number) =>
+      api.get<ConciliacionDetalleDto>(`/bancos/conciliaciones/${id}`).then(r => r.data),
+    create: (dto: ConciliacionBancariaCreateDto) =>
+      api.post<ConciliacionBancariaDto>('/bancos/conciliaciones', dto).then(r => r.data),
+    conciliar: (id: number) =>
+      api.post<ConciliacionBancariaDto>(`/bancos/conciliaciones/${id}/conciliar`).then(r => r.data),
+  },
+}
+
+// ── CxP (Proveedores / Cuentas por Pagar) ─────────────────────────────────────
+export const cxpApi = {
+  proveedores: {
+    getAll: () => api.get<ProveedorDto[]>('/cxp/proveedores').then(r => r.data),
+    getById: (id: number) => api.get<ProveedorDto>(`/cxp/proveedores/${id}`).then(r => r.data),
+    create: (dto: ProveedorCreateDto) =>
+      api.post<ProveedorDto>('/cxp/proveedores', dto).then(r => r.data),
+    update: (id: number, dto: ProveedorCreateDto) =>
+      api.put<ProveedorDto>(`/cxp/proveedores/${id}`, dto).then(r => r.data),
+    delete: (id: number) => api.delete(`/cxp/proveedores/${id}`),
+  },
+  facturas: {
+    getAll: (proveedorId?: number) =>
+      api.get<CuentaPagarDto[]>('/cxp/facturas', { params: { proveedorId } }).then(r => r.data),
+    getById: (id: number) => api.get<CuentaPagarDto>(`/cxp/facturas/${id}`).then(r => r.data),
+    create: (dto: CuentaPagarCreateDto) =>
+      api.post<CuentaPagarDto>('/cxp/facturas', dto).then(r => r.data),
+    delete: (id: number) => api.delete(`/cxp/facturas/${id}`),
+  },
+  pagos: {
+    getAll: (cuentaPagarId: number) =>
+      api.get<PagoProveedorDto[]>(`/cxp/facturas/${cuentaPagarId}/pagos`).then(r => r.data),
+    create: (cuentaPagarId: number, dto: PagoProveedorCreateDto) =>
+      api.post<PagoProveedorDto>(`/cxp/facturas/${cuentaPagarId}/pagos`, dto).then(r => r.data),
+  },
+  resumen: () => api.get<ResumenCxPDto>('/cxp/resumen').then(r => r.data),
+}
+
+// ── DGII ──────────────────────────────────────────────────────────────────
+export const dgiiApi = {
+  generar: (anio: number, mes: number) =>
+    api.post<DgiiResponseDto>('/dgii/generar', null, { params: { anio, mes } }).then(r => r.data),
+}
+
+// ── Activos Fijos ─────────────────────────────────────────────────────────
+export const activosFijosApi = {
+  getAll: () => api.get<ActivoFijoDto[]>('/activosfijos').then(r => r.data),
+  getById: (id: number) => api.get<ActivoFijoDto>(`/activosfijos/${id}`).then(r => r.data),
+  create: (dto: ActivoFijoCreateDto) => api.post<ActivoFijoDto>('/activosfijos', dto).then(r => r.data),
+  update: (id: number, dto: ActivoFijoCreateDto) => api.put<ActivoFijoDto>(`/activosfijos/${id}`, dto).then(r => r.data),
+  delete: (id: number) => api.delete(`/activosfijos/${id}`),
+}
+
+// ── Almacén / Inventario ──────────────────────────────────────────────────
+export const almacenApi = {
+  movimientos: (params?: { productoId?: number; tipo?: string; desde?: string; hasta?: string }) =>
+    api.get<MovimientoInventarioDto[]>('/inventario/movimientos', { params }).then(r => r.data),
+  getMovimiento: (id: number) =>
+    api.get<MovimientoInventarioDto>(`/inventario/movimientos/${id}`).then(r => r.data),
+  entrada: (dto: CreateMovimientoInventarioDto) =>
+    api.post<MovimientoInventarioDto>('/inventario/entrada', dto).then(r => r.data),
+  salida: (dto: CreateMovimientoInventarioDto) =>
+    api.post<MovimientoInventarioDto>('/inventario/salida', dto).then(r => r.data),
+  entradaBatch: (dto: CreateMovimientoInventarioBatchDto) =>
+    api.post<MovimientoInventarioDto[]>('/inventario/entrada-batch', dto).then(r => r.data),
+  salidaBatch: (dto: CreateMovimientoInventarioBatchDto) =>
+    api.post<MovimientoInventarioDto[]>('/inventario/salida-batch', dto).then(r => r.data),
+  kardex: (productoId: number) =>
+    api.get<KardexItemDto[]>(`/inventario/kardex/${productoId}`).then(r => r.data),
+  reportes: (params?: { desde?: string; hasta?: string }) =>
+    api.get<ReporteAlmacenDto>('/inventario/reportes', { params }).then(r => r.data),
 }

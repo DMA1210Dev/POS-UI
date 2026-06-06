@@ -83,3 +83,12 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Ocultar scrollbar en sidebar */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
