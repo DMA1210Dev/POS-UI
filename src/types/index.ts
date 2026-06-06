@@ -982,3 +982,46 @@ export interface EstadoSaldosResponseDto {
   totalHaber: number
   cuentas: EstadoSaldosItemDto[]
 }
+
+// ── Estado de Resultados ───────────────────────────────────────────────────
+export interface EstadoResultadosItemDto {
+  codigo: string
+  nombre: string
+  nivel: number
+  saldo: number
+}
+
+export interface EstadoResultadosResponseDto {
+  fechaDesde: string
+  fechaHasta: string
+  totalIngresos: number
+  totalCostos: number
+  totalGastos: number
+  utilidadBruta: number
+  utilidadNeta: number
+  ingresos: EstadoResultadosItemDto[]
+  costos: EstadoResultadosItemDto[]
+  gastos: EstadoResultadosItemDto[]
+}
+
+// ── Libro Diario ───────────────────────────────────────────────────────────
+export interface LibroDiarioLineaDto {
+  asientoId: number
+  fecha: string
+  concepto: string
+  cuentaContableId?: number | null
+  codigoCuenta?: string | null
+  nombreCuenta?: string | null
+  debe: number
+  haber: number
+  saldoAcumulado: number
+}
+
+export interface LibroDiarioResponseDto {
+  fechaDesde: string
+  fechaHasta: string
+  totalDebe: number
+  totalHaber: number
+  saldoFinal: number
+  lineas: LibroDiarioLineaDto[]
+}

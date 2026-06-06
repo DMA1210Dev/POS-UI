@@ -87,6 +87,8 @@ export default function Sidebar() {
             { to: '/contabilidad/mayor-general', label: 'Mayor General', icon: <BarChart2 size={16} /> },
             { to: '/contabilidad/balance-general', label: 'Balance General', icon: <BarChart2 size={16} /> },
             { to: '/contabilidad/estado-saldos', label: 'Estado de Saldos', icon: <BarChart2 size={16} /> },
+            { to: '/contabilidad/estado-resultados', label: 'Estado Resultados', icon: <BarChart2 size={16} /> },
+            { to: '/contabilidad/libro-diario', label: 'Libro Diario', icon: <BarChart2 size={16} /> },
           ],
         },
         puedeGestionarProductos  && { to: '/comprobantes',  label: 'Comprobantes',  icon: <Receipt size={16} /> },

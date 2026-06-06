@@ -20,6 +20,7 @@ import type {
   CuentaContableResponse, CuentaContableTree, CreateCuentaContableDto, UpdateCuentaContableDto,
   AsientoContableListDto, AsientoContableDetailDto, CreateAsientoContableDto,
   MayorGeneralResponseDto, BalanceGeneralResponseDto, EstadoSaldosResponseDto,
+  EstadoResultadosResponseDto, LibroDiarioResponseDto,
 } from '../types'
 import { extractItems } from '../types'
 
@@ -482,4 +483,10 @@ export const reportesContablesApi = {
     api.get<BalanceGeneralResponseDto>('/reportes/contables/balance-general', { params }).then(r => r.data),
   estadoSaldos: (params?: { fechaCorte?: string }) =>
     api.get<EstadoSaldosResponseDto>('/reportes/contables/estado-saldos', { params }).then(r => r.data),
+  estadoResultados: (params?: { desde?: string; hasta?: string }) =>
+    api.get<EstadoResultadosResponseDto>('/reportes/contables/estado-resultados', { params }).then(r => r.data),
+  libroDiario: (params?: { desde?: string; hasta?: string }) =>
+    api.get<LibroDiarioResponseDto>('/reportes/contables/libro-diario', { params }).then(r => r.data),
+  cierreContable: (params?: { anio?: number; mes?: number }) =>
+    api.post<{ mensaje: string; asientoCierreId: number; utilidadNeta: number; cuentasCerradas: number }>('/reportes/contables/cierre', null, { params }).then(r => r.data),
 }

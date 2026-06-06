@@ -3,13 +3,14 @@ import * as XLSX from 'xlsx'
 import {
   Search, User, Wallet, Building, Calculator, Info,
   AlertTriangle, ChevronRight, ChevronDown, Briefcase, Hash,
-  FileSpreadsheet, Loader,
+  FileSpreadsheet, Loader, BookOpen,
 } from 'lucide-react'
 import api from '../../lib/axios'
 import { Card, CardHeader, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import EmptyState from '../../components/ui/EmptyState'
+import { useToast, errMsg } from '../../context/ToastContext'
 import type { EmpleadoListDto, NominaResponse } from '../../types'
 
 const fmt = (n: number) =>
@@ -35,6 +36,7 @@ function useEmpleados() {
 
 export default function NominaPage() {
   const { empleados, loading: loadingEmp, error: errorEmp } = useEmpleados()
+  const { success, error: toastError } = useToast()
   const [search, setSearch] = useState('')
   const [empleadoId, setEmpleadoId] = useState<number | null>(null)
   const [nomina, setNomina] = useState<NominaResponse | null>(null)
@@ -42,6 +44,7 @@ export default function NominaPage() {
   const [error, setError] = useState('')
   const [expanded, setExpanded] = useState(false)
   const [exportando, setExportando] = useState(false)
+  const [contabilizando, setContabilizando] = useState(false)
 
   const filtrados = empleados.filter(e =>
     !search || e.nombre.toLowerCase().includes(search.toLowerCase())
@@ -104,6 +107,20 @@ export default function NominaPage() {
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Nómina')
     XLSX.writeFile(wb, `Nomina_${n.empleado.nombre.replace(/\s+/g, '_')}.xlsx`)
+  }
+
+  // ── Contabilizar nómina ──────────────────────────────────────────────────
+  async function contabilizarNomina() {
+    if (!empleadoId) return
+    setContabilizando(true)
+    try {
+      const r = await api.post(`/nomina/${empleadoId}/contabilizar`)
+      success(`Asiento #${r.data.asientoId} generado — ${r.data.mensaje}`)
+    } catch (e: any) {
+      toastError(errMsg(e))
+    } finally {
+      setContabilizando(false)
+    }
   }
 
   // ── Exportar todos los empleados ──────────────────────────────────────────
@@ -282,6 +299,10 @@ export default function NominaPage() {
                   <Button variant="secondary" size="sm" onClick={exportarNomina}>
                     <FileSpreadsheet size={14} />
                     Excel
+                  </Button>
+                  <Button variant="secondary" size="sm" onClick={contabilizarNomina} loading={contabilizando}>
+                    <BookOpen size={14} />
+                    Contabilizar
                   </Button>
                   <Badge color="blue">{nomina.empleado.anioFiscal}</Badge>
                 </div>

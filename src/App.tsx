@@ -33,6 +33,8 @@ const TITULOS: Record<string, string> = {
   '/contabilidad/mayor-general': 'Mayor General',
   '/contabilidad/balance-general': 'Balance General',
   '/contabilidad/estado-saldos': 'Estado de Saldos',
+  '/contabilidad/estado-resultados': 'Estado de Resultados',
+  '/contabilidad/libro-diario': 'Libro Diario',
 }
 
 function PageTitle() {
@@ -89,6 +91,8 @@ const AsientosPage = lazy(() => import('./pages/contabilidad/AsientosPage'))
 const MayorGeneralPage = lazy(() => import('./pages/contabilidad/MayorGeneralPage'))
 const BalanceGeneralPage = lazy(() => import('./pages/contabilidad/BalanceGeneralPage'))
 const EstadoSaldosPage = lazy(() => import('./pages/contabilidad/EstadoSaldosPage'))
+const EstadoResultadosPage = lazy(() => import('./pages/contabilidad/EstadoResultadosPage'))
+const LibroDiarioPage = lazy(() => import('./pages/contabilidad/LibroDiarioPage'))
 const ProximamentePage  = lazy(() => import('./pages/ProximamentePage'))
 const RecuperarPage     = lazy(() => import('./pages/auth/RecuperarPage'))
 
@@ -261,6 +265,16 @@ function AppRoutes() {
         <Route path="contabilidad/estado-saldos" element={
           <RoleRoute allowed={puedeVerReportes}>
             <S><EstadoSaldosPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/estado-resultados" element={
+          <RoleRoute allowed={puedeVerReportes}>
+            <S><EstadoResultadosPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="contabilidad/libro-diario" element={
+          <RoleRoute allowed={puedeVerReportes}>
+            <S><LibroDiarioPage /></S>
           </RoleRoute>
         } />
         <Route path="proyectos" element={<S><ProximamentePage /></S>} />
