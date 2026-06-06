@@ -25,8 +25,16 @@ import type {
 } from '../types'
 import type {
   MovimientoInventarioDto, CreateMovimientoInventarioDto,
-  CreateMovimientoInventarioBatchDto, MovimientoInventarioItemDto,
+  CreateMovimientoInventarioBatchDto,
   KardexItemDto, ReporteAlmacenDto,
+  MonedaDto, TasaCambioDto, TasaCambioCreateDto,
+  ResumenCuentaBancoDto, CuentaBancoDto, CuentaBancoCreateDto,
+  MovimientoBancoDto, MovimientoGeneralDto, MovimientoBancoCreateDto,
+  ConciliacionBancariaDto, ConciliacionDetalleDto, ConciliacionBancariaCreateDto,
+  ProveedorDto, ProveedorCreateDto,
+  CuentaPagarDto, CuentaPagarCreateDto,
+  PagoProveedorDto, PagoProveedorCreateDto,
+  ResumenCxPDto,
 } from '../types'
 import { extractItems } from '../types'
 

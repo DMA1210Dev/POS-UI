@@ -59,7 +59,6 @@ export default function SalidasPage() {
   const removeItem = (idx: number) => setItems(i => i.filter((_, k) => k !== idx))
 
   const prodName = (id: number) => prodFisicos.find(p => p.id === id)?.nombre ?? '?'
-  const prodStock = (id: number) => prodFisicos.find(p => p.id === id)?.stock ?? 0
 
   return (
     <div className="space-y-6">

@@ -13,7 +13,7 @@ import { ComprobanteSelector } from '../../components/ventas/ComprobanteSelector
 import { useToast, errMsg } from '../../context/ToastContext'
 import { useComercio } from '../../context/ComercioContext'
 import { useAuth } from '../../context/AuthContext'
-import type { ProductoResponse, CreateDetalleDto, ClienteResponse, UsuarioResponse, MetodoPago, ResumenCuentaBancoDto } from '../../types'
+import type { ProductoResponse, CreateDetalleDto, ClienteResponse, UsuarioResponse, MetodoPago } from '../../types'
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(n)

@@ -269,9 +269,8 @@ export default function Sidebar() {
 
               {isOpen && (
                 <div className="mt-0.5 mb-1 space-y-0.5">
-                  {section.items.map(item => {
+                    {section.items.map(item => {
                     if (item.children && item.children.length > 0) {
-                      const isChildActive = item.children.some(c => location.pathname.startsWith(c.to))
                       return (
                         <div key={item.to}>
                           <NavLink to={item.to} end className={navLinkClass}>

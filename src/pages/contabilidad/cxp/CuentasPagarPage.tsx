@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, FileText, DollarSign, Calendar } from 'lucide-react'
+import { Plus, FileText, DollarSign } from 'lucide-react'
 import { cxpApi, bancosApi } from '../../../api'
 import { Card, CardBody } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
 import Badge from '../../../components/ui/Badge'
-import EmptyState from '../../../components/ui/EmptyState'
 import { useToast, errMsg } from '../../../context/ToastContext'
 
 const fmt = (n: number) => n.toLocaleString('es-DO', { minimumFractionDigits: 2 })

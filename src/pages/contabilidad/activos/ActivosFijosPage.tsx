@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Pencil, Trash2, RefreshCw, Package } from 'lucide-react'
+import { Plus, Pencil, Trash2, RefreshCw } from 'lucide-react'
 import { activosFijosApi, cxpApi, cuentasContablesApi } from '../../../api'
 import { Card, CardBody } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
@@ -8,7 +8,7 @@ import Modal from '../../../components/ui/Modal'
 import Badge from '../../../components/ui/Badge'
 import EmptyState from '../../../components/ui/EmptyState'
 import { useToast, errMsg } from '../../../context/ToastContext'
-import type { ActivoFijoDto, ActivoFijoCreateDto, ProveedorDto, CuentaContableResponse } from '../../../types'
+import type { ActivoFijoDto, ActivoFijoCreateDto } from '../../../types'
 
 const fmt = (n: number) => n.toLocaleString('es-DO', { minimumFractionDigits: 2 })
 const fmtFecha = (d: string) => new Date(d).toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -160,7 +160,6 @@ export default function ActivosFijosPage() {
                     <tr>
                       <td colSpan={10} className="py-12">
                         <EmptyState
-                          icon={Package}
                           title="Sin activos fijos"
                           description="Agrega tu primer activo fijo para comenzar."
                         />

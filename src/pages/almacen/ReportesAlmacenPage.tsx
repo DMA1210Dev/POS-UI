@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Package, TrendingUp, TrendingDown, DollarSign, AlertTriangle, Search } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, AlertTriangle, Search } from 'lucide-react'
 import { almacenApi } from '../../api'
 import { productosApi } from '../../api'
 import { Card, CardHeader, CardBody } from '../../components/ui/Card'

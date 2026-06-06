@@ -110,11 +110,11 @@ export default function DgiiPage() {
             </div>
           )}
 
-          {resultado?.errores?.length > 0 && (
+          {resultado && resultado.errores.length > 0 && (
             <div className="flex items-start gap-2 text-sm text-amber-700 bg-amber-50 rounded-xl px-4 py-3 mb-4">
               <AlertTriangle size={16} className="mt-0.5 shrink-0" />
               <ul className="list-disc pl-4">
-                {resultado.errores.map((e, i) => <li key={i}>{e}</li>)}
+                {resultado && resultado.errores.map((e, i) => <li key={i}>{e}</li>)}
               </ul>
             </div>
           )}
