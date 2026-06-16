@@ -1337,6 +1337,31 @@ export interface KardexItemDto {
   saldo: number
 }
 
+export interface SalidaResumenItemDto {
+  id: number
+  productoId: number
+  nombreProducto: string
+  codigoBarra: string | null
+  cantidad: number
+  costoUnitario: number | null
+}
+
+export interface SalidaResumenDto {
+  cuentaPagarId: number
+  facturaNumero: string | null
+  proveedorNombre: string
+  fecha: string
+  concepto: string
+  referencia: string | null
+  usuarioId: number
+  nombreUsuario: string
+  totalItems: number
+  totalUnidades: number
+  totalCosto: number
+  estadoInventario: 'Pendiente' | 'Parcial' | 'Completo'
+  items: SalidaResumenItemDto[]
+}
+
 export interface ReporteAlmacenDto {
   totalMovimientos: number
   totalEntradas: number
