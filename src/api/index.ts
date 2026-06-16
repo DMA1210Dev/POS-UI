@@ -25,7 +25,7 @@ import type {
 } from '../types'
 import type {
   MovimientoInventarioDto, CreateMovimientoInventarioDto,
-  CreateMovimientoInventarioBatchDto,
+  CreateMovimientoInventarioBatchDto, SalidaDesdeFacturaDto,
   KardexItemDto, ReporteAlmacenDto,
   MonedaDto, TasaCambioDto, TasaCambioCreateDto,
   ResumenCuentaBancoDto, CuentaBancoDto, CuentaBancoCreateDto,
@@ -81,11 +81,6 @@ export interface UpdateComercioDto {
   rolesAprobadores: string[]
   rolesMayoristas: string[]
   permitirCajaChica: boolean
-  colorMenu: string
-  colorMenuFin: string
-  colorLogin: string
-  colorLoginFin: string
-  coloresJson?: string
   smtpHost?: string
   smtpPort?: number
   smtpUseSsl: boolean
@@ -93,11 +88,20 @@ export interface UpdateComercioDto {
   smtpPassword?: string
   smtpFromName?: string
 }
+export interface UpdateAparienciaDto {
+  colorMenu: string
+  colorMenuFin: string
+  colorLogin: string
+  colorLoginFin: string
+  coloresJson?: string
+}
 export const comercioApi = {
   get: () =>
     api.get<ComercioResponse>('/comercio').then(r => r.data),
   update: (dto: UpdateComercioDto) =>
     api.put<ComercioResponse>('/comercio', dto).then(r => r.data),
+  updateApariencia: (dto: UpdateAparienciaDto) =>
+    api.put<ComercioResponse>('/comercio/apariencia', dto).then(r => r.data),
   uploadLogo: (file: File) => {
     const form = new FormData()
     form.append('archivo', file)
@@ -566,6 +570,8 @@ export const cxpApi = {
     create: (dto: CuentaPagarCreateDto) =>
       api.post<CuentaPagarDto>('/cxp/facturas', dto).then(r => r.data),
     delete: (id: number) => api.delete(`/cxp/facturas/${id}`),
+    pendientesInventario: (buscar?: string) =>
+      api.get<CuentaPagarDto[]>('/cxp/facturas/pendientes-inventario', { params: { buscar } }).then(r => r.data),
   },
   pagos: {
     getAll: (cuentaPagarId: number) =>
@@ -605,6 +611,8 @@ export const almacenApi = {
     api.post<MovimientoInventarioDto[]>('/inventario/entrada-batch', dto).then(r => r.data),
   salidaBatch: (dto: CreateMovimientoInventarioBatchDto) =>
     api.post<MovimientoInventarioDto[]>('/inventario/salida-batch', dto).then(r => r.data),
+  salidaDesdeFactura: (dto: SalidaDesdeFacturaDto) =>
+    api.post<MovimientoInventarioDto[]>('/inventario/salida-desde-factura', dto).then(r => r.data),
   kardex: (productoId: number) =>
     api.get<KardexItemDto[]>(`/inventario/kardex/${productoId}`).then(r => r.data),
   reportes: (params?: { desde?: string; hasta?: string }) =>

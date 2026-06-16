@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, FileText, DollarSign } from 'lucide-react'
-import { cxpApi, bancosApi } from '../../../api'
+import { Plus, FileText, DollarSign, ChevronDown, ChevronRight, Trash2, Package } from 'lucide-react'
+import { cxpApi, bancosApi, productosApi } from '../../../api'
 import { Card, CardBody } from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 import Modal from '../../../components/ui/Modal'
 import Badge from '../../../components/ui/Badge'
 import { useToast, errMsg } from '../../../context/ToastContext'
+import type { CuentaPagarDetalleCreateDto } from '../../../types'
 
 const fmt = (n: number) => n.toLocaleString('es-DO', { minimumFractionDigits: 2 })
+const pct = (atendida: number, total: number) => total > 0 ? Math.round((atendida / total) * 100) : 0
 
 const estadoBadge = (e: string) => {
   if (e === 'Pagado') return <Badge color="green">Pagado</Badge>
@@ -18,6 +20,11 @@ const estadoBadge = (e: string) => {
   return <Badge color="blue">{e}</Badge>
 }
 
+const emptyForm = {
+  proveedorId: 0, facturaNumero: '', ncf: '', fechaEmision: new Date().toISOString().slice(0, 10),
+  fechaVencimiento: '', montoTotal: 0, concepto: ''
+}
+
 export default function CuentasPagarPage() {
   const qc = useQueryClient()
   const { success, error } = useToast()
@@ -25,45 +32,62 @@ export default function CuentasPagarPage() {
   const [showFactura, setShowFactura] = useState(false)
   const [showPago, setShowPago] = useState<number | null>(null)
   const [showPagosHist, setShowPagosHist] = useState<number | null>(null)
-  const [formF, setFormF] = useState({
-    proveedorId: 0, facturaNumero: '', ncf: '', fechaEmision: new Date().toISOString().slice(0, 10),
-    fechaVencimiento: '', montoTotal: 0, concepto: ''
-  })
+  const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [formF, setFormF] = useState(emptyForm)
+
+  // Detalles para la nueva factura
+  const [detalles, setDetalles] = useState<CuentaPagarDetalleCreateDto[]>([])
+  const [selProdId, setSelProdId] = useState(0)
+  const [selDesc, setSelDesc] = useState('')
+  const [selCant, setSelCant] = useState(0)
+  const [selPrecio, setSelPrecio] = useState<number | ''>('')
+
   const [formP, setFormP] = useState({ monto: 0, metodoPago: 'Efectivo', referencia: '', cuentaBancoId: '', observacion: '' })
 
-  const { data: proveedores = [] } = useQuery({
-    queryKey: ['proveedores'],
-    queryFn: cxpApi.proveedores.getAll,
-  })
+  const { data: proveedores = [] } = useQuery({ queryKey: ['proveedores'], queryFn: cxpApi.proveedores.getAll })
+  const { data: facturas = [] } = useQuery({ queryKey: ['facturas-cxp', proveedorFiltro], queryFn: () => cxpApi.facturas.getAll(proveedorFiltro || undefined) })
+  const { data: resumen } = useQuery({ queryKey: ['resumen-cxp'], queryFn: cxpApi.resumen })
+  const { data: cuentasBanco = [] } = useQuery({ queryKey: ['cuentas-banco'], queryFn: bancosApi.cuentas.getAll })
+  const { data: pagosHist = [] } = useQuery({ queryKey: ['pagos-cxp', showPagosHist], queryFn: () => cxpApi.pagos.getAll(showPagosHist!), enabled: !!showPagosHist })
+  const { data: productos = [] } = useQuery({ queryKey: ['productos'], queryFn: () => productosApi.getAll({ soloActivos: true }) })
 
-  const { data: facturas = [] } = useQuery({
-    queryKey: ['facturas-cxp', proveedorFiltro],
-    queryFn: () => cxpApi.facturas.getAll(proveedorFiltro || undefined),
-  })
+  const prodFisicos = productos.filter(p => p.tipo === 'Fisico')
 
-  const { data: resumen } = useQuery({
-    queryKey: ['resumen-cxp'],
-    queryFn: cxpApi.resumen,
-  })
+  const addDetalle = () => {
+    if (!selCant) return
+    const prod = prodFisicos.find(p => p.id === selProdId)
+    const desc = prod ? prod.nombre : selDesc
+    if (!desc) return
+    setDetalles(d => [...d, {
+      productoId: selProdId || null,
+      descripcion: desc,
+      cantidad: selCant,
+      precioUnitario: selPrecio !== '' ? selPrecio : null,
+    }])
+    setSelProdId(0); setSelDesc(''); setSelCant(0); setSelPrecio('')
+  }
+  const removeDetalle = (i: number) => setDetalles(d => d.filter((_, k) => k !== i))
 
-  const { data: cuentasBanco = [] } = useQuery({
-    queryKey: ['cuentas-banco'],
-    queryFn: bancosApi.cuentas.getAll,
-  })
-
-  const { data: pagosHist = [] } = useQuery({
-    queryKey: ['pagos-cxp', showPagosHist],
-    queryFn: () => cxpApi.pagos.getAll(showPagosHist!),
-    enabled: !!showPagosHist,
-  })
+  const openNuevaFactura = () => {
+    setFormF({ ...emptyForm, proveedorId: proveedores[0]?.id ?? 0 })
+    setDetalles([])
+    setShowFactura(true)
+  }
 
   const crearFactura = useMutation({
     mutationFn: () => cxpApi.facturas.create({
       proveedorId: formF.proveedorId, facturaNumero: formF.facturaNumero || null,
       ncf: formF.ncf || null, fechaEmision: formF.fechaEmision,
-      fechaVencimiento: formF.fechaVencimiento || null, montoTotal: formF.montoTotal, concepto: formF.concepto || null,
+      fechaVencimiento: formF.fechaVencimiento || null, montoTotal: formF.montoTotal,
+      concepto: formF.concepto || null,
+      detalles: detalles.length > 0 ? detalles : undefined,
     }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['facturas-cxp'] }); qc.invalidateQueries({ queryKey: ['resumen-cxp'] }); setShowFactura(false); success('Factura registrada') },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['facturas-cxp'] })
+      qc.invalidateQueries({ queryKey: ['resumen-cxp'] })
+      setShowFactura(false)
+      success('Factura registrada')
+    },
     onError: (e) => error(errMsg(e)),
   })
 
@@ -74,7 +98,12 @@ export default function CuentasPagarPage() {
       cuentaBancoId: formP.cuentaBancoId ? parseInt(formP.cuentaBancoId) : null,
       observacion: formP.observacion || null,
     }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['facturas-cxp'] }); qc.invalidateQueries({ queryKey: ['resumen-cxp'] }); setShowPago(null); success('Pago registrado') },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['facturas-cxp'] })
+      qc.invalidateQueries({ queryKey: ['resumen-cxp'] })
+      setShowPago(null)
+      success('Pago registrado')
+    },
     onError: (e) => error(errMsg(e)),
   })
 
@@ -84,6 +113,8 @@ export default function CuentasPagarPage() {
     onError: (e) => error(errMsg(e)),
   })
 
+  const toggleExpand = (id: number) => setExpandedId(prev => prev === id ? null : id)
+
   return (
     <div className="p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between">
@@ -91,9 +122,7 @@ export default function CuentasPagarPage() {
           <h1 className="text-lg font-bold text-slate-800">Cuentas por Pagar</h1>
           <p className="text-sm text-slate-500 mt-0.5">Facturas de proveedores y pagos</p>
         </div>
-        <Button onClick={() => { setFormF({ ...formF, proveedorId: proveedores[0]?.id ?? 0 }); setShowFactura(true) }}>
-          <Plus size={15} />Nueva factura
-        </Button>
+        <Button onClick={openNuevaFactura}><Plus size={15} />Nueva factura</Button>
       </div>
 
       {resumen && (
@@ -129,6 +158,7 @@ export default function CuentasPagarPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wide">
+                  <th className="w-8" />
                   <th className="text-left py-2 pr-3">Proveedor</th>
                   <th className="text-left py-2 pr-3">Factura</th>
                   <th className="text-left py-2 pr-3">Emisión</th>
@@ -136,42 +166,124 @@ export default function CuentasPagarPage() {
                   <th className="text-right py-2 pr-3">Total</th>
                   <th className="text-right py-2 pr-3">Pagado</th>
                   <th className="text-right py-2 pr-3">Saldo</th>
+                  <th className="text-center py-2 pr-3">Inventario</th>
                   <th className="text-center py-2 pr-3">Estado</th>
                   <th className="text-center py-2">Acción</th>
                 </tr>
               </thead>
               <tbody>
-                {facturas.map(f => (
-                  <tr key={f.id} className="border-b border-slate-100 hover:bg-slate-50">
-                    <td className="py-2 pr-3 font-medium">{f.proveedorNombre}</td>
-                    <td className="py-2 pr-3 text-slate-600">{f.facturaNumero || f.ncf || '—'}</td>
-                    <td className="py-2 pr-3 text-slate-500">{f.fechaEmision}</td>
-                    <td className="py-2 pr-3 text-slate-500">{f.fechaVencimiento || '—'}</td>
-                    <td className="py-2 pr-3 text-right font-mono">{fmt(f.montoTotal)}</td>
-                    <td className="py-2 pr-3 text-right font-mono text-emerald-600">{fmt(f.montoPagado)}</td>
-                    <td className="py-2 pr-3 text-right font-mono font-bold">{fmt(f.saldo)}</td>
-                    <td className="py-2 pr-3 text-center">{estadoBadge(f.estado)}</td>
-                    <td className="py-2 text-center">
-                      <div className="flex gap-1 justify-center">
-                        {f.estado !== 'Pagado' && f.estado !== 'Anulado' && (
-                          <Button size="sm" onClick={() => { setShowPago(f.id); setFormP({ monto: f.saldo, metodoPago: 'Efectivo', referencia: '', cuentaBancoId: '', observacion: '' }) }}>
-                            <DollarSign size={12} />Pagar
-                          </Button>
+                {facturas.map(f => {
+                  const detallesConProducto = f.detalles?.filter(d => d.productoId !== null) ?? []
+                  const hayDetalles = detallesConProducto.length > 0
+                  const totalItems = detallesConProducto.reduce((s, d) => s + d.cantidad, 0)
+                  const totalAtendido = detallesConProducto.reduce((s, d) => s + d.cantidadAtendida, 0)
+                  const invPct = hayDetalles ? pct(totalAtendido, totalItems) : null
+                  const isExpanded = expandedId === f.id
+
+                  return <>
+                    <tr key={f.id} className={`border-b border-slate-100 hover:bg-slate-50 ${isExpanded ? 'bg-slate-50' : ''}`}>
+                      <td className="pl-3">
+                        {hayDetalles && (
+                          <button onClick={() => toggleExpand(f.id)} className="text-slate-400 hover:text-slate-600">
+                            {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                          </button>
                         )}
-                        <Button size="sm" variant="secondary" onClick={() => setShowPagosHist(f.id)}>
-                          <FileText size={12} />Pagos
-                        </Button>
-                        {f.estado !== 'Anulado' && (
-                          <Button size="sm" variant="danger" onClick={() => anular.mutate(f.id)}>
-                            Anular
+                      </td>
+                      <td className="py-2 pr-3 font-medium">{f.proveedorNombre}</td>
+                      <td className="py-2 pr-3 text-slate-600">{f.facturaNumero || f.ncf || '—'}</td>
+                      <td className="py-2 pr-3 text-slate-500">{f.fechaEmision}</td>
+                      <td className="py-2 pr-3 text-slate-500">{f.fechaVencimiento || '—'}</td>
+                      <td className="py-2 pr-3 text-right font-mono">{fmt(f.montoTotal)}</td>
+                      <td className="py-2 pr-3 text-right font-mono text-emerald-600">{fmt(f.montoPagado)}</td>
+                      <td className="py-2 pr-3 text-right font-mono font-bold">{fmt(f.saldo)}</td>
+                      <td className="py-2 pr-3 text-center">
+                        {invPct !== null ? (
+                          <div className="flex items-center gap-1.5 justify-center">
+                            <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${invPct >= 100 ? 'bg-emerald-500' : 'bg-amber-400'}`}
+                                style={{ width: `${invPct}%` }}
+                              />
+                            </div>
+                            <span className="text-xs text-slate-500">{invPct}%</span>
+                          </div>
+                        ) : <span className="text-slate-300 text-xs">—</span>}
+                      </td>
+                      <td className="py-2 pr-3 text-center">{estadoBadge(f.estado)}</td>
+                      <td className="py-2 text-center">
+                        <div className="flex gap-1 justify-center">
+                          {f.estado !== 'Pagado' && f.estado !== 'Anulado' && (
+                            <Button size="sm" onClick={() => { setShowPago(f.id); setFormP({ monto: f.saldo, metodoPago: 'Efectivo', referencia: '', cuentaBancoId: '', observacion: '' }) }}>
+                              <DollarSign size={12} />Pagar
+                            </Button>
+                          )}
+                          <Button size="sm" variant="secondary" onClick={() => setShowPagosHist(f.id)}>
+                            <FileText size={12} />Pagos
                           </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          {f.estado !== 'Anulado' && (
+                            <Button size="sm" variant="danger" onClick={() => anular.mutate(f.id)}>Anular</Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Detalles de inventario expandidos */}
+                    {isExpanded && hayDetalles && (
+                      <tr key={`${f.id}-det`} className="bg-slate-50">
+                        <td colSpan={11} className="px-8 pb-3 pt-1">
+                          <div className="border border-slate-200 rounded-xl overflow-hidden">
+                            <table className="w-full text-xs">
+                              <thead className="bg-slate-100 text-slate-500 uppercase tracking-wide">
+                                <tr>
+                                  <th className="text-left px-3 py-1.5">Producto</th>
+                                  <th className="text-right px-3 py-1.5">Cantidad</th>
+                                  <th className="text-right px-3 py-1.5">Recibido</th>
+                                  <th className="text-right px-3 py-1.5">Pendiente</th>
+                                  <th className="text-right px-3 py-1.5">Precio Unit.</th>
+                                  <th className="px-3 py-1.5 text-center">Progreso</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100">
+                                {detallesConProducto.map(d => {
+                                  const p = pct(d.cantidadAtendida, d.cantidad)
+                                  return (
+                                    <tr key={d.id} className="bg-white">
+                                      <td className="px-3 py-1.5 font-medium">
+                                        <div className="flex items-center gap-1.5">
+                                          <Package size={12} className="text-slate-400" />
+                                          {d.nombreProducto ?? d.descripcion}
+                                        </div>
+                                      </td>
+                                      <td className="px-3 py-1.5 text-right">{d.cantidad}</td>
+                                      <td className="px-3 py-1.5 text-right text-emerald-600">{d.cantidadAtendida}</td>
+                                      <td className="px-3 py-1.5 text-right font-semibold text-amber-600">{d.cantidadPendiente}</td>
+                                      <td className="px-3 py-1.5 text-right text-slate-400">
+                                        {d.precioUnitario != null ? fmt(d.precioUnitario) : '—'}
+                                      </td>
+                                      <td className="px-3 py-1.5">
+                                        <div className="flex items-center gap-1.5">
+                                          <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                            <div
+                                              className={`h-full rounded-full ${p >= 100 ? 'bg-emerald-500' : 'bg-amber-400'}`}
+                                              style={{ width: `${p}%` }}
+                                            />
+                                          </div>
+                                          <span className="text-slate-400 w-8 text-right">{p}%</span>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                })}
                 {facturas.length === 0 && (
-                  <tr><td colSpan={9} className="py-8 text-center text-slate-400">Sin facturas registradas</td></tr>
+                  <tr><td colSpan={11} className="py-8 text-center text-slate-400">Sin facturas registradas</td></tr>
                 )}
               </tbody>
             </table>
@@ -179,12 +291,12 @@ export default function CuentasPagarPage() {
         </CardBody>
       </Card>
 
-      <Modal open={showFactura} onClose={() => setShowFactura(false)} title="Nueva Factura">
+      {/* ── Modal: nueva factura ────────────────────────── */}
+      <Modal open={showFactura} onClose={() => setShowFactura(false)} title="Nueva Factura" size="xl">
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-600 mb-1">Proveedor</label>
-            <select value={formF.proveedorId}
-              onChange={e => setFormF(f => ({ ...f, proveedorId: parseInt(e.target.value) }))}
+            <select value={formF.proveedorId} onChange={e => setFormF(f => ({ ...f, proveedorId: parseInt(e.target.value) }))}
               className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500">
               <option value="">Seleccionar...</option>
               {proveedores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
@@ -205,14 +317,12 @@ export default function CuentasPagarPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">Fecha Emisión</label>
-              <input type="date" value={formF.fechaEmision}
-                onChange={e => setFormF(f => ({ ...f, fechaEmision: e.target.value }))}
+              <input type="date" value={formF.fechaEmision} onChange={e => setFormF(f => ({ ...f, fechaEmision: e.target.value }))}
                 className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">Fecha Vencimiento</label>
-              <input type="date" value={formF.fechaVencimiento}
-                onChange={e => setFormF(f => ({ ...f, fechaVencimiento: e.target.value }))}
+              <input type="date" value={formF.fechaVencimiento} onChange={e => setFormF(f => ({ ...f, fechaVencimiento: e.target.value }))}
                 className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
             </div>
           </div>
@@ -227,12 +337,78 @@ export default function CuentasPagarPage() {
             <textarea value={formF.concepto} onChange={e => setFormF(f => ({ ...f, concepto: e.target.value }))} rows={2}
               className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
           </div>
-          <Button onClick={() => crearFactura.mutate()} loading={crearFactura.isPending} className="w-full">
+
+          {/* Detalles de productos */}
+          <div className="border-t pt-4">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
+              Ítems de inventario <span className="font-normal text-slate-400">(opcional)</span>
+            </p>
+
+            {detalles.length > 0 && (
+              <div className="mb-3 border border-slate-200 rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
+                    <tr>
+                      <th className="px-3 py-1.5 text-left">Producto / Descripción</th>
+                      <th className="px-3 py-1.5 text-right">Cant.</th>
+                      <th className="px-3 py-1.5 text-right">Precio</th>
+                      <th className="px-3 py-1.5" />
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {detalles.map((d, i) => (
+                      <tr key={i}>
+                        <td className="px-3 py-1.5 font-medium">{d.descripcion}</td>
+                        <td className="px-3 py-1.5 text-right">{d.cantidad}</td>
+                        <td className="px-3 py-1.5 text-right text-slate-400">{d.precioUnitario != null ? fmt(d.precioUnitario) : '—'}</td>
+                        <td className="px-3 py-1.5 text-right">
+                          <button onClick={() => removeDetalle(i)} className="text-red-400 hover:text-red-600"><Trash2 size={13} /></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Agregar ítem */}
+            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-end">
+              <div>
+                <label className="block text-xs text-slate-500 mb-1">Producto (o descripción libre)</label>
+                <select value={selProdId} onChange={e => { setSelProdId(parseInt(e.target.value)); setSelDesc('') }}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500">
+                  <option value={0}>Descripción libre…</option>
+                  {prodFisicos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                </select>
+                {selProdId === 0 && (
+                  <input value={selDesc} onChange={e => setSelDesc(e.target.value)} placeholder="Descripción…"
+                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
+                )}
+              </div>
+              <div>
+                <label className="block text-xs text-slate-500 mb-1">Cant.</label>
+                <input type="number" min={0} step="0.001" value={selCant || ''} onChange={e => setSelCant(parseFloat(e.target.value) || 0)}
+                  className="w-20 rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-500 mb-1">Precio unit.</label>
+                <input type="number" min={0} step="0.01" value={selPrecio} onChange={e => setSelPrecio(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                  className="w-24 rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500" />
+              </div>
+              <Button onClick={addDetalle} disabled={!selCant || (!selProdId && !selDesc)} variant="secondary" size="sm">
+                <Plus size={14} />
+              </Button>
+            </div>
+          </div>
+
+          <Button onClick={() => crearFactura.mutate()} loading={crearFactura.isPending}
+            disabled={!formF.proveedorId || !formF.montoTotal} className="w-full">
             <Plus size={15} />Registrar factura
           </Button>
         </div>
       </Modal>
 
+      {/* ── Modal: pago ─────────────────────────────────── */}
       <Modal open={!!showPago} onClose={() => setShowPago(null)} title="Registrar Pago">
         <div className="space-y-4">
           <div>
@@ -276,6 +452,7 @@ export default function CuentasPagarPage() {
         </div>
       </Modal>
 
+      {/* ── Modal: historial pagos ───────────────────────── */}
       <Modal open={!!showPagosHist} onClose={() => setShowPagosHist(null)} title="Historial de Pagos" size="2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

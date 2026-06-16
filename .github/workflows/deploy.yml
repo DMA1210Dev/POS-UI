@@ -2,7 +2,7 @@ name: Build & Deploy — POS UI
 
 on:
   push:
-    branches: [main]
+    branches: [main, release]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -91,3 +91,88 @@ jobs:
           script:   |
             chown -R ubuntu:www-data /var/www/pos-ui
             chmod -R 755 /var/www/pos-ui
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Deploy → Staging (rama release)
+  # Secrets: STAGING_FTP_SERVER, STAGING_FTP_USERNAME, STAGING_FTP_PASSWORD,
+  #          STAGING_FTP_SERVER_DIR, VITE_API_URL_STAGING
+  # Opcional SSH: STAGING_VPS_HOST, STAGING_VPS_USER, STAGING_VPS_SSH_KEY
+  # Activar/desactivar SSH: Settings → Variables → DEPLOY_STAGING_VPS = true | false
+  # ════════════════════════════════════════════════════════════════════════════
+  deploy-staging-cpanel:
+    name: Deploy → Staging (cPanel FTP)
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/release'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build (Staging)
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL_STAGING }}
+
+      - name: Deploy vía FTP (staging)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:     ${{ secrets.STAGING_FTP_SERVER }}
+          username:   ${{ secrets.STAGING_FTP_USERNAME }}
+          password:   ${{ secrets.STAGING_FTP_PASSWORD }}
+          server-dir: ${{ secrets.STAGING_FTP_SERVER_DIR }}
+          local-dir:  ./dist/
+          exclude: |
+            **/.git*
+            **/.git*/**
+
+  deploy-staging-vps:
+    name: Deploy → Staging VPS
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/release' && vars.DEPLOY_STAGING_VPS == 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build (Staging VPS)
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL_STAGING }}
+
+      - name: Subir archivos al VPS de staging
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host:             ${{ secrets.STAGING_VPS_HOST }}
+          username:         ${{ secrets.STAGING_VPS_USER }}
+          key:              ${{ secrets.STAGING_VPS_SSH_KEY }}
+          source:           "dist/"
+          target:           /var/www/pos-ui-staging
+          strip_components: 1
+
+      - name: Fijar permisos
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.STAGING_VPS_HOST }}
+          username: ${{ secrets.STAGING_VPS_USER }}
+          key:      ${{ secrets.STAGING_VPS_SSH_KEY }}
+          script:   |
+            chown -R ubuntu:www-data /var/www/pos-ui-staging
+            chmod -R 755 /var/www/pos-ui-staging

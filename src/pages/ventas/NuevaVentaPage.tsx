@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Minus, Trash2, ShoppingCart, XCircle, AlertTriangle, FileText, Tag, ChevronDown, UserCheck, Check, CreditCard, SkipForward } from 'lucide-react'
@@ -409,6 +409,9 @@ export default function NuevaVentaPage() {
   const [descuento, setDescuento] = useState(cartInicial?.descuento ?? 0)
   const [tipoPago,  setTipoPago]  = useState<'Contado' | 'Credito'>(cartInicial?.tipoPago ?? 'Contado')
   const [clienteId, setClienteId] = useState<number | undefined>(cartInicial?.clienteId)
+  const [clienteQuery, setClienteQuery] = useState('')
+  const [showClientes, setShowClientes] = useState(false)
+  const clienteInputRef = useRef<HTMLInputElement>(null)
   const [fechaVenc, setFechaVenc] = useState(cartInicial?.fechaVenc ?? '')
   const [tipoComprobanteId, setTipoComprobanteId] = useState<number | undefined>(cartInicial?.tipoComprobanteId)
   const [ncfReservadoId,    setNcfReservadoId]    = useState<number | undefined>(cartInicial?.ncfReservadoId)
@@ -460,6 +463,17 @@ export default function NuevaVentaPage() {
     queryKey: ['clientes', 'venta'],
     queryFn:  () => clientesApi.getAll(),
   })
+
+  const clientesFiltrados = useMemo(() => {
+    const q = clienteQuery.toLowerCase().trim()
+    if (!q) return clientes
+    return clientes.filter(c =>
+      c.nombre.toLowerCase().includes(q) ||
+      c.cedula?.includes(q) ||
+      c.telefono?.includes(q) ||
+      c.email?.toLowerCase().includes(q)
+    )
+  }, [clientes, clienteQuery])
 
   // ── Tipos de comprobante (necesarios para saber si el tipo es B o no) ─────
   const { data: tiposComp = [] } = useQuery({
@@ -926,24 +940,54 @@ export default function NuevaVentaPage() {
               </div>
             )}
 
-            {/* Cliente */}
-            <div>
+            {/* Cliente — autocomplete */}
+            <div className="relative">
               <label className="text-xs font-medium text-slate-600 block mb-1">
                 Cliente{' '}
                 {modoCarrito === 'venta' && (tipoPago === 'Credito' || !(comercio?.permitirVentaSinCliente ?? true)) && (
                   <span className="text-danger-500">*</span>
                 )}
               </label>
-              <select value={clienteId ?? ''}
-                onChange={e => setClienteId(Number(e.target.value) || undefined)}
-                className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500">
-                <option value="">Sin cliente / Mostrador</option>
-                {clientes.map(c => (
-                  <option key={c.id} value={c.id}>
-                    {c.nombre}{c.esMayorista ? ' [M]' : ''}{c.porcentajeDescuento > 0 ? ` −${c.porcentajeDescuento}%` : ''}
-                  </option>
-                ))}
-              </select>
+              <input ref={clienteInputRef as React.RefObject<HTMLInputElement>}
+                value={clienteQuery}
+                onChange={e => { setClienteQuery(e.target.value); setClienteId(undefined); setShowClientes(true) }}
+                onFocus={() => setShowClientes(true)}
+                placeholder={clienteSeleccionado?.nombre ?? 'Buscar cliente…'}
+                className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:border-brand-500"
+              />
+              {clienteId && (
+                <button onClick={() => { setClienteId(undefined); setClienteQuery('') }}
+                  className="absolute right-2 top-[28px] text-slate-400 hover:text-slate-600">
+                  <XCircle size={14} />
+                </button>
+              )}
+              {showClientes && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowClientes(false)} />
+                  <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    {clientesFiltrados.length === 0 ? (
+                      <p className="px-3 py-2 text-xs text-slate-400">Sin resultados</p>
+                    ) : (
+                      clientesFiltrados.map(c => {
+                        const sel = c.id === clienteId
+                        return (
+                          <button key={c.id} type="button"
+                            onClick={() => { setClienteId(c.id); setClienteQuery(''); setShowClientes(false) }}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-brand-50 flex items-center justify-between gap-2 ${sel ? 'bg-brand-50 font-semibold' : ''}`}>
+                            <span className="truncate">{c.nombre}</span>
+                            <span className="shrink-0 text-xs text-slate-400 flex items-center gap-2">
+                              {c.esMayorista && <span className="text-purple-600 font-medium">M</span>}
+                              {c.porcentajeDescuento > 0 && <span className="text-success-600">-{c.porcentajeDescuento}%</span>}
+                              {c.creditosActivos > 0 && <span className="text-warning-500">{c.creditosActivos} créd.</span>}
+                              {c.totalDeuda > 0 && <span className="text-danger-500">{fmt(c.totalDeuda)}</span>}
+                            </span>
+                          </button>
+                        )
+                      })
+                    )}
+                  </div>
+                </>
+              )}
               {clienteSeleccionado && (
                 <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
                   <span className={esMayorista ? 'text-purple-600 font-medium' : 'text-brand-600'}>

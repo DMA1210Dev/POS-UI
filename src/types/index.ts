@@ -1171,6 +1171,24 @@ export interface ProveedorCreateDto {
   direccion: string | null
 }
 
+export interface CuentaPagarDetalleDto {
+  id: number
+  productoId: number | null
+  nombreProducto: string | null
+  descripcion: string
+  cantidad: number
+  cantidadAtendida: number
+  cantidadPendiente: number
+  precioUnitario: number | null
+}
+
+export interface CuentaPagarDetalleCreateDto {
+  productoId?: number | null
+  descripcion: string
+  cantidad: number
+  precioUnitario?: number | null
+}
+
 export interface CuentaPagarDto {
   id: number
   proveedorId: number
@@ -1184,6 +1202,7 @@ export interface CuentaPagarDto {
   saldo: number
   estado: string
   concepto: string | null
+  detalles: CuentaPagarDetalleDto[]
 }
 
 export interface CuentaPagarCreateDto {
@@ -1194,6 +1213,7 @@ export interface CuentaPagarCreateDto {
   fechaVencimiento: string | null
   montoTotal: number
   concepto: string | null
+  detalles?: CuentaPagarDetalleCreateDto[]
 }
 
 export interface PagoProveedorDto {
@@ -1268,6 +1288,21 @@ export interface MovimientoInventarioDto {
   usuarioId: number
   nombreUsuario: string
   creadoEn: string
+  cuentaPagarId: number | null
+}
+
+export interface SalidaDesdeFacturaItemDto {
+  cuentaPagarDetalleId: number
+  productoId: number
+  cantidad: number
+}
+
+export interface SalidaDesdeFacturaDto {
+  cuentaPagarId: number
+  concepto: string
+  referencia?: string
+  fecha?: string
+  items: SalidaDesdeFacturaItemDto[]
 }
 
 export interface CreateMovimientoInventarioDto {

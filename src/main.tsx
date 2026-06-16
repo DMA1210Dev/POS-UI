@@ -1,8 +1,7 @@
-import { StrictMode } from 'react'
+import { lazy, StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { ComercioProvider } from './context/ComercioContext'
@@ -13,11 +12,17 @@ import './index.css'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60,      // 1 minuto
+      staleTime: 1000 * 60 * 5,  // 5 minutos
       retry: 1,
     },
   },
 })
+
+const ReactQueryDevtools = lazy(() =>
+  import('@tanstack/react-query-devtools/build/modern/production.js').then(m => ({
+    default: m.ReactQueryDevtools,
+  })),
+)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -32,7 +37,7 @@ createRoot(document.getElementById('root')!).render(
             </AuthProvider>
           </RolesProvider>
         </ComercioProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
+        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>

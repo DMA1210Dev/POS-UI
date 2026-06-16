@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Palette, Upload, Trash2, ImageIcon, RefreshCw, PaintBucket, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
-import { comercioApi, type UpdateComercioDto } from '../../api'
+import { comercioApi, type UpdateAparienciaDto } from '../../api'
 import { useComercio } from '../../context/ComercioContext'
 import { useToast, errMsg } from '../../context/ToastContext'
 import { Card, CardHeader, CardBody } from '../../components/ui/Card'
@@ -112,7 +112,7 @@ export default function AparienciaPage() {
 
   // Mutations
   const guardar = useMutation({
-    mutationFn: (dto: UpdateComercioDto) => comercioApi.update(dto),
+    mutationFn: (dto: UpdateAparienciaDto) => comercioApi.updateApariencia(dto),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['comercio'] }); success('Cambios guardados') },
     onError:   (e) => error(errMsg(e)),
   })
@@ -142,30 +142,12 @@ export default function AparienciaPage() {
   })
 
   const onSubmit = () => {
-    if (!comercio) return
     guardar.mutate({
-      nombre: comercio.nombre,
-      slogan: comercio.slogan ?? '',
-      telefono: comercio.telefono ?? '',
-      direccion: comercio.direccion ?? '',
-      rnc: comercio.rnc ?? '',
-      facturacionElectronicaHabilitada: comercio.facturacionElectronicaHabilitada,
-      permitirVentaSinComprobante: comercio.permitirVentaSinComprobante,
-      permitirVentaSinCliente: comercio.permitirVentaSinCliente,
-      permitirAutoAprobacion: comercio.permitirAutoAprobacion,
-      rolesAprobadores: comercio.rolesAprobadores,
-      rolesMayoristas: comercio.rolesMayoristas,
-      permitirCajaChica: comercio.permitirCajaChica,
       colorMenu,
       colorMenuFin,
       colorLogin,
       colorLoginFin,
       coloresJson: JSON.stringify(colores),
-      smtpHost: comercio.smtpHost ?? '',
-      smtpPort: comercio.smtpPort ?? undefined,
-      smtpUseSsl: comercio.smtpUseSsl,
-      smtpUsername: comercio.smtpUsername ?? '',
-      smtpFromName: comercio.smtpFromName ?? '',
     })
   }
 
@@ -395,25 +377,8 @@ export default function AparienciaPage() {
           onClick={() => {
             setColores({ ...COLORES_DEFAULT })
             guardar.mutate({
-              nombre: comercio!.nombre,
-              slogan: comercio!.slogan ?? '',
-              telefono: comercio!.telefono ?? '',
-              direccion: comercio!.direccion ?? '',
-              rnc: comercio!.rnc ?? '',
-              facturacionElectronicaHabilitada: comercio!.facturacionElectronicaHabilitada,
-              permitirVentaSinComprobante: comercio!.permitirVentaSinComprobante,
-              permitirVentaSinCliente: comercio!.permitirVentaSinCliente,
-              permitirAutoAprobacion: comercio!.permitirAutoAprobacion,
-              rolesAprobadores: comercio!.rolesAprobadores,
-              rolesMayoristas: comercio!.rolesMayoristas,
-              permitirCajaChica: comercio!.permitirCajaChica,
               colorMenu, colorMenuFin, colorLogin, colorLoginFin,
               coloresJson: '{}',
-              smtpHost: comercio!.smtpHost ?? '',
-              smtpPort: comercio!.smtpPort ?? undefined,
-              smtpUseSsl: comercio!.smtpUseSsl,
-              smtpUsername: comercio!.smtpUsername ?? '',
-              smtpFromName: comercio!.smtpFromName ?? '',
             })
           }}>
           Restablecer colores

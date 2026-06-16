@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { comercioApi, type ComercioResponse } from '../api'
 import { parseColoresJson, aplicarColores } from '../lib/colores'
@@ -29,8 +29,10 @@ export function ComercioProvider({ children }: { children: ReactNode }) {
   const { data: comercio = null, isLoading } = useQuery({
     queryKey:    ['comercio'],
     queryFn:     comercioApi.get,
-    staleTime:   1000 * 60 * 10, // 10 minutos — no cambia frecuentemente
-    initialData: leerCache(),    // ← muestra el logo inmediatamente desde caché
+    staleTime:   1000 * 60 * 30, // 30 minutos — casi nunca cambia
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    initialData: leerCache(),
   })
 
   // Persiste en localStorage cada vez que la API devuelve datos frescos
@@ -50,14 +52,24 @@ export function ComercioProvider({ children }: { children: ReactNode }) {
     link.href = url ?? '/favicon.ico'
   }, [comercio?.logoTagUrl])
 
-  // Aplica los colores como variables CSS globales
+  // Aplica los colores como variables CSS globales — solo cuando cambian
+  const coloresPrev = useRef('')
   useEffect(() => {
-    document.documentElement.style.setProperty('--color-menu',      comercio?.colorMenu     ?? '#1e293b')
-    document.documentElement.style.setProperty('--color-menu-fin',  comercio?.colorMenuFin  ?? '#1e293b')
-    document.documentElement.style.setProperty('--color-login',     comercio?.colorLogin    ?? '#0f172a')
-    document.documentElement.style.setProperty('--color-login-fin', comercio?.colorLoginFin ?? '#1e3a8a')
-    if (comercio?.coloresJson)
-      aplicarColores(parseColoresJson(comercio.coloresJson))
+    const colorMenu    = comercio?.colorMenu    ?? '#1e293b'
+    const colorMenuFin = comercio?.colorMenuFin ?? '#1e293b'
+    const colorLogin   = comercio?.colorLogin   ?? '#0f172a'
+    const colorLoginFin= comercio?.colorLoginFin?? '#1e3a8a'
+    const coloresJson  = comercio?.coloresJson  ?? ''
+    const firma = `${colorMenu}|${colorMenuFin}|${colorLogin}|${colorLoginFin}|${coloresJson}`
+    if (firma === coloresPrev.current) return
+    coloresPrev.current = firma
+
+    document.documentElement.style.setProperty('--color-menu',      colorMenu)
+    document.documentElement.style.setProperty('--color-menu-fin',  colorMenuFin)
+    document.documentElement.style.setProperty('--color-login',     colorLogin)
+    document.documentElement.style.setProperty('--color-login-fin', colorLoginFin)
+    if (coloresJson)
+      aplicarColores(parseColoresJson(coloresJson))
   }, [comercio?.colorMenu, comercio?.colorMenuFin, comercio?.colorLogin, comercio?.colorLoginFin, comercio?.coloresJson])
 
   return (

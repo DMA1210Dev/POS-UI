@@ -29,5 +29,19 @@ export default defineConfig({
     target: isTauri ? ['es2021', 'chrome105', 'safari15'] : ['es2020', 'chrome87', 'firefox78', 'safari14', 'edge88'],
     minify: !process.env.TAURI_ENV_DEBUG ? true : false,
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/') || id.includes('node_modules/react-router'))
+            return 'vendor-react'
+          if (id.includes('node_modules/recharts'))    return 'vendor-charts'
+          if (id.includes('node_modules/jspdf'))       return 'vendor-pdf'
+          if (id.includes('node_modules/xlsx'))        return 'vendor-xlsx'
+          if (id.includes('node_modules/@zxing'))      return 'vendor-qr'
+          if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/@hookform'))
+            return 'vendor-hookform'
+        },
+      },
+    },
   },
 })
