@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Search, Plus, Package, ArrowUp, Trash2, FileText, ChevronDown, ChevronUp } from 'lucide-react'
+import { Search, Plus, Package, ArrowUp, Trash2, FileText } from 'lucide-react'
 import { almacenApi, cxpApi } from '../../api'
 import { productosApi } from '../../api'
 import { Card, CardHeader, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 import { errMsg, useToast } from '../../context/ToastContext'
-import type { CuentaPagarDto, CuentaPagarDetalleDto } from '../../types'
+import type { CuentaPagarDto } from '../../types'
 
 interface ItemLibre { productoId: number; cantidad: number }
 
@@ -37,8 +37,6 @@ export default function SalidasPage() {
   const [buscarFactura, setBuscarFactura] = useState('')
   const [facturaSeleccionada, setFacturaSeleccionada] = useState<CuentaPagarDto | null>(null)
   const [itemsFactura, setItemsFactura] = useState<ItemFactura[]>([])
-  const [expandedRow, setExpandedRow] = useState<number | null>(null)
-
   const qc = useQueryClient()
 
   const { data: movimientos } = useQuery({
