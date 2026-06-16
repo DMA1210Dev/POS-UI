@@ -14,6 +14,7 @@ jobs:
   deploy-cpanel:
     name: Deploy → cPanel (FTP)
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout
@@ -52,7 +53,7 @@ jobs:
   deploy-vps:
     name: Deploy → VPS (ui.domercd.com)
     runs-on: ubuntu-latest
-    if: vars.DEPLOY_VPS == 'true'
+    if: github.ref == 'refs/heads/main' && vars.DEPLOY_VPS == 'true'
 
     steps:
       - name: Checkout
