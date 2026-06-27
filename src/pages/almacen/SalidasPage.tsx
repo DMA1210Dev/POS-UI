@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, Package, Truck, CheckCircle } from 'lucide-react'
 import { almacenApi } from '../../api'
-import type { SalidaResumenDto, VentaPendienteDespachoDto } from '../../types'
+import type { SalidaResumenDto, VentaPendienteDespachoDto, VentaPendienteDespachoItemDto } from '../../types'
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(n)
@@ -11,46 +11,101 @@ const fmtDate = (d: string) =>
 
 type Tab = 'pendientes' | 'despachadas'
 
+interface DespachoItem {
+  productoId: number
+  seleccionado: boolean
+  cantidad: number
+  max: number
+  nombre: string
+  codigoBarra: string | null
+  cantidadDespachada: number
+  cantidadVendida: number
+}
+
+function buildItems(venta: VentaPendienteDespachoDto): DespachoItem[] {
+  return venta.items.map((item: VentaPendienteDespachoItemDto) => ({
+    productoId:        item.productoId,
+    seleccionado:      true,
+    cantidad:          item.cantidadPendiente,
+    max:               item.cantidadPendiente,
+    nombre:            item.nombreProducto,
+    codigoBarra:       item.codigoBarra,
+    cantidadDespachada: item.cantidadDespachada,
+    cantidadVendida:   item.cantidadVendida,
+  }))
+}
+
 export default function SalidasPage() {
-  const [tab, setTab] = useState<Tab>('pendientes')
+  const [tab, setTab]               = useState<Tab>('pendientes')
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set())
-  const [desde, setDesde] = useState('')
-  const [hasta, setHasta] = useState('')
-  const [confirmando, setConfirmando] = useState<VentaPendienteDespachoDto | null>(null)
+  const [desde, setDesde]           = useState('')
+  const [hasta, setHasta]           = useState('')
+
+  // Modal state
+  const [ventaModal, setVentaModal] = useState<VentaPendienteDespachoDto | null>(null)
+  const [items, setItems]           = useState<DespachoItem[]>([])
   const [referencia, setReferencia] = useState('')
 
   const queryClient = useQueryClient()
 
   const { data: pendientes = [], isLoading: loadingPendientes } = useQuery({
     queryKey: ['salidas-pendientes'],
-    queryFn: () => almacenApi.getPendientesDespacho(),
-    enabled: tab === 'pendientes',
+    queryFn:  () => almacenApi.getPendientesDespacho(),
+    enabled:  tab === 'pendientes',
   })
 
   const { data: despachadas = [], isLoading: loadingDespachadas } = useQuery({
     queryKey: ['salidas', desde, hasta],
-    queryFn: () => almacenApi.getSalidas({ desde: desde || undefined, hasta: hasta || undefined }),
-    enabled: tab === 'despachadas',
+    queryFn:  () => almacenApi.getSalidas({ desde: desde || undefined, hasta: hasta || undefined }),
+    enabled:  tab === 'despachadas',
   })
 
   const despachoMut = useMutation({
-    mutationFn: (ventaId: number) =>
-      almacenApi.registrarDespacho({ ventaId, referencia: referencia || undefined }),
+    mutationFn: () => {
+      const seleccionados = items.filter(i => i.seleccionado && i.cantidad > 0)
+      return almacenApi.registrarDespacho({
+        ventaId:   ventaModal!.ventaId,
+        referencia: referencia || undefined,
+        items:     seleccionados.map(i => ({ productoId: i.productoId, cantidad: i.cantidad })),
+      })
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['salidas-pendientes'] })
       queryClient.invalidateQueries({ queryKey: ['salidas'] })
-      setConfirmando(null)
+      setVentaModal(null)
       setReferencia('')
     },
   })
 
-  const toggleExpand = (id: number) => {
+  const abrirModal = (v: VentaPendienteDespachoDto) => {
+    setVentaModal(v)
+    setItems(buildItems(v))
+    setReferencia('')
+  }
+
+  const toggleItem = (productoId: number) =>
+    setItems(prev => prev.map(i =>
+      i.productoId === productoId ? { ...i, seleccionado: !i.seleccionado } : i
+    ))
+
+  const setCantidad = (productoId: number, val: string) => {
+    const n = parseFloat(val)
+    setItems(prev => prev.map(i =>
+      i.productoId === productoId
+        ? { ...i, cantidad: isNaN(n) ? 0 : Math.min(Math.max(0, n), i.max) }
+        : i
+    ))
+  }
+
+  const toggleExpand = (id: number) =>
     setExpandedIds(prev => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)
       return next
     })
-  }
+
+  const itemsSeleccionados = items.filter(i => i.seleccionado && i.cantidad > 0)
+  const esParcisl = ventaModal && itemsSeleccionados.length < items.length
 
   return (
     <div className="p-6 space-y-4">
@@ -61,9 +116,7 @@ export default function SalidasPage() {
         <button
           onClick={() => setTab('pendientes')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === 'pendientes'
-              ? 'bg-white text-gray-800 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+            tab === 'pendientes' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'
           }`}
         >
           <Truck size={15} />
@@ -77,9 +130,7 @@ export default function SalidasPage() {
         <button
           onClick={() => setTab('despachadas')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === 'despachadas'
-              ? 'bg-white text-gray-800 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+            tab === 'despachadas' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'
           }`}
         >
           <CheckCircle size={15} />
@@ -110,12 +161,12 @@ export default function SalidasPage() {
                     <th className="px-4 py-3 font-medium text-gray-600">Cliente</th>
                     <th className="px-4 py-3 font-medium text-gray-600">Fecha venta</th>
                     <th className="px-4 py-3 font-medium text-gray-600 text-right">Total</th>
-                    <th className="px-4 py-3 font-medium text-gray-600">Registrado por</th>
-                    <th className="px-4 py-3 font-medium text-gray-600" />
+                    <th className="px-4 py-3 font-medium text-gray-600">Vendedor</th>
+                    <th className="px-4 py-3" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {pendientes.map((v: VentaPendienteDespachoDto) => (
+                  {(pendientes as VentaPendienteDespachoDto[]).map(v => (
                     <>
                       <tr
                         key={v.ventaId}
@@ -123,30 +174,21 @@ export default function SalidasPage() {
                         onClick={() => toggleExpand(v.ventaId)}
                       >
                         <td className="px-4 py-3 text-gray-400">
-                          {expandedIds.has(v.ventaId)
-                            ? <ChevronDown size={16} />
-                            : <ChevronRight size={16} />}
+                          {expandedIds.has(v.ventaId) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                         </td>
                         <td className="px-4 py-3 font-mono text-xs text-gray-700">
                           {v.numeroFactura ?? `Venta #${v.ventaId}`}
                         </td>
                         <td className="px-4 py-3 text-gray-800">{v.clienteNombre}</td>
                         <td className="px-4 py-3 text-gray-600">{fmtDate(v.fecha)}</td>
-                        <td className="px-4 py-3 text-right font-medium text-gray-800">
-                          {fmt(v.totalVenta)}
-                        </td>
+                        <td className="px-4 py-3 text-right font-medium text-gray-800">{fmt(v.totalVenta)}</td>
                         <td className="px-4 py-3 text-gray-600">{v.nombreUsuario}</td>
                         <td className="px-4 py-3 text-right">
                           <button
-                            onClick={e => {
-                              e.stopPropagation()
-                              setConfirmando(v)
-                              setReferencia('')
-                            }}
+                            onClick={e => { e.stopPropagation(); abrirModal(v) }}
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors"
                           >
-                            <Truck size={13} />
-                            Despachar
+                            <Truck size={13} /> Despachar
                           </button>
                         </td>
                       </tr>
@@ -158,16 +200,23 @@ export default function SalidasPage() {
                               <thead>
                                 <tr className="text-gray-500 border-b border-orange-100">
                                   <th className="text-left py-1.5 font-medium">Producto</th>
-                                  <th className="text-left py-1.5 font-medium">Código</th>
-                                  <th className="text-right py-1.5 font-medium">Cantidad</th>
+                                  <th className="text-right py-1.5 font-medium">Vendido</th>
+                                  <th className="text-right py-1.5 font-medium">Despachado</th>
+                                  <th className="text-right py-1.5 font-medium">Pendiente</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {v.items.map(item => (
                                   <tr key={item.productoId} className="text-gray-700">
-                                    <td className="py-1.5">{item.nombreProducto}</td>
-                                    <td className="py-1.5 font-mono text-gray-500">{item.codigoBarra ?? '—'}</td>
-                                    <td className="py-1.5 text-right">{item.cantidad}</td>
+                                    <td className="py-1.5">
+                                      {item.nombreProducto}
+                                      {item.codigoBarra && (
+                                        <span className="ml-2 font-mono text-gray-400">{item.codigoBarra}</span>
+                                      )}
+                                    </td>
+                                    <td className="py-1.5 text-right">{item.cantidadVendida}</td>
+                                    <td className="py-1.5 text-right text-green-600">{item.cantidadDespachada}</td>
+                                    <td className="py-1.5 text-right font-medium text-orange-600">{item.cantidadPendiente}</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -190,26 +239,16 @@ export default function SalidasPage() {
           <div className="flex gap-3 items-end bg-white p-4 rounded-xl border border-gray-200">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Desde</label>
-              <input
-                type="date"
-                value={desde}
-                onChange={e => setDesde(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
-              />
+              <input type="date" value={desde} onChange={e => setDesde(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Hasta</label>
-              <input
-                type="date"
-                value={hasta}
-                onChange={e => setHasta(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
-              />
+              <input type="date" value={hasta} onChange={e => setHasta(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm" />
             </div>
-            <button
-              onClick={() => { setDesde(''); setHasta('') }}
-              className="text-sm text-gray-500 hover:text-gray-800 px-3 py-1.5"
-            >
+            <button onClick={() => { setDesde(''); setHasta('') }}
+              className="text-sm text-gray-500 hover:text-gray-800 px-3 py-1.5">
               Limpiar
             </button>
           </div>
@@ -238,7 +277,7 @@ export default function SalidasPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {despachadas.map((s: SalidaResumenDto) => (
+                  {(despachadas as SalidaResumenDto[]).map(s => (
                     <>
                       <tr
                         key={s.ventaId}
@@ -246,21 +285,15 @@ export default function SalidasPage() {
                         onClick={() => toggleExpand(s.ventaId + 100000)}
                       >
                         <td className="px-4 py-3 text-gray-400">
-                          {expandedIds.has(s.ventaId + 100000)
-                            ? <ChevronDown size={16} />
-                            : <ChevronRight size={16} />}
+                          {expandedIds.has(s.ventaId + 100000) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                         </td>
                         <td className="px-4 py-3 font-mono text-xs text-gray-700">
                           {s.numeroFactura ?? `Venta #${s.ventaId}`}
                         </td>
                         <td className="px-4 py-3 text-gray-800">{s.clienteNombre}</td>
                         <td className="px-4 py-3 text-gray-600">{fmtDate(s.fecha)}</td>
-                        <td className="px-4 py-3 text-right font-medium text-gray-800">
-                          {fmt(s.totalVenta)}
-                        </td>
-                        <td className="px-4 py-3 text-right text-gray-600">
-                          {s.totalUnidades.toLocaleString()}
-                        </td>
+                        <td className="px-4 py-3 text-right font-medium text-gray-800">{fmt(s.totalVenta)}</td>
+                        <td className="px-4 py-3 text-right text-gray-600">{s.totalUnidades.toLocaleString()}</td>
                         <td className="px-4 py-3 text-gray-600">{s.nombreUsuario}</td>
                       </tr>
 
@@ -283,13 +316,9 @@ export default function SalidasPage() {
                                     <td className="py-1.5">{item.nombreProducto}</td>
                                     <td className="py-1.5 font-mono text-gray-500">{item.codigoBarra ?? '—'}</td>
                                     <td className="py-1.5 text-right">{item.cantidad}</td>
+                                    <td className="py-1.5 text-right">{item.costoUnitario != null ? fmt(item.costoUnitario) : '—'}</td>
                                     <td className="py-1.5 text-right">
-                                      {item.costoUnitario != null ? fmt(item.costoUnitario) : '—'}
-                                    </td>
-                                    <td className="py-1.5 text-right">
-                                      {item.costoUnitario != null
-                                        ? fmt(item.costoUnitario * item.cantidad)
-                                        : '—'}
+                                      {item.costoUnitario != null ? fmt(item.costoUnitario * item.cantidad) : '—'}
                                     </td>
                                   </tr>
                                 ))}
@@ -307,31 +336,80 @@ export default function SalidasPage() {
         </>
       )}
 
-      {/* ── MODAL CONFIRMAR DESPACHO ────────────────────────────────────────── */}
-      {confirmando && (
+      {/* ── MODAL DESPACHO CON CHECKLIST ───────────────────────────────────── */}
+      {ventaModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center shrink-0">
                 <Truck size={20} className="text-green-600" />
               </div>
               <div>
-                <h2 className="font-semibold text-gray-800">Confirmar despacho</h2>
+                <h2 className="font-semibold text-gray-800">Registrar despacho</h2>
                 <p className="text-sm text-gray-500">
-                  {confirmando.numeroFactura ?? `Venta #${confirmando.ventaId}`} · {confirmando.clienteNombre}
+                  {ventaModal.numeroFactura ?? `Venta #${ventaModal.ventaId}`} · {ventaModal.clienteNombre}
                 </p>
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-xl p-3 space-y-1.5 text-sm">
-              {confirmando.items.map(item => (
-                <div key={item.productoId} className="flex justify-between text-gray-700">
-                  <span>{item.nombreProducto}</span>
-                  <span className="font-medium">{item.cantidad} uds</span>
+            {/* Checklist */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Selecciona qué se despacha en este envío
+              </p>
+
+              {items.map(item => (
+                <div
+                  key={item.productoId}
+                  className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${
+                    item.seleccionado ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50 opacity-60'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={item.seleccionado}
+                    onChange={() => toggleItem(item.productoId)}
+                    className="w-4 h-4 accent-green-600 cursor-pointer"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-800 truncate">{item.nombre}</p>
+                    {item.codigoBarra && (
+                      <p className="text-xs text-gray-400 font-mono">{item.codigoBarra}</p>
+                    )}
+                    {item.cantidadDespachada > 0 && (
+                      <p className="text-xs text-green-600">
+                        Ya despachado: {item.cantidadDespachada} / {item.cantidadVendida}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-gray-500">Cant.:</span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={item.max}
+                      step={1}
+                      value={item.cantidad}
+                      disabled={!item.seleccionado}
+                      onChange={e => setCantidad(item.productoId, e.target.value)}
+                      className="w-20 border border-gray-300 rounded-lg px-2 py-1 text-sm text-center disabled:opacity-40"
+                    />
+                    <span className="text-xs text-gray-400">/ {item.max}</span>
+                  </div>
                 </div>
               ))}
             </div>
 
+            {/* Alerta de parcial */}
+            {esParcisl && (
+              <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2 text-sm text-orange-700">
+                <Truck size={15} />
+                Despacho parcial — la venta seguirá en la lista de pendientes
+              </div>
+            )}
+
+            {/* Referencia */}
             <div>
               <label className="block text-xs text-gray-500 mb-1">Referencia (opcional)</label>
               <input
@@ -343,19 +421,24 @@ export default function SalidasPage() {
               />
             </div>
 
-            <div className="flex gap-2 pt-1">
+            {/* Acciones */}
+            <div className="flex gap-2">
               <button
-                onClick={() => setConfirmando(null)}
+                onClick={() => setVentaModal(null)}
                 className="flex-1 border border-gray-300 text-gray-700 rounded-xl py-2.5 text-sm font-medium hover:bg-gray-50"
               >
                 Cancelar
               </button>
               <button
-                onClick={() => despachoMut.mutate(confirmando.ventaId)}
-                disabled={despachoMut.isPending}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-xl py-2.5 text-sm font-medium transition-colors disabled:opacity-60"
+                onClick={() => despachoMut.mutate()}
+                disabled={despachoMut.isPending || itemsSeleccionados.length === 0}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-xl py-2.5 text-sm font-medium transition-colors disabled:opacity-50"
               >
-                {despachoMut.isPending ? 'Registrando...' : 'Confirmar despacho'}
+                {despachoMut.isPending
+                  ? 'Registrando...'
+                  : esParcisl
+                    ? `Despacho parcial (${itemsSeleccionados.length} producto${itemsSeleccionados.length !== 1 ? 's' : ''})`
+                    : 'Confirmar despacho completo'}
               </button>
             </div>
 

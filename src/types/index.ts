@@ -1409,7 +1409,9 @@ export interface VentaPendienteDespachoItemDto {
   productoId: number
   nombreProducto: string
   codigoBarra: string | null
-  cantidad: number
+  cantidadVendida: number
+  cantidadDespachada: number
+  cantidadPendiente: number
   costoUnitario: number
 }
 
@@ -1424,10 +1426,16 @@ export interface VentaPendienteDespachoDto {
   items: VentaPendienteDespachoItemDto[]
 }
 
+export interface RegistrarDespachoItemDto {
+  productoId: number
+  cantidad: number
+}
+
 export interface RegistrarDespachoDto {
   ventaId: number
   referencia?: string
   fecha?: string
+  items: RegistrarDespachoItemDto[]
 }
 
 export interface ReporteAlmacenDto {
