@@ -1392,18 +1392,16 @@ export interface SalidaResumenItemDto {
 }
 
 export interface SalidaResumenDto {
-  cuentaPagarId: number
-  facturaNumero: string | null
-  proveedorNombre: string
+  ventaId: number
+  numeroFactura: string | null
+  clienteNombre: string
   fecha: string
-  concepto: string
-  referencia: string | null
+  totalVenta: number
   usuarioId: number
   nombreUsuario: string
   totalItems: number
   totalUnidades: number
   totalCosto: number
-  estadoInventario: 'Pendiente' | 'Parcial' | 'Completo'
   items: SalidaResumenItemDto[]
 }
 
