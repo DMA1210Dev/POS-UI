@@ -1238,6 +1238,51 @@ export interface PagoProveedorCreateDto {
   observacion: string | null
 }
 
+// ── Órdenes de Compra ──────────────────────────────────────────────────────
+
+export interface OrdenCompraDetalleDto {
+  id: number
+  ordenCompraId: number
+  productoId: number | null
+  nombreProducto: string | null
+  descripcion: string
+  cantidad: number
+  cantidadRecibida: number
+  cantidadPendiente: number
+  precioUnitario: number | null
+}
+
+export interface OrdenCompraDto {
+  id: number
+  proveedorId: number
+  proveedorNombre: string
+  numeroOrden: string | null
+  fechaOrden: string
+  fechaEntregaEstimada: string | null
+  estado: 'Pendiente' | 'Parcial' | 'Completa' | 'Cancelada'
+  concepto: string | null
+  creadoPorId: number
+  creadoPorNombre: string
+  creadoEn: string
+  detalles: OrdenCompraDetalleDto[]
+}
+
+export interface OrdenCompraDetalleCreateDto {
+  productoId: number | null
+  descripcion: string
+  cantidad: number
+  precioUnitario: number | null
+}
+
+export interface OrdenCompraCreateDto {
+  proveedorId: number
+  numeroOrden: string | null
+  fechaOrden: string | null
+  fechaEntregaEstimada: string | null
+  concepto: string | null
+  detalles: OrdenCompraDetalleCreateDto[]
+}
+
 export interface ResumenCxPDto {
   totalPendiente: number
   totalVencido: number

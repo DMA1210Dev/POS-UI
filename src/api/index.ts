@@ -35,6 +35,7 @@ import type {
   CuentaPagarDto, CuentaPagarCreateDto,
   PagoProveedorDto, PagoProveedorCreateDto,
   ResumenCxPDto,
+  OrdenCompraDto, OrdenCompraCreateDto,
 } from '../types'
 import { extractItems } from '../types'
 
@@ -595,6 +596,20 @@ export const activosFijosApi = {
   create: (dto: ActivoFijoCreateDto) => api.post<ActivoFijoDto>('/activosfijos', dto).then(r => r.data),
   update: (id: number, dto: ActivoFijoCreateDto) => api.put<ActivoFijoDto>(`/activosfijos/${id}`, dto).then(r => r.data),
   delete: (id: number) => api.delete(`/activosfijos/${id}`),
+}
+
+// ── Órdenes de Compra ────────────────────────────────────────────────────
+export const ordenesCompraApi = {
+  getAll: (estado?: string) =>
+    api.get<OrdenCompraDto[]>('/ordenes-compra', { params: { estado } }).then(r => r.data),
+  get: (id: number) =>
+    api.get<OrdenCompraDto>(`/ordenes-compra/${id}`).then(r => r.data),
+  create: (dto: OrdenCompraCreateDto) =>
+    api.post<OrdenCompraDto>('/ordenes-compra', dto).then(r => r.data),
+  update: (id: number, dto: OrdenCompraCreateDto) =>
+    api.put<OrdenCompraDto>(`/ordenes-compra/${id}`, dto).then(r => r.data),
+  cancelar: (id: number) =>
+    api.post(`/ordenes-compra/${id}/cancelar`).then(r => r.data),
 }
 
 // ── Almacén / Inventario ──────────────────────────────────────────────────

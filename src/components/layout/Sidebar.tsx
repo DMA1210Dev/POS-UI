@@ -123,7 +123,7 @@ export default function Sidebar() {
       label: 'Compras',
       icon: <ClipboardList size={16} />,
       items: [
-        { to: '/compras', label: 'Próximamente', icon: <Clock size={16} /> },
+        { to: '/compras/ordenes', label: 'Órdenes de Compra', icon: <ShoppingCart size={16} /> },
       ],
     },
     {

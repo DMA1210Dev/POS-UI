@@ -117,6 +117,7 @@ const RecuperarPage     = lazy(() => import('./pages/auth/RecuperarPage'))
 const EntradasAlmacenPage = lazy(() => import('./pages/almacen/EntradasPage'))
 const SalidasAlmacenPage  = lazy(() => import('./pages/almacen/SalidasPage'))
 const ReportesAlmacenPage = lazy(() => import('./pages/almacen/ReportesAlmacenPage'))
+const OrdenesPage         = lazy(() => import('./pages/compras/OrdenesPage'))
 
 function PageLoader() {
   return (
@@ -278,7 +279,7 @@ function AppRoutes() {
             <S><ServidorPage /></S>
           </RoleRoute>
         } />
-        <Route path="compras"   element={<S><ProximamentePage /></S>} />
+        <Route path="compras/ordenes" element={<S><OrdenesPage /></S>} />
         <Route path="contabilidad/cuentas" element={
           <RoleRoute allowed={puedeGestionarUsuarios}>
             <S><CatalogoCuentasPage /></S>
