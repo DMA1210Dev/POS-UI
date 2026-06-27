@@ -9,7 +9,7 @@ import { Card, CardHeader, CardBody } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Modal from '../../components/ui/Modal'
 import { errMsg, useToast } from '../../context/ToastContext'
-import type { OrdenCompraCreateDto, OrdenCompraDetalleCreateDto, ProveedorDto } from '../../types'
+import type { OrdenCompraCreateDto, OrdenCompraDetalleCreateDto } from '../../types'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
