@@ -1405,6 +1405,31 @@ export interface SalidaResumenDto {
   items: SalidaResumenItemDto[]
 }
 
+export interface VentaPendienteDespachoItemDto {
+  productoId: number
+  nombreProducto: string
+  codigoBarra: string | null
+  cantidad: number
+  costoUnitario: number
+}
+
+export interface VentaPendienteDespachoDto {
+  ventaId: number
+  numeroFactura: string | null
+  clienteNombre: string
+  fecha: string
+  totalVenta: number
+  usuarioId: number
+  nombreUsuario: string
+  items: VentaPendienteDespachoItemDto[]
+}
+
+export interface RegistrarDespachoDto {
+  ventaId: number
+  referencia?: string
+  fecha?: string
+}
+
 export interface ReporteAlmacenDto {
   totalMovimientos: number
   totalEntradas: number
