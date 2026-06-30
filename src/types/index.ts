@@ -1448,3 +1448,21 @@ export interface ReporteAlmacenDto {
   productosConStockBajo: number
   ultimosMovimientos: MovimientoInventarioDto[]
 }
+
+
+export interface LogEntryDto {
+  id: number
+  timestamp: string
+  level: 'Warning' | 'Error' | 'Critical'
+  category: string
+  message: string
+  exception: string | null
+  requestPath: string | null
+}
+
+export interface LogsResponseDto {
+  total: number
+  page: number
+  pageSize: number
+  items: LogEntryDto[]
+}

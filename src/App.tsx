@@ -31,6 +31,7 @@ const TITULOS: Record<string, string> = {
   '/configuracion/permisos': 'Permisos de Usuarios',
   '/configuracion/roles':    'Gestión de Roles',
   '/configuracion/servidor': 'Estado del Servidor',
+  '/configuracion/logs':    'Logs del Sistema',
   '/contabilidad/cuentas':   'Catálogo de Cuentas',
   '/contabilidad/asientos':  'Asientos Contables',
   '/contabilidad/mayor-general': 'Mayor General',
@@ -118,6 +119,7 @@ const EntradasAlmacenPage = lazy(() => import('./pages/almacen/EntradasPage'))
 const SalidasAlmacenPage  = lazy(() => import('./pages/almacen/SalidasPage'))
 const ReportesAlmacenPage = lazy(() => import('./pages/almacen/ReportesAlmacenPage'))
 const OrdenesPage         = lazy(() => import('./pages/compras/OrdenesPage'))
+const LogsPage            = lazy(() => import('./pages/configuracion/LogsPage'))
 
 function PageLoader() {
   return (
@@ -277,6 +279,11 @@ function AppRoutes() {
         <Route path="configuracion/servidor" element={
           <RoleRoute allowed={puedeGestionarUsuarios}>
             <S><ServidorPage /></S>
+          </RoleRoute>
+        } />
+        <Route path="configuracion/logs" element={
+          <RoleRoute allowed={puedeGestionarUsuarios}>
+            <S><LogsPage /></S>
           </RoleRoute>
         } />
         <Route path="compras/ordenes" element={<S><OrdenesPage /></S>} />

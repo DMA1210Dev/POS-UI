@@ -26,7 +26,7 @@ import type {
 import type {
   MovimientoInventarioDto, CreateMovimientoInventarioDto,
   CreateMovimientoInventarioBatchDto, SalidaDesdeFacturaDto,
-  KardexItemDto, ReporteAlmacenDto, SalidaResumenDto,
+  KardexItemDto, ReporteAlmacenDto, SalidaResumenDto, LogsResponseDto,
   VentaPendienteDespachoDto, RegistrarDespachoDto,
   MonedaDto, TasaCambioDto, TasaCambioCreateDto,
   ResumenCuentaBancoDto, CuentaBancoDto, CuentaBancoCreateDto,
@@ -639,4 +639,11 @@ export const almacenApi = {
     api.post<MovimientoInventarioDto[]>('/inventario/salidas/despacho', dto).then(r => r.data),
   reportes: (params?: { desde?: string; hasta?: string }) =>
     api.get<ReporteAlmacenDto>('/inventario/reportes', { params }).then(r => r.data),
+}
+
+export const logsApi = {
+  getLogs: (params?: { level?: string; desde?: string; hasta?: string; search?: string; page?: number; pageSize?: number }) =>
+    api.get<LogsResponseDto>('/logs', { params }).then(r => r.data),
+  clearLogs: (antes?: string) =>
+    api.delete('/logs', { params: antes ? { antes } : undefined }),
 }

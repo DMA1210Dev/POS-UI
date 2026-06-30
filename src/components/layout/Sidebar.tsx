@@ -156,6 +156,7 @@ export default function Sidebar() {
         { to: '/configuracion/roles',       label: 'Roles',          icon: <Shield size={16} /> },
         { to: '/configuracion/permisos',    label: 'Permisos',       icon: <ShieldCheck size={16} /> },
         { to: '/configuracion/servidor',    label: 'Servidor',       icon: <Server size={16} /> },
+        { to: '/configuracion/logs',        label: 'Logs',           icon: <FileText size={16} /> },
       ] as NavItem[],
     }] : []),
   ]
